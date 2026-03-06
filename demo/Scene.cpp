@@ -109,9 +109,9 @@ void Scene::Update(float deltaTime)
     // 更新场景中所有可见对象的状态
     for (auto& primitiveInfo : mPrimitives) 
     {
-        if (primitiveInfo.primitive && primitiveInfo.visible)
+        if (primitiveInfo.mPrimitive && primitiveInfo.mVisible)
         {
-            primitiveInfo.primitive->Update(commandList, deltaTime);
+            primitiveInfo.mPrimitive->Update(commandList, deltaTime);
         }
     }
 
@@ -150,14 +150,14 @@ bool Scene::AddPrimitive(Primitive* primitive)
     // 检查对象是否已经在场景中
     for (std::vector<PrimitiveInfo>::iterator iter = mPrimitives.begin(); iter != mPrimitives.end(); ++iter)
     {
-        if (iter->primitive == primitive)
+        if (iter->mPrimitive == primitive)
         {
             return false;
         }
     }
 
     AddPrimitiveRequest request;
-    request.primitive = primitive;
+    request.mPrimitive = primitive;
 
     mAddPrimitiveRequests.push_back(request);
     
@@ -173,7 +173,7 @@ bool Scene::RemovePrimitive(Primitive* primitive) {
     /// 检查对象是否已经在场景中
     for (std::vector<PrimitiveInfo>::iterator iter = mPrimitives.begin(); iter != mPrimitives.end(); ++iter)
     {
-        if (iter->primitive == primitive)
+        if (iter->mPrimitive == primitive)
         {
             mPrimitives.erase(iter);
             return true;
@@ -201,23 +201,23 @@ void Scene::UpdatePrimitiveRequests()
 {
     for (std::vector<AddPrimitiveRequest>::iterator iter = mAddPrimitiveRequests.begin(); iter != mAddPrimitiveRequests.end(); ++iter)
     {
-        Primitive* primitive = iter->primitive;
+        Primitive* primitive = iter->mPrimitive;
         PrimitiveInfo primitiveInfo;
-        primitiveInfo.primitive = primitive;
-        primitiveInfo.worldMatrix = primitive->GetWorldMatrix();
-        primitiveInfo.visible = primitive->IsVisible();
+        primitiveInfo.mPrimitive = primitive;
+        primitiveInfo.mWorldMatrix = primitive->GetWorldMatrix();
+        primitiveInfo.mVisible = primitive->IsVisible();
 
         PrimitiveMesh mesh;
         primitive->OnSetupMesh(mDevice, mesh);
         
-        primitiveInfo.vertexBuffer = mesh.mVertexBuffer;
-        primitiveInfo.indexBuffer = mesh.mIndexBuffer;
+        primitiveInfo.mVertexBuffer = mesh.mVertexBuffer;
+        primitiveInfo.mIndexBuffer = mesh.mIndexBuffer;
         
-        primitiveInfo.diffuseColor = primitive->GetDiffuseColor();
+        primitiveInfo.mDiffuseColor = primitive->GetDiffuseColor();
         // 尝试获取高光颜色，如果Primitive类没有提供，则设置默认值
-        primitiveInfo.specularColor = primitive->GetSpecularColor();
-        primitiveInfo.shininess = primitive->GetShininess();
-        primitiveInfo.constBuffer = mDevice->CreateConstBuffer(sizeof(ObjectConstBuffer), L"ObjectConstBuffer");
+        primitiveInfo.mSpecularColor = primitive->GetSpecularColor();
+        primitiveInfo.mShininess = primitive->GetShininess();
+        primitiveInfo.mConstBuffer = mDevice->CreateConstBuffer(sizeof(ObjectConstBuffer), L"ObjectConstBuffer");
 
         // 添加对象到场景中
         mPrimitives.push_back(primitiveInfo);
@@ -265,18 +265,18 @@ void Scene::UpdateSceneConstBuffer(IRALGraphicsCommandList* commandList, const d
 void Scene::UpdatePrimitiveConstBuffer(IRALGraphicsCommandList* commandList, PrimitiveInfo* primitiveInfo)
 {
     ObjectConstBuffer data;
-    dx::XMStoreFloat4x4(&data.mWorld, dx::XMMatrixTranspose(primitiveInfo->worldMatrix));
-    data.mDiffuseColor = primitiveInfo->diffuseColor;
+    dx::XMStoreFloat4x4(&data.mWorld, dx::XMMatrixTranspose(primitiveInfo->mWorldMatrix));
+    data.mDiffuseColor = primitiveInfo->mDiffuseColor;
     // 使用float3直接赋值，不需要转换为float4
-    data.mSpecularColor = primitiveInfo->specularColor;
-    data.mShininess = primitiveInfo->shininess;
+    data.mSpecularColor = primitiveInfo->mSpecularColor;
+    data.mShininess = primitiveInfo->mShininess;
 
     // 映射并更新缓冲区
     void* mappedData = nullptr;
     D3D12_RANGE readRange = { 0, 0 };
-    primitiveInfo->constBuffer->Map(&mappedData);
+    primitiveInfo->mConstBuffer->Map(&mappedData);
     memcpy(mappedData, &data, sizeof(ObjectConstBuffer));
-    primitiveInfo->constBuffer->Unmap();
+    primitiveInfo->mConstBuffer->Unmap();
 }
 
 // 延迟着色光照阶段常量缓冲区
@@ -1591,10 +1591,10 @@ void Scene::ExecuteGeometryPass(const dx::XMMATRIX& viewMatrix, const dx::XMMATR
     {
         auto& primitiveInfo = mPrimitives[i];
 
-        if (primitiveInfo.primitive && primitiveInfo.visible)
+        if (primitiveInfo.mPrimitive && primitiveInfo.mVisible)
         {
-            IRALVertexBuffer* vertexBuffer = primitiveInfo.vertexBuffer.Get();
-            IRALIndexBuffer* indexBuffer = primitiveInfo.indexBuffer.Get();
+            IRALVertexBuffer* vertexBuffer = primitiveInfo.mVertexBuffer.Get();
+            IRALIndexBuffer* indexBuffer = primitiveInfo.mIndexBuffer.Get();
 
             if (vertexBuffer == nullptr || indexBuffer == nullptr)
             {
@@ -1602,11 +1602,11 @@ void Scene::ExecuteGeometryPass(const dx::XMMATRIX& viewMatrix, const dx::XMMATR
             }
 
             PrimitiveMesh mesh;
-            mesh.mVertexBuffer = primitiveInfo.vertexBuffer.Get();
-            mesh.mIndexBuffer = primitiveInfo.indexBuffer.Get();
+            mesh.mVertexBuffer = primitiveInfo.mVertexBuffer.Get();
+            mesh.mIndexBuffer = primitiveInfo.mIndexBuffer.Get();
 
             // 更新Mesh
-            primitiveInfo.primitive->OnUpdateMesh(mDevice, mesh);
+            primitiveInfo.mPrimitive->OnUpdateMesh(mDevice, mesh);
 
             // 更新Primitive常量缓冲区
             UpdatePrimitiveConstBuffer(commandList, &primitiveInfo);
@@ -1615,7 +1615,7 @@ void Scene::ExecuteGeometryPass(const dx::XMMATRIX& viewMatrix, const dx::XMMATR
             commandList->SetIndexBuffer(indexBuffer);
 
             // 设置根参数1（对象常量缓冲区）
-            commandList->SetGraphicsRootConstantBuffer(1, primitiveInfo.constBuffer.Get());
+            commandList->SetGraphicsRootConstantBuffer(1, primitiveInfo.mConstBuffer.Get());
             // 绘制对象
             commandList->DrawIndexed(indexBuffer->GetIndexCount(), 1, 0, 0, 0);
         }

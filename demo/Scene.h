@@ -127,20 +127,20 @@ public:
 private:
     struct AddPrimitiveRequest
     {
-        Primitive* primitive;
+        Primitive* mPrimitive;
     };
 
     struct PrimitiveInfo
     {
-        Primitive* primitive;
-        dx::XMMATRIX worldMatrix;
-        bool visible;
-        dx::XMFLOAT3 diffuseColor;
-        dx::XMFLOAT3 specularColor;
-        float shininess;
-        TRefCountPtr<IRALVertexBuffer> vertexBuffer;
-        TRefCountPtr<IRALIndexBuffer> indexBuffer;
-        TRefCountPtr<IRALConstBuffer> constBuffer;
+        Primitive* mPrimitive;
+        dx::XMMATRIX mWorldMatrix;
+        bool mVisible;
+        dx::XMFLOAT3 mDiffuseColor;
+        dx::XMFLOAT3 mSpecularColor;
+        float mShininess;
+        TRefCountPtr<IRALVertexBuffer> mVertexBuffer;
+        TRefCountPtr<IRALIndexBuffer> mIndexBuffer;
+        TRefCountPtr<IRALConstBuffer> mConstBuffer;
     };
 
     void UpdatePrimitiveRequests();
