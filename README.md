@@ -93,7 +93,6 @@ SympConv/
   - 空格键：暂停/继续布料模拟
 - **窗口信息**：
     - 窗口尺寸：默认1280×800像素，可通过命令行参数自定义或切换至全屏模式
-    - 窗口标题会显示当前帧率、迭代次数、子迭代次数、布料分辨率、LRA约束状态、LRAMaxStretch值和粒子质量（格式："ClothSimulator [Solver::XPBD, FPS:X, Iter:Y, SubIter:Z, Res:WxH, LRA:ON/OFF, MaxStretch:Z, Mass:M]"），其中W和H分别表示布料的宽度和高度分辨率，LRA:ON表示启用LRA约束，LRA:OFF表示禁用LRA约束，Z表示LRA约束的最大拉伸量，M表示每个粒子的质量
 
 ## 命令行参数
 
