@@ -12,38 +12,38 @@ class TRefCountPtr
 {
 public:
     // 默认构造函数
-    TRefCountPtr() : m_ptr(nullptr) {}
+    TRefCountPtr() : mPtr(nullptr) {}
     
     // 从原始指针构造
-    explicit TRefCountPtr(T* ptr) : m_ptr(ptr)
+    explicit TRefCountPtr(T* ptr) : mPtr(ptr)
     {
-        if (m_ptr) 
+        if (mPtr) 
         {
-            m_ptr->AddRef();
+            mPtr->AddRef();
         }
     }
     
     // 拷贝构造函数
-    TRefCountPtr(const TRefCountPtr<T>& other) : m_ptr(other.m_ptr)
+    TRefCountPtr(const TRefCountPtr<T>& other) : mPtr(other.mPtr)
     {
-        if (m_ptr) 
+        if (mPtr) 
         {
-            m_ptr->AddRef();
+            mPtr->AddRef();
         }
     }
     
     // 移动构造函数
-    TRefCountPtr(TRefCountPtr<T>&& other) noexcept : m_ptr(other.m_ptr)
+    TRefCountPtr(TRefCountPtr<T>&& other) noexcept : mPtr(other.mPtr)
     {
-            other.m_ptr = nullptr;
+            other.mPtr = nullptr;
         }
     
         // 析构函数
     ~TRefCountPtr()
     {
-        if (m_ptr) 
+        if (mPtr) 
         {
-            m_ptr->Release();
+            mPtr->Release();
         }
     }
     
@@ -53,19 +53,19 @@ public:
         if (this != &other) 
         {
             // 先增加新指针的引用计数，避免自赋值导致对象被提前释放
-            T* temp = other.m_ptr;
+            T* temp = other.mPtr;
             if (temp) 
             {
                 temp->AddRef();
             }
             
             // 释放旧指针
-            if (m_ptr) 
+            if (mPtr) 
             {
-                m_ptr->Release();
+                mPtr->Release();
             }
             
-            m_ptr = temp;
+            mPtr = temp;
         }
         return *this;
     }
@@ -76,13 +76,13 @@ public:
         if (this != &other) 
         {
             // 释放旧指针
-            if (m_ptr) 
+            if (mPtr) 
             {
-                m_ptr->Release();
+                mPtr->Release();
             }
             
-            m_ptr = other.m_ptr;
-            other.m_ptr = nullptr;
+            mPtr = other.mPtr;
+            other.mPtr = nullptr;
         }
         return *this;
     }
@@ -90,7 +90,7 @@ public:
     // 原始指针赋值运算符
     TRefCountPtr<T>& operator=(T* ptr)
     {
-        if (m_ptr != ptr) 
+        if (mPtr != ptr) 
         {
             // 先增加新指针的引用计数
             if (ptr)
@@ -99,12 +99,12 @@ public:
             }
             
             // 释放旧指针
-            if (m_ptr)
+            if (mPtr)
             {
-                m_ptr->Release();
+                mPtr->Release();
             }
             
-            m_ptr = ptr;
+            mPtr = ptr;
         }
         return *this;
     }
@@ -112,51 +112,51 @@ public:
     // 解引用运算符
     T& operator*() const
     {
-        return *m_ptr;
+        return *mPtr;
     }
     
     // 箭头运算符
     T* operator->() const
     {
-        return m_ptr;
+        return mPtr;
     }
     
     // 获取原始指针
     T* Get() const
     {
-        return m_ptr;
+        return mPtr;
     }
     
     // 检查是否为空
     bool IsNull() const
     {
-        return m_ptr == nullptr;
+        return mPtr == nullptr;
     }
     
     // 显式转换为bool
     explicit operator bool() const
     {
-        return m_ptr != nullptr;
+        return mPtr != nullptr;
     }
     
     // 重置指针
     void Reset()
     {
-        if (m_ptr)
+        if (mPtr)
         {
-            m_ptr->Release();
-            m_ptr = nullptr;
+            mPtr->Release();
+            mPtr = nullptr;
         }
     }
     
     // 交换两个智能指针
     void Swap(TRefCountPtr<T>& other)
     {
-        std::swap(m_ptr, other.m_ptr);
+        std::swap(mPtr, other.mPtr);
     }
     
 private:
-    T* m_ptr; // 原始指针
+    T* mPtr; // 原始指针
 };
 
 // 比较运算符重载
@@ -176,13 +176,6 @@ template <typename T>
 bool operator<(const TRefCountPtr<T>& lhs, const TRefCountPtr<T>& rhs)
 {
     return lhs.Get() < rhs.Get();
-}
-
-// 辅助函数：创建TRefCountPtr对象
-template <typename T, typename... Args>
-TRefCountPtr<T> MakeRefCountPtr(Args&&... args) 
-{
-    return TRefCountPtr<T>(new T(std::forward<Args>(args)...));
 }
 
 #endif // TREF_COUNT_PTR_H

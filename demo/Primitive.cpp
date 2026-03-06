@@ -6,35 +6,35 @@ namespace dx = DirectX;
 
 void Primitive::SetPosition(const dx::XMFLOAT3& position)
 {
-    this->position = position;
+    mPosition = position;
     UpdateWorldMatrix();
 }
 
 void Primitive::SetRotation(const dx::XMFLOAT3& rotation)
 {
-    this->rotation = rotation;
+    mRotation = rotation;
     UpdateWorldMatrix();
 }
 
 void Primitive::SetScale(const dx::XMFLOAT3& scale)
 {
-    this->scale = scale;
+    mScale = scale;
     UpdateWorldMatrix();
 }
 
 void Primitive::UpdateWorldMatrix()
 {
     // 计算旋转矩阵（基于欧拉角）
-    dx::XMMATRIX rotX = dx::XMMatrixRotationX(rotation.x);
-    dx::XMMATRIX rotY = dx::XMMatrixRotationY(rotation.y);
-    dx::XMMATRIX rotZ = dx::XMMatrixRotationZ(rotation.z);
+    dx::XMMATRIX rotX = dx::XMMatrixRotationX(mRotation.x);
+    dx::XMMATRIX rotY = dx::XMMatrixRotationY(mRotation.y);
+    dx::XMMATRIX rotZ = dx::XMMatrixRotationZ(mRotation.z);
 
     // 计算缩放矩阵
-    dx::XMMATRIX scaleMatrix = dx::XMMatrixScaling(scale.x, scale.y, scale.z);
+    dx::XMMATRIX scaleMatrix = dx::XMMatrixScaling(mScale.x, mScale.y, mScale.z);
 
     // 计算平移矩阵
-    dx::XMMATRIX translationMatrix = dx::XMMatrixTranslation(position.x, position.y, position.z);
+    dx::XMMATRIX translationMatrix = dx::XMMatrixTranslation(mPosition.x, mPosition.y, mPosition.z);
 
     // 组合变换矩阵：缩放 -> 旋转 -> 平移
-    worldMatrix = scaleMatrix * rotX * rotY * rotZ * translationMatrix;
+    mWorldMatrix = scaleMatrix * rotX * rotY * rotZ * translationMatrix;
 }

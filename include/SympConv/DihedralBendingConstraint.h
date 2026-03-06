@@ -26,22 +26,22 @@ public:
     DihedralBendingConstraint(Particle* p1, Particle* p2, Particle* p3, Particle* p4, 
         float compliance, float damping)
         : Constraint(compliance, damping)
-        , m_particle1(p1)
-        , m_particle2(p2)
-        , m_particle3(p3)
-        , m_particle4(p4)
+        , mParticle1(p1)
+        , mParticle2(p2)
+        , mParticle3(p3)
+        , mParticle4(p4)
     {
-        m_restDihedralAngle = GetDihedralAngle(p1, p2, p3, p4);
+        mRestDihedralAngle = GetDihedralAngle(p1, p2, p3, p4);
     }
 
     // 计算约束偏差
     // 返回：约束偏差值C = 当前二面角 - 静止二面角（二面角范围[0, dx::XM_2PI]）
     float ComputeConstraintAndGradient(dx::XMFLOAT3* gradients) const override
     {
-        dx::XMVECTOR p1 = dx::XMLoadFloat3(&m_particle1->position);
-        dx::XMVECTOR p2 = dx::XMLoadFloat3(&m_particle2->position);
-        dx::XMVECTOR p3 = dx::XMLoadFloat3(&m_particle3->position);
-        dx::XMVECTOR p4 = dx::XMLoadFloat3(&m_particle4->position);
+        dx::XMVECTOR p1 = dx::XMLoadFloat3(&mParticle1->mPosition);
+        dx::XMVECTOR p2 = dx::XMLoadFloat3(&mParticle2->mPosition);
+        dx::XMVECTOR p3 = dx::XMLoadFloat3(&mParticle3->mPosition);
+        dx::XMVECTOR p4 = dx::XMLoadFloat3(&mParticle4->mPosition);
 
         dx::XMVECTOR e2 = dx::XMVectorSubtract(p2, p1);
         dx::XMVECTOR e3 = dx::XMVectorSubtract(p3, p1);
@@ -71,8 +71,8 @@ public:
             return 0.0f;
         }
 
-        dx::XMVECTOR n1 = ComputeTriangleNormal(m_particle1, m_particle2, m_particle3);
-        dx::XMVECTOR n2 = ComputeTriangleNormal(m_particle1, m_particle2, m_particle4);
+        dx::XMVECTOR n1 = ComputeTriangleNormal(mParticle1, mParticle2, mParticle3);
+        dx::XMVECTOR n2 = ComputeTriangleNormal(mParticle1, mParticle2, mParticle4);
 
         // 法向量长度（用于归一化）
         float len1 = dx::XMVectorGetX(dx::XMVector3Length(n1));
@@ -120,18 +120,18 @@ public:
 #ifdef DEBUG_SOLVER
         char buffer[256];
         sprintf_s(buffer, "[DEBUG] p1:%f,%f,%f, p2:%f,%f,%f, p3:%f,%f,%f, p4:%f,%f,%f, d:%f dir:%f, normalAngle:%f currentDihedralAngle:%f"
-            , m_particle1->position.x
-            , m_particle1->position.y
-            , m_particle1->position.z
-            , m_particle2->position.x
-            , m_particle2->position.y
-            , m_particle2->position.z
-            , m_particle3->position.x
-            , m_particle3->position.y
-            , m_particle3->position.z
-            , m_particle4->position.x
-            , m_particle4->position.y
-            , m_particle4->position.z
+            , mParticle1->mPosition.x
+            , mParticle1->mPosition.y
+            , mParticle1->mPosition.z
+            , mParticle2->mPosition.x
+            , mParticle2->mPosition.y
+            , mParticle2->mPosition.z
+            , mParticle3->mPosition.x
+            , mParticle3->mPosition.y
+            , mParticle3->mPosition.z
+            , mParticle4->mPosition.x
+            , mParticle4->mPosition.y
+            , mParticle4->mPosition.z
             , d, dir, normalAngle, currentDihedralAngle);
         logDebug(buffer);
 #endif//DEBUG_SOLVER
@@ -144,7 +144,7 @@ public:
             gradients[2] = dx::XMFLOAT3(0.0f, 1.0f, 0.0f);
             gradients[3] = dx::XMFLOAT3(0.0f, -1.0f, 0.0f);
 
-			return currentDihedralAngle - m_restDihedralAngle;
+			return currentDihedralAngle - mRestDihedralAngle;
         }
 		else if (fabs(d + 1.0f) < 1e-6f) // d约等于-1，法向量平行但方向相反
         {
@@ -165,7 +165,7 @@ public:
             dx::XMStoreFloat3(&gradients[2], q3);
             dx::XMStoreFloat3(&gradients[3], q4);
 
-            return currentDihedralAngle - m_restDihedralAngle;
+            return currentDihedralAngle - mRestDihedralAngle;
 		}
         else
         {
@@ -194,7 +194,7 @@ public:
             dx::XMStoreFloat3(&gradients[2], dx::XMVectorScale(q3, inv_one_minus_d_squared));
             dx::XMStoreFloat3(&gradients[3], dx::XMVectorScale(q4, inv_one_minus_d_squared));
 
-            return currentDihedralAngle - m_restDihedralAngle;
+            return currentDihedralAngle - mRestDihedralAngle;
         }
     }
 
@@ -207,19 +207,19 @@ public:
     // 获取受此约束影响的粒子数组
     Particle** GetParticles() override
     {
-        return &m_particle1;
+        return &mParticle1;
     }
 
     // 获取受此约束影响的所有粒子（const版本）
     virtual const Particle** GetParticles() const override
     {
-        return (const Particle**)(&m_particle1);
+        return (const Particle**)(&mParticle1);
     }
 
     virtual void Check() const override
     {
 #ifdef DEBUG_SOLVER
-        float currentDihedralAngle = GetDihedralAngle(m_particle1, m_particle2, m_particle3, m_particle4);
+        float currentDihedralAngle = GetDihedralAngle(mParticle1, mParticle2, mParticle3, mParticle4);
 
         char buffer[256];
         sprintf_s(buffer, "[DEBUG] alfter apply constraint currentDihedralAngle:%f", currentDihedralAngle);
@@ -231,7 +231,7 @@ public:
     void SetRestDihedralAngle(float angle)
     {
         // 确保静止角在[0, dx::XM_PI]范围内（避免无效值）
-        m_restDihedralAngle = dx::XMVectorClamp(dx::XMVectorReplicate(angle),
+        mRestDihedralAngle = dx::XMVectorClamp(dx::XMVectorReplicate(angle),
             dx::XMVectorReplicate(0.0f),
             dx::XMVectorReplicate((float)dx::XM_PI)).m128_f32[0];
     }
@@ -239,7 +239,7 @@ public:
     // 获取约束的静止二面角
     float GetRestDihedralAngle() const
     {
-        return m_restDihedralAngle;
+        return mRestDihedralAngle;
     }
 
     // 获取约束类型
@@ -252,9 +252,9 @@ private:
     // 辅助函数：计算三角形法向量
     dx::XMVECTOR ComputeTriangleNormal(Particle* a, Particle* b, Particle* c) const
     {
-        dx::XMVECTOR posA = dx::XMLoadFloat3(&a->position);
-        dx::XMVECTOR posB = dx::XMLoadFloat3(&b->position);
-        dx::XMVECTOR posC = dx::XMLoadFloat3(&c->position);
+        dx::XMVECTOR posA = dx::XMLoadFloat3(&a->mPosition);
+        dx::XMVECTOR posB = dx::XMLoadFloat3(&b->mPosition);
+        dx::XMVECTOR posC = dx::XMLoadFloat3(&c->mPosition);
 
         dx::XMVECTOR v1 = dx::XMVectorSubtract(posB, posA);  // 边AB
         dx::XMVECTOR v2 = dx::XMVectorSubtract(posC, posA);  // 边AC
@@ -277,8 +277,8 @@ private:
         // 计算法向量夹角（范围[0, M_PI]）
         float normalAngle = acosf(dDot);
         // 公共边向量（p2 - p1）
-        dx::XMVECTOR edge = dx::XMVectorSubtract(dx::XMLoadFloat3(&b->position),
-            dx::XMLoadFloat3(&a->position));
+        dx::XMVECTOR edge = dx::XMVectorSubtract(dx::XMLoadFloat3(&b->mPosition),
+            dx::XMLoadFloat3(&a->mPosition));
         dx::XMVECTOR crossNN = dx::XMVector3Normalize(dx::XMVector3Cross(n1Norm, n2Norm));
         float dir = dx::XMVectorGetX(dx::XMVector3Dot(crossNN, edge));
 
@@ -293,13 +293,13 @@ private:
 	}
 private:
     // 受约束的四个顶点（两个相邻三角形：(p0,p1,p2)和(p0,p1,p3)，共享边p0-p1）
-    Particle* m_particle1;
-    Particle* m_particle2;
-    Particle* m_particle3;
-    Particle* m_particle4;
+    Particle* mParticle1;
+    Particle* mParticle2;
+    Particle* mParticle3;
+    Particle* mParticle4;
 
     // 约束参数
-    float m_restDihedralAngle;  // 静止二面角（弧度，范围[0, dx::XM_PI]）
+    float mRestDihedralAngle;  // 静止二面角（弧度，范围[0, dx::XM_PI]）
 };
 
 #endif // SYMPCONV_DIHEDRAL_BENDING_CONSTRAINT_H

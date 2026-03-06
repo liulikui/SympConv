@@ -34,16 +34,16 @@ class DX12DescriptorHeapManager
 {
 public:
     DX12DescriptorHeapManager()
-        : m_descriptorSize(0)
-        , m_heapInfoHead(nullptr)
-        , m_totalCount(0)
+        : mDescriptorSize(0)
+        , mHeapInfoHead(nullptr)
+        , mTotalCount(0)
     {
 
     }
 
     ~DX12DescriptorHeapManager()
     {
-        HeapInfo* heapinfo = m_heapInfoHead;
+        HeapInfo* heapinfo = mHeapInfoHead;
 
         while (heapinfo != nullptr)
         {
@@ -55,24 +55,24 @@ public:
 
     void SetDevice(const ComPtr<ID3D12Device>& device)
     {
-        m_device = device;
+        mDevice = device;
     }
 
     void SetDescriptorSize(uint32_t size)
     {
-        m_descriptorSize = size;
+        mDescriptorSize = size;
     }
 
     uint32_t GetDescriptorSize() const
     {
-        return m_descriptorSize;
+        return mDescriptorSize;
     }
 
     bool AllocateDescriptor(D3D12_CPU_DESCRIPTOR_HANDLE& outCPUHandle, D3D12_GPU_DESCRIPTOR_HANDLE& outGPUHandle, ComPtr<ID3D12DescriptorHeap>& outHeap, uint32_t& outIndex)
     {
         if (GetAvailableDescriptor(outCPUHandle, outGPUHandle, outHeap, outIndex))
         {
-            m_totalCount++;
+            mTotalCount++;
             return true;
         }
 
@@ -82,30 +82,30 @@ public:
             HeapInfo* newHeapInfo = new HeapInfo;
             newHeapInfo->heap = newHeap;
             newHeapInfo->size = size;
-            newHeapInfo->next = m_heapInfoHead;
+            newHeapInfo->next = mHeapInfoHead;
             
-            if (m_heapInfoHead != nullptr)
+            if (mHeapInfoHead != nullptr)
             {
-                m_heapInfoHead->prev = newHeapInfo;
+                mHeapInfoHead->prev = newHeapInfo;
             }
 
-            m_heapInfoHead = newHeapInfo;
+            mHeapInfoHead = newHeapInfo;
 
             outHeap = newHeap;
             outIndex = newHeapInfo->curIndex++;
             
             // 设置CPU描述符句柄
             outCPUHandle = outHeap->GetCPUDescriptorHandleForHeapStart();
-            outCPUHandle.ptr += outIndex * m_descriptorSize;
+            outCPUHandle.ptr += outIndex * mDescriptorSize;
             
             if (HeapType == D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV)
             {
                 // 设置GPU描述符句柄
                 outGPUHandle = outHeap->GetGPUDescriptorHandleForHeapStart();
-                outGPUHandle.ptr += outIndex * m_descriptorSize;
+                outGPUHandle.ptr += outIndex * mDescriptorSize;
             }
 
-            m_totalCount++;
+            mTotalCount++;
 
             return true;
         }
@@ -115,7 +115,7 @@ public:
 
     bool FreeDescriptor(ID3D12DescriptorHeap* heap, uint32_t index)
     {
-        HeapInfo* heapinfo = m_heapInfoHead;
+        HeapInfo* heapinfo = mHeapInfoHead;
 
         while (heapinfo != nullptr)
         {
@@ -159,14 +159,14 @@ private:
         heapDesc.Flags = (HeapType == D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) ? 
             D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE : D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
 
-        HRESULT hr = m_device->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(outHeap.ReleaseAndGetAddressOf()));
+        HRESULT hr = mDevice->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(outHeap.ReleaseAndGetAddressOf()));
 
         return SUCCEEDED(hr);
     }
 
     bool GetAvailableDescriptor(D3D12_CPU_DESCRIPTOR_HANDLE& outCPUHandle, D3D12_GPU_DESCRIPTOR_HANDLE& outGPUHandle, ComPtr<ID3D12DescriptorHeap>& outHeap, uint32_t& outIndex)
     {
-        HeapInfo* heapinfo = m_heapInfoHead;
+        HeapInfo* heapinfo = mHeapInfoHead;
 
         while (heapinfo != nullptr)
         {
@@ -178,13 +178,13 @@ private:
                 
                 // 设置CPU描述符句柄
                 outCPUHandle = outHeap->GetCPUDescriptorHandleForHeapStart();
-                outCPUHandle.ptr += outIndex * m_descriptorSize;
+                outCPUHandle.ptr += outIndex * mDescriptorSize;
                 
                 if (HeapType == D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV)
                 {
                     // 设置GPU描述符句柄
                     outGPUHandle = outHeap->GetGPUDescriptorHandleForHeapStart();
-					outGPUHandle.ptr += outIndex * m_descriptorSize;
+					outGPUHandle.ptr += outIndex * mDescriptorSize;
                 }
 
                 return true;
@@ -196,13 +196,13 @@ private:
                 
                 // 设置CPU描述符句柄
                 outCPUHandle = outHeap->GetCPUDescriptorHandleForHeapStart();
-                outCPUHandle.ptr += outIndex * m_descriptorSize;
+                outCPUHandle.ptr += outIndex * mDescriptorSize;
                 
                 if (HeapType == D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV)
                 {
                     // 设置GPU描述符句柄
                     outGPUHandle = outHeap->GetGPUDescriptorHandleForHeapStart();
-                    outGPUHandle.ptr += outIndex * m_descriptorSize;
+                    outGPUHandle.ptr += outIndex * mDescriptorSize;
                 }
 
                 return true;
@@ -233,10 +233,10 @@ private:
         HeapInfo* prev;
     };
 
-    ComPtr<ID3D12Device> m_device;
-    uint32_t m_descriptorSize;
-    HeapInfo* m_heapInfoHead;
-    size_t m_totalCount;
+    ComPtr<ID3D12Device> mDevice;
+    uint32_t mDescriptorSize;
+    HeapInfo* mHeapInfoHead;
+    size_t mTotalCount;
 };
 
 class DX12RALDevice : public IRALDevice
@@ -265,10 +265,10 @@ public:
     virtual void Resize(uint32_t width, uint32_t height) override;
 
     // 获取窗口宽度
-    virtual uint32_t GetWidth() const override { return m_width; }
+    virtual uint32_t GetWidth() const override { return mWidth; }
 
     // 获取窗口高度
-    virtual uint32_t GetHeight() const override { return m_height; }
+    virtual uint32_t GetHeight() const override { return mHeight; }
     
     // 编译顶点着色器
     virtual IRALVertexShader* CompileVertexShader(const char* shaderCode, const char* entryPoint = "main") override;
@@ -392,53 +392,53 @@ private:
 
 private:
     // 成员变量
-    uint32_t m_width;                                           // 窗口宽度
-    uint32_t m_height;                                          // 窗口高度
-    std::wstring m_windowName;                                  // 窗口名称
-    HWND m_hWnd;                                                // 窗口句柄
+    uint32_t mWidth;                                           // 窗口宽度
+    uint32_t mHeight;                                          // 窗口高度
+    std::wstring mWindowName;                                  // 窗口名称
+    HWND mHWnd;                                                // 窗口句柄
 
     // 设备和交换链
-    ComPtr<ID3D12Device> m_device;                              // D3D12设备
+    ComPtr<ID3D12Device> mDevice;                              // D3D12设备
     
-    ComPtr<IDXGIFactory6> m_factory;                            // DXGI工厂
-    ComPtr<IDXGISwapChain4> m_swapChain;                        // 交换链
-    uint32_t m_backBufferCount = 2;                             // 后缓冲区数量
-    uint32_t m_currentBackBufferIndex = 0;                      // 当前后缓冲区索引
+    ComPtr<IDXGIFactory6> mFactory;                            // DXGI工厂
+    ComPtr<IDXGISwapChain4> mSwapChain;                        // 交换链
+    uint32_t mBackBufferCount = 2;                             // 后缓冲区数量
+    uint32_t mCurrentBackBufferIndex = 0;                      // 当前后缓冲区索引
 
     // 命令对象 - 主渲染
-    ComPtr<ID3D12CommandAllocator> m_commandAllocators[2];      // 命令分配器数组
-    ComPtr<ID3D12CommandQueue> m_commandQueue;                  // 命令队列
-    TRefCountPtr<IRALGraphicsCommandList> m_graphicsCommandList;   // 渲染命令列表
+    ComPtr<ID3D12CommandAllocator> mCommandAllocators[2];      // 命令分配器数组
+    ComPtr<ID3D12CommandQueue> mCommandQueue;                  // 命令队列
+    TRefCountPtr<IRALGraphicsCommandList> mGraphicsCommandList;   // 渲染命令列表
 
     // 同步对象 - 主渲染
-    ComPtr<ID3D12Fence> m_fence;                                // 围栏
-    uint64_t m_fenceValue = 0;                                  // 围栏值
-    HANDLE m_fenceEvent = nullptr;                              // 围栏事件
+    ComPtr<ID3D12Fence> mFence;                                // 围栏
+    uint64_t mFenceValue = 0;                                  // 围栏值
+    HANDLE mFenceEvent = nullptr;                              // 围栏事件
 
-    uint32_t m_currentFrameIndex;                               // 当前帧索引，用于缓存
+    uint32_t mCurrentFrameIndex;                               // 当前帧索引，用于缓存
 
     // 描述符堆和管理
     // 主描述符堆（用于后缓冲区和主深度缓冲区）
-    ComPtr<ID3D12DescriptorHeap> m_mainRtvHeap;                 // 主渲染目标视图堆
-    ComPtr<ID3D12DescriptorHeap> m_mainDsvHeap;                 // 主深度/模板视图堆
-    ComPtr<ID3D12DescriptorHeap> m_mainSrvHeap;                 // 主着色器资源视图堆
+    ComPtr<ID3D12DescriptorHeap> mMainRtvHeap;                 // 主渲染目标视图堆
+    ComPtr<ID3D12DescriptorHeap> mMainDsvHeap;                 // 主深度/模板视图堆
+    ComPtr<ID3D12DescriptorHeap> mMainSrvHeap;                 // 主着色器资源视图堆
     
     // 描述符大小
-    uint32_t m_rtvDescriptorSize = 0;                           // 渲染目标视图描述符大小
-    uint32_t m_dsvDescriptorSize = 0;                           // 深度/模板视图描述符大小
-    uint32_t m_srvDescriptorSize = 0;                           // 着色器资源视图描述符大小
+    uint32_t mRtvDescriptorSize = 0;                           // 渲染目标视图描述符大小
+    uint32_t mDsvDescriptorSize = 0;                           // 深度/模板视图描述符大小
+    uint32_t mSrvDescriptorSize = 0;                           // 着色器资源视图描述符大小
     
-    DX12DescriptorHeapManager<D3D12_DESCRIPTOR_HEAP_TYPE_RTV, 32> m_RTVDescriptorHeaps;
-    DX12DescriptorHeapManager<D3D12_DESCRIPTOR_HEAP_TYPE_DSV, 32> m_DSVDescriptorHeaps;
-    DX12DescriptorHeapManager<D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 32> m_SRVDescriptorHeaps;
+    DX12DescriptorHeapManager<D3D12_DESCRIPTOR_HEAP_TYPE_RTV, 32> mRTVDescriptorHeaps;
+    DX12DescriptorHeapManager<D3D12_DESCRIPTOR_HEAP_TYPE_DSV, 32> mDSVDescriptorHeaps;
+    DX12DescriptorHeapManager<D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 32> mSRVDescriptorHeaps;
 
     // 资源
-    std::vector<ComPtr<ID3D12Resource>> m_backBuffers;          // 后缓冲区
-    ComPtr<ID3D12Resource> m_depthStencilBuffer;                // 深度/模板缓冲区
+    std::vector<ComPtr<ID3D12Resource>> mBackBuffers;          // 后缓冲区
+    ComPtr<ID3D12Resource> mDepthStencilBuffer;                // 深度/模板缓冲区
     
     // Backbuffer的RTV和DSV
-    std::vector<TRefCountPtr<IRALRenderTargetView>> m_backBufferRTVs;      // 后缓冲区渲染目标视图
-    TRefCountPtr<IRALDepthStencilView> m_mainDepthStencilView;              // 主深度模板视图
+    std::vector<TRefCountPtr<IRALRenderTargetView>> mBackBufferRTVs;      // 后缓冲区渲染目标视图
+    TRefCountPtr<IRALDepthStencilView> mMainDepthStencilView;              // 主深度模板视图
 
     struct UploadingResourceInfo
     {
@@ -446,5 +446,5 @@ private:
 	};
 
     typedef std::unordered_map<ComPtr<ID3D12Resource>, UploadingResourceInfo> UploadingResources;
-    UploadingResources m_uploadingResources;
+    UploadingResources mUploadingResources;
 };

@@ -18,8 +18,8 @@ class IRALConstBuffer;
 
 struct PrimitiveMesh
 {
-    TRefCountPtr<IRALVertexBuffer> vertexBuffer;
-    TRefCountPtr<IRALIndexBuffer> indexBuffer;
+    TRefCountPtr<IRALVertexBuffer> mVertexBuffer;
+    TRefCountPtr<IRALIndexBuffer> mIndexBuffer;
 };
 
 class Primitive
@@ -34,46 +34,46 @@ public:
     // 获取对象的世界变换矩阵
     const dx::XMMATRIX& GetWorldMatrix() const
     {
-        return worldMatrix;
+        return mWorldMatrix;
     }
 
     // 设置对象的世界变换矩阵
     void SetWorldMatrix(const dx::XMMATRIX& matrix)
     {
-        worldMatrix = matrix;
+        mWorldMatrix = matrix;
     }
 
     // 设置对象的位置
     void SetPosition(const dx::XMFLOAT3& position);
     const dx::XMFLOAT3& GetPosition() const
     {
-        return position;
+        return mPosition;
     }
 
     // 设置对象的旋转（欧拉角，弧度）
     void SetRotation(const dx::XMFLOAT3& rotation);
     const dx::XMFLOAT3& GetRotation() const
     {
-        return rotation;
+        return mRotation;
     }
 
     // 设置对象的缩放
     void SetScale(const dx::XMFLOAT3& scale);
     const dx::XMFLOAT3& GetScale() const
     {
-        return scale;
+        return mScale;
     }
 
     // 是否可见
     bool IsVisible() const
     {
-        return visible;
+        return mVisible;
     }
 
     // 设置可见性
     void SetVisible(bool isVisible)
     {
-        visible = isVisible;
+        mVisible = isVisible;
     }
 
     // Setup Mesh
@@ -90,50 +90,50 @@ public:
 
     void SetDiffuseColor(const dx::XMFLOAT3& color)
     {
-        diffuseColor = color;
+        mDiffuseColor = color;
 	}
 
     const dx::XMFLOAT3& GetDiffuseColor() const
     {
-        return diffuseColor;
+        return mDiffuseColor;
 	}
 
     void SetSpecularColor(const dx::XMFLOAT3& color)
     {
-        specularColor = color;
+        mSpecularColor = color;
 	}
 
     const dx::XMFLOAT3& GetSpecularColor() const
     {
-        return specularColor;
+        return mSpecularColor;
 	}
 
     void SetShininess(float value)
     {
-        shininess = value;
+        mShininess = value;
 	}
 
     float GetShininess() const
     {
-        return shininess;
+        return mShininess;
 	}
 
 protected:
     // 世界变换矩阵
-    dx::XMMATRIX worldMatrix = dx::XMMatrixIdentity();
+    dx::XMMATRIX mWorldMatrix = dx::XMMatrixIdentity();
 
     // 对象的位置、旋转和缩放
-    dx::XMFLOAT3 position = {0.0f, 0.0f, 0.0f};
-    dx::XMFLOAT3 rotation = {0.0f, 0.0f, 0.0f};
-    dx::XMFLOAT3 scale = {1.0f, 1.0f, 1.0f};
+    dx::XMFLOAT3 mPosition = {0.0f, 0.0f, 0.0f};
+    dx::XMFLOAT3 mRotation = {0.0f, 0.0f, 0.0f};
+    dx::XMFLOAT3 mScale = {1.0f, 1.0f, 1.0f};
 
     // 材质颜色
-    dx::XMFLOAT3 diffuseColor = {1.0f, 1.0f, 1.0f};
-    dx::XMFLOAT3 specularColor = {0.5f, 0.5f, 0.5f};
-    float shininess = 16.0f;
+    dx::XMFLOAT3 mDiffuseColor = {1.0f, 1.0f, 1.0f};
+    dx::XMFLOAT3 mSpecularColor = {0.5f, 0.5f, 0.5f};
+    float mShininess = 16.0f;
 
     // 是否可见
-    bool visible = true;
+    bool mVisible = true;
 
     // 更新世界矩阵
     void UpdateWorldMatrix();

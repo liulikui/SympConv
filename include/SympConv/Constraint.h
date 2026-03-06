@@ -16,9 +16,9 @@ public:
     //   compliance - 柔度（与刚度成反比，值越小刚度越大）
     //   damping - 阻尼系数
     Constraint(float compliance, float damping)
-        : m_lambda(0.0f)
-        , m_compliance(compliance)
-        , m_damping(damping)
+        : mLambda(0.0f)
+        , mCompliance(compliance)
+        , mDamping(damping)
     {}
 
     // 虚析构函数
@@ -56,14 +56,14 @@ public:
     //   c - 新的柔度值
     inline void SetCompliance(float c)
     {
-        m_compliance = c;
+        mCompliance = c;
     }
     
     // 获取约束的柔度
     // 返回：柔度值
     inline float GetCompliance() const
     {
-        return m_compliance;
+        return mCompliance;
     }
     
     // 设置约束的阻尼系数
@@ -71,14 +71,14 @@ public:
     //   d - 新的阻尼系数
     inline void SetDamping(float d)
     {
-        m_damping = d;
+        mDamping = d;
     }
 
     // 获取阻尼系数
     // 返回：阻尼系数
     inline float GetDamping() const
     {
-        return m_damping;
+        return mDamping;
     }
 
     // 设置拉格朗日乘子
@@ -86,21 +86,20 @@ public:
     //   l - 新的拉格朗日乘子
     inline void SetLambda(float l)
     {
-        m_lambda = l;
+        mLambda = l;
     }
 
     // 获取拉格朗日乘子
     // 返回：拉格朗日乘子
     inline float GetLambda() const
     {
-        return m_lambda;
+        return mLambda;
     }
 
 protected:
-    float m_lambda;         // 拉格朗日乘子
-    float m_compliance;     // 柔度（与刚度成反比）
-    float m_damping;        // 阻尼系数，控制约束方向的阻尼强度，0为无阻尼
+    float mLambda;         // 拉格朗日乘子
+    float mCompliance;     // 柔度（与刚度成反比）
+    float mDamping;        // 阻尼系数，控制约束方向的阻尼强度，0为无阻尼
 };
 
 #endif // SYMPCONV_CONSTRAINT_H
-

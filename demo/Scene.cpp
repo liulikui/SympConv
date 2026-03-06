@@ -37,19 +37,20 @@ struct ObjectConstBuffer
 };
 
 Scene::Scene()
-    : m_device(nullptr)
-    , m_backgroundColor({0.9f, 0.9f, 0.9f, 1.0f})
-    , m_lightPosition({10.0f, 10.0f, 10.0f})
-    , m_lightDirection({-1.0f, -1.0f, -1.0f})
-    , m_lightDiffuseColor({1.0f, 1.0f, 1.0f, 1.0f})
-    , m_lightSpecularColor({1.0f, 1.0f, 1.0f, 1.0f})
-    , m_lightAmbientColor({0.1f, 0.1f, 0.1f, 1.0f})
+    : mDevice(nullptr)
+    , mPhysicWorld(nullptr)
+    , mBackgroundColor({0.9f, 0.9f, 0.9f, 1.0f})
+    , mLightPosition({10.0f, 10.0f, 10.0f})
+    , mLightDirection({-1.0f, -1.0f, -1.0f})
+    , mLightDiffuseColor({1.0f, 1.0f, 1.0f, 1.0f})
+    , mLightSpecularColor({1.0f, 1.0f, 1.0f, 1.0f})
+    , mLightAmbientColor({0.1f, 0.1f, 0.1f, 1.0f})
 {
     // 初始化场景
     // cameraConstBuffer将在渲染器中创建并传入
     // 对默认光源方向进行归一化
-    dx::XMVECTOR dir = dx::XMVector3Normalize(dx::XMLoadFloat3(&m_lightDirection));
-    dx::XMStoreFloat3(&m_lightDirection, dir);
+    dx::XMVECTOR dir = dx::XMVector3Normalize(dx::XMLoadFloat3(&mLightDirection));
+    dx::XMStoreFloat3(&mLightDirection, dir);
     
     logDebug("[DEBUG] Scene constructor called");
 }
@@ -62,10 +63,10 @@ bool Scene::Initialize(IRALDevice* pDevice)
         return false;
     }
 
-    m_device = pDevice;
+    mDevice = pDevice;
     
-    m_sceneConstBuffer = pDevice->CreateConstBuffer(sizeof(SceneConstBuffer), L"SceneConstBuffer");
-    if (!m_sceneConstBuffer.Get())
+    mSceneConstBuffer = pDevice->CreateConstBuffer(sizeof(SceneConstBuffer), L"SceneConstBuffer");
+    if (!mSceneConstBuffer.Get())
     {
         logDebug("[DEBUG] Scene::Initialize failed: failed to create scene const buffer");
         return false;
@@ -75,6 +76,12 @@ bool Scene::Initialize(IRALDevice* pDevice)
     if (!InitializeDeferredRendering())
     {
         logDebug("[DEBUG] Scene::Initialize failed: failed to initialize deferred rendering");
+        return false;
+    }
+
+    if (!CreatePhysicWorld())
+    {
+        logDebug("[DEBUG] Scene::Initialize failed: failed to create physic world");
         return false;
     }
 
@@ -88,27 +95,32 @@ Scene::~Scene()
     
     // 清理延迟着色相关资源
     CleanupDeferredRendering();
+
+    // 销毁物理世界
+    DestroyPhysicWorld();
 }
 
 void Scene::Update(float deltaTime)
 {
     UpdatePrimitiveRequests();
 
-    IRALGraphicsCommandList* commandList = m_device->GetGraphicsCommandList();
+    IRALGraphicsCommandList* commandList = mDevice->GetGraphicsCommandList();
 
     // 更新场景中所有可见对象的状态
-    for (auto& primitiveInfo : m_primitives) 
+    for (auto& primitiveInfo : mPrimitives) 
     {
         if (primitiveInfo.primitive && primitiveInfo.visible)
         {
             primitiveInfo.primitive->Update(commandList, deltaTime);
         }
-     }
+    }
+
+    mPhysicWorld->Update(deltaTime);
 }
 
 void Scene::Render(const dx::XMMATRIX& viewMatrix, const dx::XMMATRIX& projectionMatrix)
 {
-    if (!m_device)
+    if (!mDevice)
     {
         logDebug("[DEBUG] Scene::Render failed: device is null");
         return;
@@ -136,7 +148,7 @@ bool Scene::AddPrimitive(Primitive* primitive)
     }
 
     // 检查对象是否已经在场景中
-    for (std::vector<PrimitiveInfo>::iterator iter = m_primitives.begin(); iter != m_primitives.end(); ++iter)
+    for (std::vector<PrimitiveInfo>::iterator iter = mPrimitives.begin(); iter != mPrimitives.end(); ++iter)
     {
         if (iter->primitive == primitive)
         {
@@ -147,7 +159,7 @@ bool Scene::AddPrimitive(Primitive* primitive)
     AddPrimitiveRequest request;
     request.primitive = primitive;
 
-    m_addPrimitiveRequests.push_back(request);
+    mAddPrimitiveRequests.push_back(request);
     
     return true;
 }
@@ -159,11 +171,11 @@ bool Scene::RemovePrimitive(Primitive* primitive) {
     }
 
     /// 检查对象是否已经在场景中
-    for (std::vector<PrimitiveInfo>::iterator iter = m_primitives.begin(); iter != m_primitives.end(); ++iter)
+    for (std::vector<PrimitiveInfo>::iterator iter = mPrimitives.begin(); iter != mPrimitives.end(); ++iter)
     {
         if (iter->primitive == primitive)
         {
-            m_primitives.erase(iter);
+            mPrimitives.erase(iter);
             return true;
         }
     }
@@ -174,7 +186,7 @@ bool Scene::RemovePrimitive(Primitive* primitive) {
 void Scene::Clear()
 {
     // 清空所有对象
-    m_primitives.clear();
+    mPrimitives.clear();
 }
 
 // 设置场景的光源方向（自动归一化）
@@ -182,12 +194,12 @@ void Scene::SetLightDirection(const dx::XMFLOAT3& direction)
 {
     // 对传入的方向向量进行归一化
     dx::XMVECTOR dir = dx::XMVector3Normalize(dx::XMLoadFloat3(&direction));
-    dx::XMStoreFloat3(&m_lightDirection, dir);
+    dx::XMStoreFloat3(&mLightDirection, dir);
 }
 
 void Scene::UpdatePrimitiveRequests()
 {
-    for (std::vector<AddPrimitiveRequest>::iterator iter = m_addPrimitiveRequests.begin(); iter != m_addPrimitiveRequests.end(); ++iter)
+    for (std::vector<AddPrimitiveRequest>::iterator iter = mAddPrimitiveRequests.begin(); iter != mAddPrimitiveRequests.end(); ++iter)
     {
         Primitive* primitive = iter->primitive;
         PrimitiveInfo primitiveInfo;
@@ -196,22 +208,22 @@ void Scene::UpdatePrimitiveRequests()
         primitiveInfo.visible = primitive->IsVisible();
 
         PrimitiveMesh mesh;
-        primitive->OnSetupMesh(m_device, mesh);
+        primitive->OnSetupMesh(mDevice, mesh);
         
-        primitiveInfo.vertexBuffer = mesh.vertexBuffer;
-        primitiveInfo.indexBuffer = mesh.indexBuffer;
+        primitiveInfo.vertexBuffer = mesh.mVertexBuffer;
+        primitiveInfo.indexBuffer = mesh.mIndexBuffer;
         
         primitiveInfo.diffuseColor = primitive->GetDiffuseColor();
         // 尝试获取高光颜色，如果Primitive类没有提供，则设置默认值
         primitiveInfo.specularColor = primitive->GetSpecularColor();
         primitiveInfo.shininess = primitive->GetShininess();
-        primitiveInfo.constBuffer = m_device->CreateConstBuffer(sizeof(ObjectConstBuffer), L"ObjectConstBuffer");
+        primitiveInfo.constBuffer = mDevice->CreateConstBuffer(sizeof(ObjectConstBuffer), L"ObjectConstBuffer");
 
         // 添加对象到场景中
-        m_primitives.push_back(primitiveInfo);
+        mPrimitives.push_back(primitiveInfo);
     }
 
-    m_addPrimitiveRequests.clear();
+    mAddPrimitiveRequests.clear();
 }
 
 void Scene::UpdateSceneConstBuffer(IRALGraphicsCommandList* commandList, const dx::XMMATRIX& viewMatrix, const dx::XMMATRIX& projectionMatrix)
@@ -233,11 +245,11 @@ void Scene::UpdateSceneConstBuffer(IRALGraphicsCommandList* commandList, const d
     dx::XMStoreFloat4x4(&data.ViewProj, dx::XMMatrixTranspose(viewProjMatrix));
     dx::XMStoreFloat4x4(&data.invViewProj, dx::XMMatrixTranspose(invViewProjMatrix));
     data.cameraPos = cameraPos;
-    data.lightPos = m_lightPosition;
-    data.lightDiffuseColor = m_lightDiffuseColor;
-    data.lightSpecularColor = m_lightSpecularColor;
-    data.lightDirection = m_lightDirection;
-    data.lightAmbientColor = m_lightAmbientColor;
+    data.lightPos = mLightPosition;
+    data.lightDiffuseColor = mLightDiffuseColor;
+    data.lightSpecularColor = mLightSpecularColor;
+    data.lightDirection = mLightDirection;
+    data.lightAmbientColor = mLightAmbientColor;
     data.padding1 = 0.0f;
     data.padding2 = 0.0f;
     data.padding3 = 0.0f;
@@ -245,9 +257,9 @@ void Scene::UpdateSceneConstBuffer(IRALGraphicsCommandList* commandList, const d
     // 映射并更新缓冲区
     void* mappedData = nullptr;
     D3D12_RANGE readRange = { 0, 0 };
-    m_sceneConstBuffer.Get()->Map(&mappedData);
+    mSceneConstBuffer.Get()->Map(&mappedData);
     memcpy(mappedData, &data, sizeof(SceneConstBuffer));
-    m_sceneConstBuffer.Get()->Unmap();
+    mSceneConstBuffer.Get()->Unmap();
 }
 
 void Scene::UpdatePrimitiveConstBuffer(IRALGraphicsCommandList* commandList, PrimitiveInfo* primitiveInfo)
@@ -282,8 +294,8 @@ bool Scene::CreateRenderingResources(uint32_t width, uint32_t height)
     // GBufferA: 世界空间法线 (RGBA16F用于精度)
     // 法线的默认值设置为向上法线(0,0,1,1)
     RALClearValue gbufferAClearValue(RALDataFormat::R16G16B16A16_Float, 0.0f, 0.0f, 1.0f, 1.0f);
-    m_gbufferA = m_device->CreateRenderTarget(width, height, RALDataFormat::R16G16B16A16_Float, &gbufferAClearValue, L"GBufferA_Normals");
-    if (!m_gbufferA.Get())
+    mGbufferA = mDevice->CreateRenderTarget(width, height, RALDataFormat::R16G16B16A16_Float, &gbufferAClearValue, L"GBufferA_Normals");
+    if (!mGbufferA.Get())
     {
         logDebug("[DEBUG] Scene::CreateRenderingResources failed: failed to create GBufferA");
         return false;
@@ -292,8 +304,8 @@ bool Scene::CreateRenderingResources(uint32_t width, uint32_t height)
     // 创建GBufferA的RTV和SRV
     RALRenderTargetViewDesc rtvDescA;
     rtvDescA.format = RALDataFormat::R16G16B16A16_Float;
-    m_gbufferARTV = m_device->CreateRenderTargetView(m_gbufferA.Get(), rtvDescA, L"GBufferA_RTV");
-    if (!m_gbufferARTV.Get())
+    mGbufferARTV = mDevice->CreateRenderTargetView(mGbufferA.Get(), rtvDescA, L"GBufferA_RTV");
+    if (!mGbufferARTV.Get())
     {
         logDebug("[DEBUG] Scene::CreateRenderingResources failed: failed to create GBufferA RTV");
         return false;
@@ -301,8 +313,8 @@ bool Scene::CreateRenderingResources(uint32_t width, uint32_t height)
     
     RALShaderResourceViewDesc srvDescA;
     srvDescA.format = RALDataFormat::R16G16B16A16_Float;
-    m_gbufferASRV = m_device->CreateShaderResourceView(m_gbufferA.Get(), srvDescA, L"GBufferA_SRV");
-    if (!m_gbufferASRV.Get())
+    mGbufferASRV = mDevice->CreateShaderResourceView(mGbufferA.Get(), srvDescA, L"GBufferA_SRV");
+    if (!mGbufferASRV.Get())
     {
         logDebug("[DEBUG] Scene::CreateRenderingResources failed: failed to create GBufferA SRV");
         return false;
@@ -311,8 +323,8 @@ bool Scene::CreateRenderingResources(uint32_t width, uint32_t height)
     // GBufferB: Metallic (R), Specular (G), Roughness (B) (RGB8_UNorm)
     // 默认值：无金属度(0), 中等高光(0.5), 中等粗糙度(0.5)
     RALClearValue gbufferBClearValue(RALDataFormat::R8G8B8A8_UNorm, 0.0f, 0.5f, 0.5f, 1.0f);
-    m_gbufferB = m_device->CreateRenderTarget(width, height, RALDataFormat::R8G8B8A8_UNorm, &gbufferBClearValue, L"GBufferB_MetallicSpecRough");
-    if (!m_gbufferB.Get())
+    mGbufferB = mDevice->CreateRenderTarget(width, height, RALDataFormat::R8G8B8A8_UNorm, &gbufferBClearValue, L"GBufferB_MetallicSpecRough");
+    if (!mGbufferB.Get())
     {
         logDebug("[DEBUG] Scene::CreateRenderingResources failed: failed to create GBufferB");
         return false;
@@ -321,8 +333,8 @@ bool Scene::CreateRenderingResources(uint32_t width, uint32_t height)
     // 创建GBufferB的RTV和SRV
     RALRenderTargetViewDesc rtvDescB;
     rtvDescB.format = RALDataFormat::R8G8B8A8_UNorm;
-    m_gbufferBRTV = m_device->CreateRenderTargetView(m_gbufferB.Get(), rtvDescB, L"GBufferB_RTV");
-    if (!m_gbufferBRTV.Get())
+    mGbufferBRTV = mDevice->CreateRenderTargetView(mGbufferB.Get(), rtvDescB, L"GBufferB_RTV");
+    if (!mGbufferBRTV.Get())
     {
         logDebug("[DEBUG] Scene::CreateRenderingResources failed: failed to create GBufferB RTV");
         return false;
@@ -330,8 +342,8 @@ bool Scene::CreateRenderingResources(uint32_t width, uint32_t height)
     
     RALShaderResourceViewDesc srvDescB;
     srvDescB.format = RALDataFormat::R8G8B8A8_UNorm;
-    m_gbufferBSRV = m_device->CreateShaderResourceView(m_gbufferB.Get(), srvDescB, L"GBufferB_SRV");
-    if (!m_gbufferBSRV.Get())
+    mGbufferBSRV = mDevice->CreateShaderResourceView(mGbufferB.Get(), srvDescB, L"GBufferB_SRV");
+    if (!mGbufferBSRV.Get())
     {
         logDebug("[DEBUG] Scene::CreateRenderingResources failed: failed to create GBufferB SRV");
         return false;
@@ -340,8 +352,8 @@ bool Scene::CreateRenderingResources(uint32_t width, uint32_t height)
     // GBufferC: BaseColor RGB (RGB8_UNorm)
     // 默认值：灰色基础颜色
     RALClearValue gbufferCClearValue(RALDataFormat::R8G8B8A8_UNorm, 0.5f, 0.5f, 0.5f, 1.0f);
-    m_gbufferC = m_device->CreateRenderTarget(width, height, RALDataFormat::R8G8B8A8_UNorm, &gbufferCClearValue, L"GBufferC_BaseColor");
-    if (!m_gbufferC.Get())
+    mGbufferC = mDevice->CreateRenderTarget(width, height, RALDataFormat::R8G8B8A8_UNorm, &gbufferCClearValue, L"GBufferC_BaseColor");
+    if (!mGbufferC.Get())
     {
         logDebug("[DEBUG] Scene::CreateRenderingResources failed: failed to create GBufferC");
         return false;
@@ -350,8 +362,8 @@ bool Scene::CreateRenderingResources(uint32_t width, uint32_t height)
     // 创建GBufferC的RTV和SRV
     RALRenderTargetViewDesc rtvDescC;
     rtvDescC.format = RALDataFormat::R8G8B8A8_UNorm;
-    m_gbufferCRTV = m_device->CreateRenderTargetView(m_gbufferC.Get(), rtvDescC, L"GBufferC_RTV");
-    if (!m_gbufferCRTV.Get())
+    mGbufferCRTV = mDevice->CreateRenderTargetView(mGbufferC.Get(), rtvDescC, L"GBufferC_RTV");
+    if (!mGbufferCRTV.Get())
     {
         logDebug("[DEBUG] Scene::CreateRenderingResources failed: failed to create GBufferC RTV");
         return false;
@@ -359,8 +371,8 @@ bool Scene::CreateRenderingResources(uint32_t width, uint32_t height)
     
     RALShaderResourceViewDesc srvDescC;
     srvDescC.format = RALDataFormat::R8G8B8A8_UNorm;
-    m_gbufferCSRV = m_device->CreateShaderResourceView(m_gbufferC.Get(), srvDescC, L"GBufferC_SRV");
-    if (!m_gbufferCSRV.Get())
+    mGbufferCSRV = mDevice->CreateShaderResourceView(mGbufferC.Get(), srvDescC, L"GBufferC_SRV");
+    if (!mGbufferCSRV.Get())
     {
         logDebug("[DEBUG] Scene::CreateRenderingResources failed: failed to create GBufferC SRV");
         return false;
@@ -368,8 +380,8 @@ bool Scene::CreateRenderingResources(uint32_t width, uint32_t height)
 
     // 创建深度/模板缓冲区
     RALClearValue depthClearValue(RALDataFormat::R32_Typeless, 1.0f, 0);
-    m_gbufferDepthStencil = m_device->CreateDepthStencil(width, height, RALDataFormat::R32_Typeless, &depthClearValue, L"GBuffer_DepthStencil");
-    if (!m_gbufferDepthStencil.Get())
+    mGbufferDepthStencil = mDevice->CreateDepthStencil(width, height, RALDataFormat::R32_Typeless, &depthClearValue, L"GBuffer_DepthStencil");
+    if (!mGbufferDepthStencil.Get())
     {
         logDebug("[DEBUG] Scene::CreateRenderingResources failed: failed to create depth stencil");
         return false;
@@ -378,8 +390,8 @@ bool Scene::CreateRenderingResources(uint32_t width, uint32_t height)
     // 创建深度模板缓冲区的DSV和SRV
     RALDepthStencilViewDesc dsvDesc;
     dsvDesc.format = RALDataFormat::D32_Float;
-    m_gbufferDSV = m_device->CreateDepthStencilView(m_gbufferDepthStencil.Get(), dsvDesc, L"GBuffer_DepthStencil_DSV");
-    if (!m_gbufferDSV.Get())
+    mGbufferDSV = mDevice->CreateDepthStencilView(mGbufferDepthStencil.Get(), dsvDesc, L"GBuffer_DepthStencil_DSV");
+    if (!mGbufferDSV.Get())
     {
         logDebug("[DEBUG] Scene::CreateRenderingResources failed: failed to create depth stencil DSV");
         return false;
@@ -387,8 +399,8 @@ bool Scene::CreateRenderingResources(uint32_t width, uint32_t height)
     
     RALShaderResourceViewDesc depthSRVDesc;
     depthSRVDesc.format = RALDataFormat::R32_Float;
-    m_gbufferDepthSRV = m_device->CreateShaderResourceView(m_gbufferDepthStencil.Get(), depthSRVDesc, L"GBuffer_DepthStencil_SRV");
-    if (!m_gbufferDepthSRV.Get())
+    mGbufferDepthSRV = mDevice->CreateShaderResourceView(mGbufferDepthStencil.Get(), depthSRVDesc, L"GBuffer_DepthStencil_SRV");
+    if (!mGbufferDepthSRV.Get())
     {
         logDebug("[DEBUG] Scene::CreateRenderingResources failed: failed to create depth stencil SRV");
         return false;
@@ -397,8 +409,8 @@ bool Scene::CreateRenderingResources(uint32_t width, uint32_t height)
     // 创建光照结果RT - Diffuse光照结果 (R16G16B16A16_UNorm)
     // 默认值：黑色(无光照)
     RALClearValue diffuseClearValue(RALDataFormat::R16G16B16A16_UNorm, 0.0f, 0.0f, 0.0f, 1.0f);
-    m_diffuseLightRT = m_device->CreateRenderTarget(width, height, RALDataFormat::R16G16B16A16_UNorm, &diffuseClearValue, L"DiffuseLightRT");
-    if (!m_diffuseLightRT.Get())
+    mDiffuseLightRT = mDevice->CreateRenderTarget(width, height, RALDataFormat::R16G16B16A16_UNorm, &diffuseClearValue, L"DiffuseLightRT");
+    if (!mDiffuseLightRT.Get())
     {
         logDebug("[DEBUG] Scene::CreateRenderingResources failed: failed to create diffuse light RT");
         return false;
@@ -407,8 +419,8 @@ bool Scene::CreateRenderingResources(uint32_t width, uint32_t height)
     // 创建Diffuse光照结果的RTV和SRV
     RALRenderTargetViewDesc diffuseRTVDESC;
     diffuseRTVDESC.format = RALDataFormat::R16G16B16A16_UNorm;
-    m_diffuseLightRTV = m_device->CreateRenderTargetView(m_diffuseLightRT.Get(), diffuseRTVDESC, L"DiffuseLight_RTV");
-    if (!m_diffuseLightRTV.Get())
+    mDiffuseLightRTV = mDevice->CreateRenderTargetView(mDiffuseLightRT.Get(), diffuseRTVDESC, L"DiffuseLight_RTV");
+    if (!mDiffuseLightRTV.Get())
     {
         logDebug("[DEBUG] Scene::CreateRenderingResources failed: failed to create diffuse light RTV");
         return false;
@@ -416,8 +428,8 @@ bool Scene::CreateRenderingResources(uint32_t width, uint32_t height)
     
     RALShaderResourceViewDesc diffuseSRVDesc;
     diffuseSRVDesc.format = RALDataFormat::R16G16B16A16_UNorm;
-    m_diffuseLightSRV = m_device->CreateShaderResourceView(m_diffuseLightRT.Get(), diffuseSRVDesc, L"DiffuseLight_SRV");
-    if (!m_diffuseLightSRV.Get())
+    mDiffuseLightSRV = mDevice->CreateShaderResourceView(mDiffuseLightRT.Get(), diffuseSRVDesc, L"DiffuseLight_SRV");
+    if (!mDiffuseLightSRV.Get())
     {
         logDebug("[DEBUG] Scene::CreateRenderingResources failed: failed to create diffuse light SRV");
         return false;
@@ -426,8 +438,8 @@ bool Scene::CreateRenderingResources(uint32_t width, uint32_t height)
     // 创建光照结果RT - Specular光照结果 (R16G16B16A16_UNorm)
     // 默认值：黑色(无光照)
     RALClearValue specularClearValue(RALDataFormat::R16G16B16A16_UNorm, 0.0f, 0.0f, 0.0f, 1.0f);
-    m_specularLightRT = m_device->CreateRenderTarget(width, height, RALDataFormat::R16G16B16A16_UNorm, &specularClearValue, L"SpecularLightRT");
-    if (!m_specularLightRT.Get())
+    mSpecularLightRT = mDevice->CreateRenderTarget(width, height, RALDataFormat::R16G16B16A16_UNorm, &specularClearValue, L"SpecularLightRT");
+    if (!mSpecularLightRT.Get())
     {
         logDebug("[DEBUG] Scene::CreateRenderingResources failed: failed to create specular light RT");
         return false;
@@ -436,8 +448,8 @@ bool Scene::CreateRenderingResources(uint32_t width, uint32_t height)
     // 创建Specular光照结果的RTV和SRV
     RALRenderTargetViewDesc specularRTVDESC;
     specularRTVDESC.format = RALDataFormat::R16G16B16A16_UNorm;
-    m_specularLightRTV = m_device->CreateRenderTargetView(m_specularLightRT.Get(), specularRTVDESC, L"SpecularLight_RTV");
-    if (!m_specularLightRTV.Get())
+    mSpecularLightRTV = mDevice->CreateRenderTargetView(mSpecularLightRT.Get(), specularRTVDESC, L"SpecularLight_RTV");
+    if (!mSpecularLightRTV.Get())
     {
         logDebug("[DEBUG] Scene::CreateRenderingResources failed: failed to create specular light RTV");
         return false;
@@ -445,8 +457,8 @@ bool Scene::CreateRenderingResources(uint32_t width, uint32_t height)
     
     RALShaderResourceViewDesc specularSRVDesc;
     specularSRVDesc.format = RALDataFormat::R16G16B16A16_UNorm;
-    m_specularLightSRV = m_device->CreateShaderResourceView(m_specularLightRT.Get(), specularSRVDesc, L"SpecularLight_SRV");
-    if (!m_specularLightSRV.Get())
+    mSpecularLightSRV = mDevice->CreateShaderResourceView(mSpecularLightRT.Get(), specularSRVDesc, L"SpecularLight_SRV");
+    if (!mSpecularLightSRV.Get())
     {
         logDebug("[DEBUG] Scene::CreateRenderingResources failed: failed to create specular light SRV");
         return false;
@@ -455,8 +467,8 @@ bool Scene::CreateRenderingResources(uint32_t width, uint32_t height)
     // 创建HDR场景颜色渲染目标（用于延迟着色Resolve结果）
     // 默认值：黑色
     RALClearValue hdrClearValue(RALDataFormat::R16G16B16A16_UNorm, 0.0f, 0.0f, 0.0f, 1.0f);
-    m_HDRSceneColor = m_device->CreateRenderTarget(width, height, RALDataFormat::R16G16B16A16_UNorm, &hdrClearValue, L"HDRSceneColor");
-    if (!m_HDRSceneColor.Get())
+    mHDRSceneColor = mDevice->CreateRenderTarget(width, height, RALDataFormat::R16G16B16A16_UNorm, &hdrClearValue, L"HDRSceneColor");
+    if (!mHDRSceneColor.Get())
     {
         logDebug("[DEBUG] Scene::CreateRenderingResources failed: failed to create HDR scene color render target");
         return false;
@@ -465,8 +477,8 @@ bool Scene::CreateRenderingResources(uint32_t width, uint32_t height)
     // 创建HDR场景颜色RTV和SRV
     RALRenderTargetViewDesc hdrRTVDesc;
     hdrRTVDesc.format = RALDataFormat::R16G16B16A16_UNorm;
-    m_HDRSceneColorRTV = m_device->CreateRenderTargetView(m_HDRSceneColor.Get(), hdrRTVDesc, L"HDRSceneColor_RTV");
-    if (!m_HDRSceneColorRTV.Get())
+    mHDRSceneColorRTV = mDevice->CreateRenderTargetView(mHDRSceneColor.Get(), hdrRTVDesc, L"HDRSceneColor_RTV");
+    if (!mHDRSceneColorRTV.Get())
     {
         logDebug("[DEBUG] Scene::CreateRenderingResources failed: failed to create HDR scene color RTV");
         return false;
@@ -474,8 +486,8 @@ bool Scene::CreateRenderingResources(uint32_t width, uint32_t height)
     
     RALShaderResourceViewDesc hdrSRVDesc;
     hdrSRVDesc.format = RALDataFormat::R16G16B16A16_UNorm;
-    m_HDRSceneColorSRV = m_device->CreateShaderResourceView(m_HDRSceneColor.Get(), hdrSRVDesc, L"HDRSceneColor_SRV");
-    if (!m_HDRSceneColorSRV.Get())
+    mHDRSceneColorSRV = mDevice->CreateShaderResourceView(mHDRSceneColor.Get(), hdrSRVDesc, L"HDRSceneColor_SRV");
+    if (!mHDRSceneColorSRV.Get())
     {
         logDebug("[DEBUG] Scene::CreateRenderingResources failed: failed to create HDR scene color SRV");
         return false;
@@ -487,7 +499,7 @@ bool Scene::CreateRenderingResources(uint32_t width, uint32_t height)
 // 初始化延迟着色相关资源
 bool Scene::InitializeDeferredRendering()
 {
-    if (!m_device)
+    if (!mDevice)
     {
         logDebug("[DEBUG] Scene::InitializeDeferredRendering failed: device is null");
         return false;
@@ -495,8 +507,8 @@ bool Scene::InitializeDeferredRendering()
 
     logDebug("[DEBUG] Scene::InitializeDeferredRendering called");
 
-    uint32_t width = m_device->GetWidth();
-    uint32_t height = m_device->GetHeight();
+    uint32_t width = mDevice->GetWidth();
+    uint32_t height = mDevice->GetHeight();
     
     // 创建渲染资源
     if (!CreateRenderingResources(width, height))
@@ -506,8 +518,8 @@ bool Scene::InitializeDeferredRendering()
     }
 
     // 创建光照阶段常量缓冲区
-    m_lightPassConstBuffer = m_device->CreateConstBuffer(sizeof(LightPassConstBuffer), L"LightPassConstBuffer");
-    if (!m_lightPassConstBuffer.Get())
+    mLightPassConstBuffer = mDevice->CreateConstBuffer(sizeof(LightPassConstBuffer), L"LightPassConstBuffer");
+    if (!mLightPassConstBuffer.Get())
     {
         logDebug("[DEBUG] Scene::InitializeDeferredRendering failed: failed to create light pass const buffer");
         return false;
@@ -522,14 +534,14 @@ bool Scene::InitializeDeferredRendering()
     InitAsConstantBufferView(gbufferRootParameters[1], 1, 0, RALShaderVisibility::All);
 
     // 定义GBuffer几何阶段根签名
-    m_gbufferRootSignature = m_device->CreateRootSignature(
+    mGbufferRootSignature = mDevice->CreateRootSignature(
         gbufferRootParameters,
         {}, // 暂时不需要静态采样器
         RALRootSignatureFlags::AllowInputAssemblerInputLayout,
         L"GBufferRootSignature"
     );
 
-    if (!m_gbufferRootSignature.Get())
+    if (!mGbufferRootSignature.Get())
     {
         logDebug("[DEBUG] Scene::InitializeDeferredRendering failed: failed to create GBuffer root signature");
         return false;
@@ -621,15 +633,15 @@ bool Scene::InitializeDeferredRendering()
         "}";
 
     // 编译GBuffer着色器
-    m_gbufferVertexShader = m_device->CompileVertexShader(gbufferVSCode, "main");
-    if (!m_gbufferVertexShader.Get())
+    mGbufferVertexShader = mDevice->CompileVertexShader(gbufferVSCode, "main");
+    if (!mGbufferVertexShader.Get())
     {
         logDebug("[DEBUG] Scene::InitializeDeferredRendering failed: failed to compile GBuffer vertex shader");
         return false;
     }
 
-    m_gbufferPixelShader = m_device->CompilePixelShader(gbufferPSCode, "main");
-    if (!m_gbufferPixelShader.Get())
+    mGbufferPixelShader = mDevice->CompilePixelShader(gbufferPSCode, "main");
+    if (!mGbufferPixelShader.Get())
     {
         logDebug("[DEBUG] Scene::InitializeDeferredRendering failed: failed to compile GBuffer pixel shader");
         return false;
@@ -662,9 +674,9 @@ bool Scene::InitializeDeferredRendering()
     gbufferInputLayout.push_back(uvAttr);
 
     gbufferPipelineDesc.inputLayout = &gbufferInputLayout;
-    gbufferPipelineDesc.rootSignature = m_gbufferRootSignature.Get();
-    gbufferPipelineDesc.vertexShader = m_gbufferVertexShader.Get();
-    gbufferPipelineDesc.pixelShader = m_gbufferPixelShader.Get();
+    gbufferPipelineDesc.rootSignature = mGbufferRootSignature.Get();
+    gbufferPipelineDesc.vertexShader = mGbufferVertexShader.Get();
+    gbufferPipelineDesc.pixelShader = mGbufferPixelShader.Get();
     gbufferPipelineDesc.primitiveTopologyType = RALPrimitiveTopologyType::TriangleList;
 
     // 配置光栅化状态
@@ -699,8 +711,8 @@ bool Scene::InitializeDeferredRendering()
     gbufferPipelineDesc.depthStencilFormat = RALDataFormat::D32_Float;
 
     // 创建几何阶段管道状态
-    m_gbufferPipelineState = m_device->CreateGraphicsPipelineState(gbufferPipelineDesc, L"GBufferPipelineState");
-    if (!m_gbufferPipelineState.Get())
+    mGbufferPipelineState = mDevice->CreateGraphicsPipelineState(gbufferPipelineDesc, L"GBufferPipelineState");
+    if (!mGbufferPipelineState.Get())
     {
         logDebug("[DEBUG] Scene::InitializeDeferredRendering failed: failed to create GBuffer pipeline state");
         return false;
@@ -774,13 +786,13 @@ bool Scene::InitializeDeferredRendering()
     std::vector<RALStaticSampler> lightSamplers = { lightSampler };
 
     // 创建光照阶段根签名
-    m_lightRootSignature = m_device->CreateRootSignature(
+    mLightRootSignature = mDevice->CreateRootSignature(
         lightRootParameters,
         lightSamplers,
         RALRootSignatureFlags::AllowInputAssemblerInputLayout,
         L"LightPassRootSignature"
     );
-    if (!m_lightRootSignature.Get())
+    if (!mLightRootSignature.Get())
     {
         logDebug("[DEBUG] Scene::InitializeDeferredRendering failed: failed to create light pass root signature");
         return false;
@@ -898,15 +910,15 @@ bool Scene::InitializeDeferredRendering()
         "}";
 
     // 编译光照阶段着色器
-    m_lightVertexShader = m_device->CompileVertexShader(lightVSCode, "main");
-    if (!m_lightVertexShader.Get())
+    mLightVertexShader = mDevice->CompileVertexShader(lightVSCode, "main");
+    if (!mLightVertexShader.Get())
     {
         logDebug("[DEBUG] Scene::InitializeDeferredRendering failed: failed to compile light pass vertex shader");
         return false;
     }
 
-    m_lightPixelShader = m_device->CompilePixelShader(lightPSCode, "main");
-    if (!m_lightPixelShader.Get())
+    mLightPixelShader = mDevice->CompilePixelShader(lightPSCode, "main");
+    if (!mLightPixelShader.Get())
     {
         logDebug("[DEBUG] Scene::InitializeDeferredRendering failed: failed to compile light pass pixel shader");
         return false;
@@ -932,9 +944,9 @@ bool Scene::InitializeDeferredRendering()
     lightInputLayout.push_back(lightUvAttr);
 
     lightPipelineDesc.inputLayout = &lightInputLayout;
-    lightPipelineDesc.rootSignature = m_lightRootSignature.Get();
-    lightPipelineDesc.vertexShader = m_lightVertexShader.Get();
-    lightPipelineDesc.pixelShader = m_lightPixelShader.Get();
+    lightPipelineDesc.rootSignature = mLightRootSignature.Get();
+    lightPipelineDesc.vertexShader = mLightVertexShader.Get();
+    lightPipelineDesc.pixelShader = mLightPixelShader.Get();
     lightPipelineDesc.primitiveTopologyType = RALPrimitiveTopologyType::TriangleList;
 
     // 配置光栅化状态
@@ -963,8 +975,8 @@ bool Scene::InitializeDeferredRendering()
     lightPipelineDesc.depthStencilFormat = RALDataFormat::D32_Float;
 
     // 创建光照阶段管道状态
-    m_lightPipelineState = m_device->CreateGraphicsPipelineState(lightPipelineDesc, L"LightPassPipelineState");
-    if (!m_lightPipelineState.Get())
+    mLightPipelineState = mDevice->CreateGraphicsPipelineState(lightPipelineDesc, L"LightPassPipelineState");
+    if (!mLightPipelineState.Get())
     {
         logDebug("[DEBUG] Scene::InitializeDeferredRendering failed: failed to create light pass pipeline state");
         return false;
@@ -1038,13 +1050,13 @@ bool Scene::InitializeDeferredRendering()
     std::vector<RALStaticSampler> resolveSamplers = { resolveSampler };
 
     // 创建Resolve阶段根签名
-    m_resolveRootSignature = m_device->CreateRootSignature(
+    mResolveRootSignature = mDevice->CreateRootSignature(
         resolveRootParameters,
         resolveSamplers,
         RALRootSignatureFlags::AllowInputAssemblerInputLayout,
         L"ResolveRootSignature"
     );
-    if (!m_resolveRootSignature.Get())
+    if (!mResolveRootSignature.Get())
     {
         logDebug("[DEBUG] Scene::InitializeDeferredRendering failed: failed to create resolve pass root signature");
         return false;
@@ -1126,15 +1138,15 @@ bool Scene::InitializeDeferredRendering()
         "}";
 
     // 编译Resolve阶段着色器
-    m_resolveVertexShader = m_device->CompileVertexShader(resolveVSCode, "main");
-    if (!m_resolveVertexShader.Get())
+    mResolveVertexShader = mDevice->CompileVertexShader(resolveVSCode, "main");
+    if (!mResolveVertexShader.Get())
     {
         logDebug("[DEBUG] Scene::InitializeDeferredRendering failed: failed to compile resolve pass vertex shader");
         return false;
     }
 
-    m_resolvePixelShader = m_device->CompilePixelShader(resolvePSCode, "main");
-    if (!m_resolvePixelShader.Get())
+    mResolvePixelShader = mDevice->CompilePixelShader(resolvePSCode, "main");
+    if (!mResolvePixelShader.Get())
     {
         logDebug("[DEBUG] Scene::InitializeDeferredRendering failed: failed to compile resolve pass pixel shader");
         return false;
@@ -1160,9 +1172,9 @@ bool Scene::InitializeDeferredRendering()
     resolveInputLayout.push_back(resolveUvAttr);
 
     resolvePipelineDesc.inputLayout = &resolveInputLayout;
-    resolvePipelineDesc.rootSignature = m_resolveRootSignature.Get();
-    resolvePipelineDesc.vertexShader = m_resolveVertexShader.Get();
-    resolvePipelineDesc.pixelShader = m_resolvePixelShader.Get();
+    resolvePipelineDesc.rootSignature = mResolveRootSignature.Get();
+    resolvePipelineDesc.vertexShader = mResolveVertexShader.Get();
+    resolvePipelineDesc.pixelShader = mResolvePixelShader.Get();
     resolvePipelineDesc.primitiveTopologyType = RALPrimitiveTopologyType::TriangleList;
 
     // 配置光栅化状态
@@ -1188,8 +1200,8 @@ bool Scene::InitializeDeferredRendering()
     resolvePipelineDesc.depthStencilFormat = RALDataFormat::D32_Float;
 
     // 创建Resolve阶段管道状态
-    m_resolvePipelineState = m_device->CreateGraphicsPipelineState(resolvePipelineDesc, L"ResolvePipelineState");
-    if (!m_resolvePipelineState.Get())
+    mResolvePipelineState = mDevice->CreateGraphicsPipelineState(resolvePipelineDesc, L"ResolvePipelineState");
+    if (!mResolvePipelineState.Get())
     {
         logDebug("[DEBUG] Scene::InitializeDeferredRendering failed: failed to create resolve pass pipeline state");
         return false;
@@ -1228,14 +1240,14 @@ bool Scene::InitializeDeferredRendering()
     tonemappingStaticSamplers.push_back(sampler);
     
     // 创建根签名
-    m_tonemappingRootSignature = m_device->CreateRootSignature(
+    mTonemappingRootSignature = mDevice->CreateRootSignature(
         tonemappingRootParameters,
         tonemappingStaticSamplers,
         RALRootSignatureFlags::AllowInputAssemblerInputLayout,
         L"TonemappingRootSignature"
     );
     
-    if (!m_tonemappingRootSignature.Get())
+    if (!mTonemappingRootSignature.Get())
     {
         logDebug("[DEBUG] Scene::InitializeDeferredRendering failed: failed to create tonemapping root signature");
         return false;
@@ -1260,8 +1272,8 @@ bool Scene::InitializeDeferredRendering()
         "   return output;\n"
         "};";
     
-    m_tonemappingVS = m_device->CompileVertexShader(tonemappingVSCode);
-    if (!m_tonemappingVS.Get())
+    mTonemappingVS = mDevice->CompileVertexShader(tonemappingVSCode);
+    if (!mTonemappingVS.Get())
     {
         logDebug("[DEBUG] Scene::InitializeDeferredRendering failed: failed to compile tonemapping vertex shader");
         return false;
@@ -1322,8 +1334,8 @@ bool Scene::InitializeDeferredRendering()
         "   return output;\n"
         "};";
     
-    m_tonemappingPS = m_device->CompilePixelShader(tonemappingPSCode);
-    if (!m_tonemappingPS.Get())
+    mTonemappingPS = mDevice->CompilePixelShader(tonemappingPSCode);
+    if (!mTonemappingPS.Get())
     {
         logDebug("[DEBUG] Scene::InitializeDeferredRendering failed: failed to compile tonemapping pixel shader");
         return false;
@@ -1331,9 +1343,9 @@ bool Scene::InitializeDeferredRendering()
     
     // 创建色调映射管线状态
     RALGraphicsPipelineStateDesc tonemappingPsoDesc = {};
-    tonemappingPsoDesc.rootSignature = m_tonemappingRootSignature.Get();
-    tonemappingPsoDesc.vertexShader = m_tonemappingVS.Get();
-    tonemappingPsoDesc.pixelShader = m_tonemappingPS.Get();
+    tonemappingPsoDesc.rootSignature = mTonemappingRootSignature.Get();
+    tonemappingPsoDesc.vertexShader = mTonemappingVS.Get();
+    tonemappingPsoDesc.pixelShader = mTonemappingPS.Get();
     
     // 设置输入布局 - 为全屏四边形创建输入布局
     std::vector<RALVertexAttribute> tonemappingInputLayout;
@@ -1384,8 +1396,8 @@ bool Scene::InitializeDeferredRendering()
 	tonemappingPsoDesc.renderTargetFormats[0] = RALDataFormat::R8G8B8A8_UNorm;  // LDR格式，在Tonemapping阶段手动做gamma校正从线性空间转换到gamma空间
 	tonemappingPsoDesc.depthStencilFormat = RALDataFormat::Undefined;           // 不使用深度模板缓冲区
     
-    m_tonemappingPipelineState = m_device->CreateGraphicsPipelineState(tonemappingPsoDesc, L"TonemappingPipelineState");
-    if (!m_tonemappingPipelineState.Get())
+    mTonemappingPipelineState = mDevice->CreateGraphicsPipelineState(tonemappingPsoDesc, L"TonemappingPipelineState");
+    if (!mTonemappingPipelineState.Get())
     {
         logDebug("[DEBUG] Scene::InitializeDeferredRendering failed: failed to create tonemapping pipeline state");
         return false;
@@ -1398,7 +1410,7 @@ bool Scene::InitializeDeferredRendering()
 // 清理延迟着色相关资源
 void Scene::Resize(uint32_t width, uint32_t height)
 {
-    if (!m_device)
+    if (!mDevice)
     {
         logDebug("[DEBUG] Scene::Resize failed: device is null");
         return;
@@ -1419,36 +1431,36 @@ void Scene::Resize(uint32_t width, uint32_t height)
 void Scene::ReleaseRenderingResources()
 {
     // 释放GBuffer资源
-    m_gbufferA.Reset();
-    m_gbufferARTV.Reset();
-    m_gbufferASRV.Reset();
+    mGbufferA.Reset();
+    mGbufferARTV.Reset();
+    mGbufferASRV.Reset();
     
-    m_gbufferB.Reset();
-    m_gbufferBRTV.Reset();
-    m_gbufferBSRV.Reset();
+    mGbufferB.Reset();
+    mGbufferBRTV.Reset();
+    mGbufferBSRV.Reset();
     
-    m_gbufferC.Reset();
-    m_gbufferCRTV.Reset();
-    m_gbufferCSRV.Reset();
+    mGbufferC.Reset();
+    mGbufferCRTV.Reset();
+    mGbufferCSRV.Reset();
     
     // 释放深度模板缓冲区资源
-    m_gbufferDepthStencil.Reset();
-    m_gbufferDSV.Reset();
-    m_gbufferDepthSRV.Reset();
+    mGbufferDepthStencil.Reset();
+    mGbufferDSV.Reset();
+    mGbufferDepthSRV.Reset();
     
     // 释放光照结果资源
-    m_diffuseLightRT.Reset();
-    m_diffuseLightRTV.Reset();
-    m_diffuseLightSRV.Reset();
+    mDiffuseLightRT.Reset();
+    mDiffuseLightRTV.Reset();
+    mDiffuseLightSRV.Reset();
     
-    m_specularLightRT.Reset();
-    m_specularLightRTV.Reset();
-    m_specularLightSRV.Reset();
+    mSpecularLightRT.Reset();
+    mSpecularLightRTV.Reset();
+    mSpecularLightSRV.Reset();
     
     // 释放HDR场景颜色资源
-    m_HDRSceneColor.Reset();
-    m_HDRSceneColorRTV.Reset();
-    m_HDRSceneColorSRV.Reset();
+    mHDRSceneColor.Reset();
+    mHDRSceneColorRTV.Reset();
+    mHDRSceneColorSRV.Reset();
 }
 
 void Scene::CleanupDeferredRendering()
@@ -1457,37 +1469,54 @@ void Scene::CleanupDeferredRendering()
     ReleaseRenderingResources();
     
     // 清理色调映射资源
-    m_tonemappingRootSignature = nullptr;
-    m_tonemappingPipelineState = nullptr;
-    m_tonemappingVS = nullptr;
-    m_tonemappingPS = nullptr;
+    mTonemappingRootSignature = nullptr;
+    mTonemappingPipelineState = nullptr;
+    mTonemappingVS = nullptr;
+    mTonemappingPS = nullptr;
     
     // 清理着色器和管道状态
-    m_gbufferVertexShader = nullptr;
-    m_gbufferPixelShader = nullptr;
-    m_gbufferRootSignature = nullptr;
-    m_gbufferPipelineState = nullptr;
+    mGbufferVertexShader = nullptr;
+    mGbufferPixelShader = nullptr;
+    mGbufferRootSignature = nullptr;
+    mGbufferPipelineState = nullptr;
     
-    m_lightVertexShader = nullptr;
-    m_lightPixelShader = nullptr;
-    m_lightRootSignature = nullptr;
-    m_lightPipelineState = nullptr;
+    mLightVertexShader = nullptr;
+    mLightPixelShader = nullptr;
+    mLightRootSignature = nullptr;
+    mLightPipelineState = nullptr;
     
     // 清理Resolve阶段相关资源
-    m_resolvePipelineState = nullptr;
-    m_resolveVertexShader = nullptr;
-    m_resolvePixelShader = nullptr;
-    m_resolveRootSignature = nullptr;
+    mResolvePipelineState = nullptr;
+    mResolveVertexShader = nullptr;
+    mResolvePixelShader = nullptr;
+    mResolveRootSignature = nullptr;
     
     // 清理全屏四边形
-    m_fullscreenQuadVB = nullptr;
-    m_fullscreenQuadIB = nullptr;
+    mFullscreenQuadVB = nullptr;
+    mFullscreenQuadIB = nullptr;
+}
+
+// 创建物理世界
+bool Scene::CreatePhysicWorld()
+{
+    mPhysicWorld = SympConv::CreatePhysicWorld();
+
+    return mPhysicWorld != nullptr;
+}
+
+// 销毁物理世界
+void Scene::DestroyPhysicWorld()
+{
+    if (mPhysicWorld != nullptr)
+    {
+        SympConv::DestroyPhysicWorld(mPhysicWorld);
+    }
 }
 
 // 创建全屏四边形
 void Scene::CreateFullscreenQuad()
 {
-    if (!m_device)
+    if (!mDevice)
     {
         logDebug("[DEBUG] Scene::CreateFullscreenQuad failed: device is null");
         return;
@@ -1509,58 +1538,58 @@ void Scene::CreateFullscreenQuad()
     };
 
     // 创建顶点缓冲区，直接传递初始数据
-    m_fullscreenQuadVB = m_device->CreateVertexBuffer(sizeof(vertices), sizeof(FullscreenQuadVertex), true, vertices, L"FullScreenQuadVB");
+    mFullscreenQuadVB = mDevice->CreateVertexBuffer(sizeof(vertices), sizeof(FullscreenQuadVertex), true, vertices, L"FullScreenQuadVB");
 
     // 定义索引数据
     uint32_t indices[6] = { 0, 1, 2, 0, 2, 3 };
 
     // 创建索引缓冲区，直接传递初始数据
-    m_fullscreenQuadIB = m_device->CreateIndexBuffer(6, true, true, indices, L"FullScreenQuadIB");
+    mFullscreenQuadIB = mDevice->CreateIndexBuffer(6, true, true, indices, L"FullScreenQuadIB");
 }
 
 // 执行几何阶段
 void Scene::ExecuteGeometryPass(const dx::XMMATRIX& viewMatrix, const dx::XMMATRIX& projectionMatrix)
 {
-    IRALGraphicsCommandList* commandList = m_device->GetGraphicsCommandList();
+    IRALGraphicsCommandList* commandList = mDevice->GetGraphicsCommandList();
 
     // 设置渲染目标视图和深度模板视图
-    IRALRenderTargetView* renderTargetViews[3] = { m_gbufferARTV.Get(), m_gbufferBRTV.Get(), m_gbufferCRTV.Get() };
-    commandList->SetRenderTargets(3, renderTargetViews, m_gbufferDSV.Get());
+    IRALRenderTargetView* renderTargetViews[3] = { mGbufferARTV.Get(), mGbufferBRTV.Get(), mGbufferCRTV.Get() };
+    commandList->SetRenderTargets(3, renderTargetViews, mGbufferDSV.Get());
 
     // 清除渲染目标视图和深度模板视图
     // GBuffer A使用与资源创建时匹配的clear value [0.0f, 0.0f, 1.0f, 1.0f]（默认法线值）
     RALClearValue clearValueA(RALDataFormat::R16G16B16A16_Float, 0.0f, 0.0f, 1.0f, 1.0f);
-    commandList->ClearRenderTarget(m_gbufferARTV.Get(), clearValueA);
+    commandList->ClearRenderTarget(mGbufferARTV.Get(), clearValueA);
     
     // GBuffer B使用与资源创建时匹配的clear value [0.0f, 0.5f, 0.5f, 1.0f]
     RALClearValue clearValueB(RALDataFormat::R8G8B8A8_UNorm, 0.0f, 0.5f, 0.5f, 1.0f);
-    commandList->ClearRenderTarget(m_gbufferBRTV.Get(), clearValueB);
+    commandList->ClearRenderTarget(mGbufferBRTV.Get(), clearValueB);
     
     // GBuffer C使用与资源创建时匹配的clear value [0.5f, 0.5f, 0.5f, 1.0f]
     RALClearValue clearValueC(RALDataFormat::R8G8B8A8_UNorm, 0.5f, 0.5f, 0.5f, 1.0f);
-    commandList->ClearRenderTarget(m_gbufferCRTV.Get(), clearValueC);
+    commandList->ClearRenderTarget(mGbufferCRTV.Get(), clearValueC);
     
     // 清除深度模板缓冲区
     RALClearValue clearValueDepth(RALDataFormat::D32_Float, 1.0f, 0);
-    commandList->ClearDepthStencil(m_gbufferDSV.Get(), clearValueDepth);
+    commandList->ClearDepthStencil(mGbufferDSV.Get(), clearValueDepth);
 
     // 更新场景常量缓冲区
     UpdateSceneConstBuffer(commandList, viewMatrix, projectionMatrix);
 
     // 设置GBuffer根签名和管线状态
-    commandList->SetGraphicsRootSignature(m_gbufferRootSignature.Get());
-    commandList->SetPipelineState(m_gbufferPipelineState.Get());
+    commandList->SetGraphicsRootSignature(mGbufferRootSignature.Get());
+    commandList->SetPipelineState(mGbufferPipelineState.Get());
 
     // 设置根参数0（场景常量）
-    commandList->SetGraphicsRootConstantBuffer(0, m_sceneConstBuffer.Get());
+    commandList->SetGraphicsRootConstantBuffer(0, mSceneConstBuffer.Get());
 
     // 设置图元拓扑
     commandList->SetPrimitiveTopology(RALPrimitiveTopologyType::TriangleList);
 
     // 渲染每个可见的Primitive对象
-    for (size_t i = 0; i < m_primitives.size(); ++i)
+    for (size_t i = 0; i < mPrimitives.size(); ++i)
     {
-        auto& primitiveInfo = m_primitives[i];
+        auto& primitiveInfo = mPrimitives[i];
 
         if (primitiveInfo.primitive && primitiveInfo.visible)
         {
@@ -1573,11 +1602,11 @@ void Scene::ExecuteGeometryPass(const dx::XMMATRIX& viewMatrix, const dx::XMMATR
             }
 
             PrimitiveMesh mesh;
-            mesh.vertexBuffer = primitiveInfo.vertexBuffer.Get();
-            mesh.indexBuffer = primitiveInfo.indexBuffer.Get();
+            mesh.mVertexBuffer = primitiveInfo.vertexBuffer.Get();
+            mesh.mIndexBuffer = primitiveInfo.indexBuffer.Get();
 
             // 更新Mesh
-            primitiveInfo.primitive->OnUpdateMesh(m_device, mesh);
+            primitiveInfo.primitive->OnUpdateMesh(mDevice, mesh);
 
             // 更新Primitive常量缓冲区
             UpdatePrimitiveConstBuffer(commandList, &primitiveInfo);
@@ -1596,21 +1625,21 @@ void Scene::ExecuteGeometryPass(const dx::XMMATRIX& viewMatrix, const dx::XMMATR
 // 执行光照阶段
 void Scene::ExecuteLightingPass()
 {
-    IRALGraphicsCommandList* commandList = m_device->GetGraphicsCommandList();
+    IRALGraphicsCommandList* commandList = mDevice->GetGraphicsCommandList();
 
     // 设置渲染目标为两个光照结果RT
-    IRALRenderTargetView* renderTargets[2] = { m_diffuseLightRTV.Get(), m_specularLightRTV.Get() };
+    IRALRenderTargetView* renderTargets[2] = { mDiffuseLightRTV.Get(), mSpecularLightRTV.Get() };
     commandList->SetRenderTargets(2, renderTargets, nullptr); // nullptr参数类型为IRALDepthStencilView*
 
     // 使用场景常量缓冲区，其中已经包含了所有需要的光照信息和invViewProj矩阵
     // 不需要单独更新光照常量缓冲区
 
     // 设置光照阶段根签名和管线状态
-    commandList->SetGraphicsRootSignature(m_lightRootSignature.Get());
-    commandList->SetPipelineState(m_lightPipelineState.Get());
+    commandList->SetGraphicsRootSignature(mLightRootSignature.Get());
+    commandList->SetPipelineState(mLightPipelineState.Get());
 
     // 设置根参数0（场景常量，包含invViewProj和光照信息）
-    commandList->SetGraphicsRootConstantBuffer(0, m_sceneConstBuffer.Get());
+    commandList->SetGraphicsRootConstantBuffer(0, mSceneConstBuffer.Get());
 
     // 几何阶段完成后，将GBuffer和深度模板缓冲区转换为着色器资源状态，以便光照阶段读取
  // 使用ResourceBarrier替代专门的状态转换方法
@@ -1618,25 +1647,25 @@ void Scene::ExecuteLightingPass()
 
     // GBuffer A从渲染目标状态转换为着色器资源状态
     barriers[0].type = RALResourceBarrierType::Transition;
-    barriers[0].resource = m_gbufferA.Get();
+    barriers[0].resource = mGbufferA.Get();
     barriers[0].oldState = RALResourceState::RenderTarget;
     barriers[0].newState = RALResourceState::ShaderResource;
 
     // GBuffer B从渲染目标状态转换为着色器资源状态
     barriers[1].type = RALResourceBarrierType::Transition;
-    barriers[1].resource = m_gbufferB.Get();
+    barriers[1].resource = mGbufferB.Get();
     barriers[1].oldState = RALResourceState::RenderTarget;
     barriers[1].newState = RALResourceState::ShaderResource;
 
     // GBuffer C从渲染目标状态转换为着色器资源状态
     barriers[2].type = RALResourceBarrierType::Transition;
-    barriers[2].resource = m_gbufferC.Get();
+    barriers[2].resource = mGbufferC.Get();
     barriers[2].oldState = RALResourceState::RenderTarget;
     barriers[2].newState = RALResourceState::ShaderResource;
 
     // 深度模板缓冲区从深度模板状态转换为着色器资源状态
     barriers[3].type = RALResourceBarrierType::Transition;
-    barriers[3].resource = m_gbufferDepthStencil.Get();
+    barriers[3].resource = mGbufferDepthStencil.Get();
     barriers[3].oldState = RALResourceState::DepthStencil;
     barriers[3].newState = RALResourceState::ShaderResource;
 
@@ -1644,16 +1673,16 @@ void Scene::ExecuteLightingPass()
     commandList->ResourceBarriers(barriers, 4);
 
     // 绑定GBuffer纹理到描述符表
-    commandList->SetGraphicsRootDescriptorTable(1, m_gbufferASRV.Get());
-    commandList->SetGraphicsRootDescriptorTable(2, m_gbufferBSRV.Get());
-    commandList->SetGraphicsRootDescriptorTable(3, m_gbufferCSRV.Get());
+    commandList->SetGraphicsRootDescriptorTable(1, mGbufferASRV.Get());
+    commandList->SetGraphicsRootDescriptorTable(2, mGbufferBSRV.Get());
+    commandList->SetGraphicsRootDescriptorTable(3, mGbufferCSRV.Get());
     // 绑定深度纹理到描述符表（使用根参数4）
-    commandList->SetGraphicsRootDescriptorTable(4, m_gbufferDepthSRV.Get());
+    commandList->SetGraphicsRootDescriptorTable(4, mGbufferDepthSRV.Get());
 
     // 设置全屏四边形
-    IRALVertexBuffer* vertexBuffer = m_fullscreenQuadVB.Get();
+    IRALVertexBuffer* vertexBuffer = mFullscreenQuadVB.Get();
     commandList->SetVertexBuffers(0, 1, &vertexBuffer);
-    commandList->SetIndexBuffer(m_fullscreenQuadIB.Get());
+    commandList->SetIndexBuffer(mFullscreenQuadIB.Get());
     commandList->SetPrimitiveTopology(RALPrimitiveTopologyType::TriangleList);
 
     // 绘制全屏四边形
@@ -1663,18 +1692,18 @@ void Scene::ExecuteLightingPass()
 // 执行GBuffer Resolve阶段
 void Scene::ExecuteResolvePass()
 {
-    IRALGraphicsCommandList* commandList = m_device->GetGraphicsCommandList();
+    IRALGraphicsCommandList* commandList = mDevice->GetGraphicsCommandList();
     
     RALResourceBarrier barriers[2];
     
     // 确保所有输入资源处于着色器资源状态
     barriers[0].type = RALResourceBarrierType::Transition;
-    barriers[0].resource = m_diffuseLightRT.Get();
+    barriers[0].resource = mDiffuseLightRT.Get();
     barriers[0].oldState = RALResourceState::RenderTarget;
     barriers[0].newState = RALResourceState::ShaderResource;
     
     barriers[1].type = RALResourceBarrierType::Transition;
-    barriers[1].resource = m_specularLightRT.Get();
+    barriers[1].resource = mSpecularLightRT.Get();
     barriers[1].oldState = RALResourceState::RenderTarget;
     barriers[1].newState = RALResourceState::ShaderResource;
     
@@ -1682,26 +1711,26 @@ void Scene::ExecuteResolvePass()
     commandList->ResourceBarriers(barriers, 2);
     
     // 设置渲染目标为HDR场景颜色
-    IRALRenderTargetView* renderTargets[1] = { m_HDRSceneColorRTV.Get() };
+    IRALRenderTargetView* renderTargets[1] = { mHDRSceneColorRTV.Get() };
     commandList->SetRenderTargets(1, renderTargets, nullptr);
     
     // 设置Resolve阶段根签名和管线状态
-    commandList->SetGraphicsRootSignature(m_resolveRootSignature.Get());
-    commandList->SetPipelineState(m_resolvePipelineState.Get());
+    commandList->SetGraphicsRootSignature(mResolveRootSignature.Get());
+    commandList->SetPipelineState(mResolvePipelineState.Get());
     
     // 设置根参数0（场景常量缓冲区）
-    commandList->SetGraphicsRootConstantBuffer(0, m_sceneConstBuffer.Get());
+    commandList->SetGraphicsRootConstantBuffer(0, mSceneConstBuffer.Get());
     
     // 绑定所有需要的纹理到描述符表
-    commandList->SetGraphicsRootDescriptorTable(1, m_diffuseLightSRV.Get());
-    commandList->SetGraphicsRootDescriptorTable(2, m_specularLightSRV.Get());
-    commandList->SetGraphicsRootDescriptorTable(3, m_gbufferBSRV.Get());
-    commandList->SetGraphicsRootDescriptorTable(4, m_gbufferCSRV.Get());
+    commandList->SetGraphicsRootDescriptorTable(1, mDiffuseLightSRV.Get());
+    commandList->SetGraphicsRootDescriptorTable(2, mSpecularLightSRV.Get());
+    commandList->SetGraphicsRootDescriptorTable(3, mGbufferBSRV.Get());
+    commandList->SetGraphicsRootDescriptorTable(4, mGbufferCSRV.Get());
     
     // 设置全屏四边形
-    IRALVertexBuffer* vertexBuffer = m_fullscreenQuadVB.Get();
+    IRALVertexBuffer* vertexBuffer = mFullscreenQuadVB.Get();
     commandList->SetVertexBuffers(0, 1, &vertexBuffer);
-    commandList->SetIndexBuffer(m_fullscreenQuadIB.Get());
+    commandList->SetIndexBuffer(mFullscreenQuadIB.Get());
     commandList->SetPrimitiveTopology(RALPrimitiveTopologyType::TriangleList);
     
     // 绘制全屏四边形
@@ -1711,12 +1740,12 @@ void Scene::ExecuteResolvePass()
 
 	// 还原光照结果RT到渲染目标状态，以便下一帧重用
     endBarriers[0].type = RALResourceBarrierType::Transition;
-    endBarriers[0].resource = m_diffuseLightRT.Get();
+    endBarriers[0].resource = mDiffuseLightRT.Get();
     endBarriers[0].oldState = RALResourceState::ShaderResource; 
     endBarriers[0].newState = RALResourceState::RenderTarget;
 
     endBarriers[1].type = RALResourceBarrierType::Transition;
-    endBarriers[1].resource = m_specularLightRT.Get();
+    endBarriers[1].resource = mSpecularLightRT.Get();
     endBarriers[1].oldState = RALResourceState::ShaderResource; 
     endBarriers[1].newState = RALResourceState::RenderTarget;
 
@@ -1728,15 +1757,15 @@ void Scene::ExecuteResolvePass()
 void Scene::ExecuteTonemappingPass()
 {
     // 获取backbuffer的渲染目标视图
-    IRALRenderTargetView* backBufferRTV = m_device->GetBackBufferRTV();
+    IRALRenderTargetView* backBufferRTV = mDevice->GetBackBufferRTV();
 
     // 获取命令列表
-    IRALGraphicsCommandList* commandList = m_device->GetGraphicsCommandList();
+    IRALGraphicsCommandList* commandList = mDevice->GetGraphicsCommandList();
 
     // 将HDRSceneColor转换到ShaderResource状态
     RALResourceBarrier hdrRTBarrier;
     hdrRTBarrier.type = RALResourceBarrierType::Transition;
-    hdrRTBarrier.resource = m_HDRSceneColor.Get();
+    hdrRTBarrier.resource = mHDRSceneColor.Get();
     hdrRTBarrier.oldState = RALResourceState::RenderTarget;
     hdrRTBarrier.newState = RALResourceState::ShaderResource;
 
@@ -1750,20 +1779,20 @@ void Scene::ExecuteTonemappingPass()
     commandList->ClearRenderTarget(backBufferRTV, clearValueBackBuffer);
 
     // 设置根签名
-    commandList->SetGraphicsRootSignature(m_tonemappingRootSignature.Get());
+    commandList->SetGraphicsRootSignature(mTonemappingRootSignature.Get());
 
     // 设置管线状态
-    commandList->SetPipelineState(m_tonemappingPipelineState.Get());
+    commandList->SetPipelineState(mTonemappingPipelineState.Get());
 
     // 设置着色器资源视图到根描述符表
-    commandList->SetGraphicsRootDescriptorTable(0, m_HDRSceneColorSRV.Get());
+    commandList->SetGraphicsRootDescriptorTable(0, mHDRSceneColorSRV.Get());
 
     // 设置顶点缓冲区
-    IRALVertexBuffer* vertexBuffer = m_fullscreenQuadVB.Get();
+    IRALVertexBuffer* vertexBuffer = mFullscreenQuadVB.Get();
     commandList->SetVertexBuffers(0, 1, &vertexBuffer);
 
     // 设置索引缓冲区
-    commandList->SetIndexBuffer(m_fullscreenQuadIB.Get());
+    commandList->SetIndexBuffer(mFullscreenQuadIB.Get());
 
     // 绘制全屏四边形
     commandList->DrawIndexed(6, 1, 0, 0, 0);
@@ -1771,7 +1800,7 @@ void Scene::ExecuteTonemappingPass()
     // 转换资源状态回渲染目标（以便下一帧重用）
     RALResourceBarrier finalBarrier = {};
     finalBarrier.type = RALResourceBarrierType::Transition;
-    finalBarrier.resource = m_HDRSceneColor.Get();
+    finalBarrier.resource = mHDRSceneColor.Get();
     finalBarrier.oldState = RALResourceState::ShaderResource;
     finalBarrier.newState = RALResourceState::RenderTarget;
     commandList->ResourceBarriers(&finalBarrier, 1);
@@ -1781,25 +1810,25 @@ void Scene::ExecuteTonemappingPass()
 
     // GBuffer A转换为渲染目标状态
     GBuffersBarriers[0].type = RALResourceBarrierType::Transition;
-    GBuffersBarriers[0].resource = m_gbufferA.Get();
+    GBuffersBarriers[0].resource = mGbufferA.Get();
     GBuffersBarriers[0].oldState = RALResourceState::ShaderResource;
     GBuffersBarriers[0].newState = RALResourceState::RenderTarget;
 
     // GBuffer B转换为渲染目标状态
     GBuffersBarriers[1].type = RALResourceBarrierType::Transition;
-    GBuffersBarriers[1].resource = m_gbufferB.Get();
+    GBuffersBarriers[1].resource = mGbufferB.Get();
     GBuffersBarriers[1].oldState = RALResourceState::ShaderResource;
     GBuffersBarriers[1].newState = RALResourceState::RenderTarget;
 
     // GBuffer C转换为渲染目标状态
     GBuffersBarriers[2].type = RALResourceBarrierType::Transition;
-    GBuffersBarriers[2].resource = m_gbufferC.Get();
+    GBuffersBarriers[2].resource = mGbufferC.Get();
     GBuffersBarriers[2].oldState = RALResourceState::ShaderResource;
     GBuffersBarriers[2].newState = RALResourceState::RenderTarget;
 
     // 深度模板缓冲区转换为深度模板状态
     GBuffersBarriers[3].type = RALResourceBarrierType::Transition;
-    GBuffersBarriers[3].resource = m_gbufferDepthStencil.Get();
+    GBuffersBarriers[3].resource = mGbufferDepthStencil.Get();
     GBuffersBarriers[3].oldState = RALResourceState::ShaderResource;
     GBuffersBarriers[3].newState = RALResourceState::DepthStencil;
 

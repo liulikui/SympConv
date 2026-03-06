@@ -30,15 +30,15 @@ private:
     void UpdateViewMatrix();
     void UpdateProjectionMatrix();
 
-    dx::XMVECTOR m_cameraPosition;
-    dx::XMVECTOR m_cameraTarget;
-    dx::XMVECTOR m_cameraUp;
-    dx::XMMATRIX m_viewMatrix;
-    dx::XMMATRIX m_projectionMatrix;
+    dx::XMVECTOR mCameraPosition;
+    dx::XMVECTOR mCameraTarget;
+    dx::XMVECTOR mCameraUp;
+    dx::XMMATRIX mViewMatrix;
+    dx::XMMATRIX mProjectionMatrix;
 
-    uint32_t m_width;
-    uint32_t m_height;
-    float m_fieldOfView;
-    float m_nearClipPlane;
-    float m_farClipPlane;
+    uint32_t mWidth;
+    uint32_t mHeight;
+    float mFieldOfView;
+    float mNearClipPlane;
+    float mFarClipPlane;
 };

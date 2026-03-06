@@ -17,28 +17,28 @@ public:
     LRAConstraint(Particle* particle, const dx::XMFLOAT3& attachmentPoint, float geodesicDistance, float compliance, float damping, float maxStretch)
         : Constraint(compliance, damping)
     {
-        this->particle = particle;
-        this->attachmentPoint = attachmentPoint;
-        this->geodesicDistance = geodesicDistance;
-        this->attachmentInitialPos = attachmentPoint;
-        this->maxStretch = maxStretch;
+        mParticle = particle;
+        mAttachmentPoint = attachmentPoint;
+        mGeodesicDistance = geodesicDistance;
+        mAttachmentInitialPos = attachmentPoint;
+        mMaxStretch = maxStretch;
     }
 
     // 计算约束偏差和约束梯度
     float ComputeConstraintAndGradient(dx::XMFLOAT3* gradients) const override
     {
-        if (particle->isStatic)
+        if (mParticle->mIsStatic)
         {
             gradients[0] = dx::XMFLOAT3(0.0f, 0.0f, 0.0f);
             return 0.0f;
         }
 
-        dx::XMVECTOR pos = dx::XMLoadFloat3(&particle->position);
-        dx::XMVECTOR attachPos = dx::XMLoadFloat3(&attachmentPoint);
+        dx::XMVECTOR pos = dx::XMLoadFloat3(&mParticle->mPosition);
+        dx::XMVECTOR attachPos = dx::XMLoadFloat3(&mAttachmentPoint);
         dx::XMVECTOR delta = dx::XMVectorSubtract(pos, attachPos);
         float currentDistance = dx::XMVectorGetX(dx::XMVector3Length(delta));
         
-        float constraintValue = currentDistance - geodesicDistance * (1 + maxStretch);
+        float constraintValue = currentDistance - mGeodesicDistance * (1 + mMaxStretch);
 
         if (constraintValue > 0.0f)
         {
@@ -76,32 +76,32 @@ public:
     // 返回：受约束影响的粒子的数组
     virtual Particle** GetParticles()
     {
-        return &particle;
+        return &mParticle;
     }
 
     // 获取受此约束影响的所有粒子
      // 返回：受约束影响的粒子的数组
     virtual const Particle** GetParticles() const override
     {
-        return (const Particle**)(&particle);
+        return (const Particle**)(&mParticle);
     }
 
     // 更新附着点位置
     void UpdateAttachmentPoint(const dx::XMFLOAT3& newPosition)
     {
-        this->attachmentPoint = newPosition;
+        mAttachmentPoint = newPosition;
     }
 
     // 获取当前附着点位置
     const dx::XMFLOAT3& GetAttachmentPoint() const
     {
-        return this->attachmentPoint;
+        return mAttachmentPoint;
     }
 
     // 获取初始附着点位置
     const dx::XMFLOAT3& GetInitialAttachmentPoint() const
     {
-        return this->attachmentInitialPos;
+        return mAttachmentInitialPos;
     }
 
     // 获取约束类型
@@ -111,11 +111,11 @@ public:
     }
 
 private:
-    Particle* particle;
-    dx::XMFLOAT3 attachmentPoint;
-    dx::XMFLOAT3 attachmentInitialPos;
-    float geodesicDistance;
-    float maxStretch;
+    Particle* mParticle;
+    dx::XMFLOAT3 mAttachmentPoint;
+    dx::XMFLOAT3 mAttachmentInitialPos;
+    float mGeodesicDistance;
+    float mMaxStretch;
 };
 
 #endif // SYMPCONV_LRA_CONSTRAINT_H

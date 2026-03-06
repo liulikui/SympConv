@@ -8,26 +8,26 @@
 // DX12RALRenderTargetView析构函数实现
 DX12RALRenderTargetView::~DX12RALRenderTargetView()
 {
-	if (m_device && m_rtvCPUHandle.ptr != 0)
+	if (mDevice && mRtvCPUHandle.ptr != 0)
 	{
-		m_device->ReleaseRTVDescriptor(m_rtvCPUHandle, m_rtvIndex, m_rtvHeap.Get());
+		mDevice->ReleaseRTVDescriptor(mRtvCPUHandle, mRtvIndex, mRtvHeap.Get());
 	}
 }
 
 // DX12RALDepthStencilView析构函数实现
 DX12RALDepthStencilView::~DX12RALDepthStencilView()
 {
-	if (m_device && m_dsvCPUHandle.ptr != 0)
+	if (mDevice && mDsvCPUHandle.ptr != 0)
 	{
-		m_device->ReleaseDSVDescriptor(m_dsvCPUHandle, m_dsvIndex, m_dsvHeap.Get());
+		mDevice->ReleaseDSVDescriptor(mDsvCPUHandle, mDsvIndex, mDsvHeap.Get());
 	}
 }
 
 // DX12RALShaderResourceView析构函数实现
 DX12RALShaderResourceView::~DX12RALShaderResourceView()
 {
-	if (m_device && m_srvCPUHandle.ptr != 0)
+	if (mDevice && mSrvCPUHandle.ptr != 0)
 	{
-		m_device->ReleaseSRVDescriptor(m_srvCPUHandle, m_srvIndex, m_srvHeap.Get());
+		mDevice->ReleaseSRVDescriptor(mSrvCPUHandle, mSrvIndex, mSrvHeap.Get());
 	}
 }

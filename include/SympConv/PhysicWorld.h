@@ -5,10 +5,11 @@
 
 namespace SympConv {
 
-class PhysicWorld {
+class SYMPCONV_API PhysicWorld
+{
 public:
-	virtual ~PhysicWorld() = default;
-	virtual void Update(float dt);
+	PhysicWorld() = default;
+	void Update(float dt);
 };
 
 SYMPCONV_API PhysicWorld* CreatePhysicWorld();

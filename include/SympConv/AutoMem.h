@@ -12,32 +12,32 @@ public:
 	{
 		if (len > SIZE)
 		{
-			m_mem = (TYPE*)malloc(sizeof(TYPE) * len);
-			m_size = len;
+			mMem = (TYPE*)malloc(sizeof(TYPE) * len);
+			mSize = len;
 		}
 		else
 		{
-			m_mem = m_stack;
-			m_size = SIZE;
+			mMem = mStack;
+			mSize = SIZE;
 		}
 	}
 
 	~TAutoMem()
 	{
-		if (m_mem != m_stack)
+		if (mMem != mStack)
 		{
-			free(m_mem);
+			free(mMem);
 		}
 	}
 
 	TYPE* GetBuffer()
 	{
-		return m_mem;
+		return mMem;
 	}
 
 	size_t GetLength()
 	{
-		return m_size;
+		return mSize;
 	}
 
 private:
@@ -46,8 +46,8 @@ private:
 	self_type& operator=(const self_type&);
 
 private:
-	TYPE* m_mem;
-	size_t m_size;
-	TYPE m_stack[SIZE];
+	TYPE* mMem;
+	size_t mSize;
+	TYPE mStack[SIZE];
 };
 #endif // SYMPCONV_AUTO_MEM_H

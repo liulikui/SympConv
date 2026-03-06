@@ -45,7 +45,7 @@ class IRALCommandList
 {
 public:
     IRALCommandList(RALCommandListType type)
-        : m_type(type)
+        : mType(type)
     {
     }
 
@@ -54,20 +54,20 @@ public:
     // 增加引用计数
     void AddRef()
     {
-        m_refCount.fetch_add(1, std::memory_order_acquire);
+        mRefCount.fetch_add(1, std::memory_order_acquire);
     }
 
     // 减少引用计数
     void Release()
     {
-        if (m_refCount.fetch_sub(1, std::memory_order_acq_rel) == 1)
+        if (mRefCount.fetch_sub(1, std::memory_order_acq_rel) == 1)
         {
             delete this;
         }
     }
 
     // 获取命令列表类型
-    RALCommandListType GetType() const { return m_type; }
+    RALCommandListType GetType() const { return mType; }
 
     // 资源屏障操作
     virtual void ResourceBarrier(const RALResourceBarrier& barrier) = 0;
@@ -83,8 +83,8 @@ public:
     virtual void* GetNativeCommandList() = 0;
 
 protected:
-    RALCommandListType m_type;
-    std::atomic<int32_t> m_refCount;
+    RALCommandListType mType;
+    std::atomic<int32_t> mRefCount;
 };
 
 // 图形命令列表接口

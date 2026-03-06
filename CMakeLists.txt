@@ -35,14 +35,14 @@ file(GLOB_RECURSE TEST_SOURCES "demo/*.cpp")
 file(GLOB_RECURSE TEST_HEADERS "demo/*.h")
 
 # 构建库
-add_library(SympConvLib STATIC ${SRC_SOURCES} ${SRC_HEADERS} ${INCLUDE_HEADERS})
-target_include_directories(SympConvLib PRIVATE src)
-target_compile_definitions(SympConvLib PRIVATE SYMPCONV_EXPORTS)
+add_library(SympConv SHARED ${SRC_SOURCES} ${SRC_HEADERS} ${INCLUDE_HEADERS})
+target_include_directories(SympConv PRIVATE src)
+target_compile_definitions(SympConv PRIVATE SYMPCONV_EXPORTS)
 
 # 构建可执行文件
 add_executable(SympConvTest ${TEST_SOURCES} ${TEST_HEADERS})
 target_include_directories(SympConvTest PRIVATE demo)
-target_link_libraries(SympConvTest PRIVATE SympConvLib)
+target_link_libraries(SympConvTest PRIVATE SympConv)
 
 # 链接库
 target_link_libraries(SympConvTest PRIVATE
@@ -69,7 +69,7 @@ set_target_properties(SympConvTest PROPERTIES
 # 为所有构建类型添加调试信息
 if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
     # 为Debug版本添加调试信息和宏定义
-    target_compile_options(SympConvLib PRIVATE
+    target_compile_options(SympConv PRIVATE
         $<$<CONFIG:Debug>:/Zi /Od /DDEBUG=1>
         # 为Release版本添加调试信息但保持优化
         $<$<CONFIG:Release>:/Zi /O2 /Oy- /Gw /GS /GL>
@@ -90,7 +90,7 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
     )
     
     # 为链接器添加调试相关选项
-    target_link_options(SympConvLib PRIVATE
+    target_link_options(SympConv PRIVATE
         # 为Debug版本添加链接器调试选项
         $<$<CONFIG:Debug>:/DEBUG:FULL /INCREMENTAL:NO>
         # 为Release版本添加链接器调试选项，确保生成完整的调试信息，并添加/LTCG以匹配/GL编译选项
@@ -113,13 +113,13 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
     )
     
     # 确保程序数据库文件(PDB)生成
-    set_target_properties(SympConvLib PROPERTIES
+    set_target_properties(SympConv PROPERTIES
         # 编译PDB配置
-        COMPILE_PDB_NAME "SympConvLib"
+        COMPILE_PDB_NAME "SympConv"
         COMPILE_PDB_OUTPUT_DIR "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}"
         
         # 确保调试信息和可执行文件在同一目录
-        PDB_NAME "SympConvLib"
+        PDB_NAME "SympConv"
         PDB_OUTPUT_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}"
     )
     

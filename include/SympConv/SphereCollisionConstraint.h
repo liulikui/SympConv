@@ -1,5 +1,5 @@
-#ifndef SYMPCONV_DISTANCE_SPHERE_COLLISION_CONSTRAINT_H
-#define SYMPCONV_DISTANCE_SPHERE_COLLISION_CONSTRAINT_H
+#ifndef SYMPCONV_SPHERE_COLLISION_CONSTRAINT_H
+#define SYMPCONV_SPHERE_COLLISION_CONSTRAINT_H
 
 #include <DirectXMath.h>
 #include "Constraint.h"
@@ -12,27 +12,27 @@ class SphereCollisionConstraint : public Constraint
 public:
     SphereCollisionConstraint(Particle* p, const dx::XMFLOAT3& center, float radius, float compliance, float damping)
         : Constraint(compliance, damping)
-        , m_particle(p)
-        , m_sphereCenter(center)
-        , m_sphereRadius(radius)
+        , mParticle(p)
+        , mSphereCenter(center)
+        , mSphereRadius(radius)
     {
     }
 
     float ComputeConstraintAndGradient(dx::XMFLOAT3* gradients) const override
     {
-        if (m_particle->isStatic)
+        if (mParticle->mIsStatic)
         {
             gradients[0] = dx::XMFLOAT3(0.0f, 1.0f, 0.0f);
             return 0.0f;
         }
         else
         {
-            dx::XMVECTOR pos = dx::XMLoadFloat3(&m_particle->position);
-            dx::XMVECTOR center = dx::XMLoadFloat3(&m_sphereCenter);
+            dx::XMVECTOR pos = dx::XMLoadFloat3(&mParticle->mPosition);
+            dx::XMVECTOR center = dx::XMLoadFloat3(&mSphereCenter);
             dx::XMVECTOR toCenter = dx::XMVectorSubtract(pos, center);
             float distance = dx::XMVectorGetX(dx::XMVector3Length(toCenter));
 
-            if (distance > m_sphereRadius)
+            if (distance > mSphereRadius)
             {
                 gradients[0] = dx::XMFLOAT3(0.0f, 1.0f, 0.0f);
 
@@ -48,7 +48,7 @@ public:
 
                     gradients[0] = gradientFloat3;
 
-                    return distance - m_sphereRadius;
+                    return distance - mSphereRadius;
                 }
                 else
                 {
@@ -67,12 +67,12 @@ public:
 
     virtual Particle** GetParticles()
     {
-        return &m_particle;
+        return &mParticle;
     }
 
     virtual const Particle** GetParticles() const override
     {
-        return (const Particle**)(&m_particle);
+        return (const Particle**)(&mParticle);
     }
 
     virtual const char* GetConstraintType() const override
@@ -81,9 +81,9 @@ public:
     }
 
 private:
-    Particle* m_particle;
-    dx::XMFLOAT3 m_sphereCenter;
-    float m_sphereRadius;
+    Particle* mParticle;
+    dx::XMFLOAT3 mSphereCenter;
+    float mSphereRadius;
 };
 
-#endif // SYMPCONV_DISTANCE_SPHERE_COLLISION_CONSTRAINT_H
+#endif // SYMPCONV_SPHERE_COLLISION_CONSTRAINT_H

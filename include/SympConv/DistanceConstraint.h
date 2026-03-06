@@ -25,11 +25,11 @@ public:
     //   damping - 阻尼系数
     DistanceConstraint(Particle* p1, Particle* p2, float compliance, float damping)
         : Constraint(compliance, damping)
-        , m_particle1(p1)
-        , m_particle2(p2)
+        , mParticle1(p1)
+        , mParticle2(p2)
     {
-		dx::XMVECTOR diff = dx::XMVectorSubtract(dx::XMLoadFloat3(&p2->position), dx::XMLoadFloat3(&p1->position));
-        m_restLength = dx::XMVectorGetX(dx::XMVector3Length(diff));
+		dx::XMVECTOR diff = dx::XMVectorSubtract(dx::XMLoadFloat3(&p2->mPosition), dx::XMLoadFloat3(&p1->mPosition));
+        mRestLength = dx::XMVectorGetX(dx::XMVector3Length(diff));
     }
     
     // 计算约束梯度
@@ -38,8 +38,8 @@ public:
     float ComputeConstraintAndGradient(dx::XMFLOAT3* gradients) const override
     {
         // 将XMFLOAT3转换为XMVECTOR进行计算
-        dx::XMVECTOR pos1 = dx::XMLoadFloat3(&m_particle1->position);
-        dx::XMVECTOR pos2 = dx::XMLoadFloat3(&m_particle2->position);
+        dx::XMVECTOR pos1 = dx::XMLoadFloat3(&mParticle1->mPosition);
+        dx::XMVECTOR pos2 = dx::XMLoadFloat3(&mParticle2->mPosition);
         
         // 计算两个粒子之间的向量差
         dx::XMVECTOR diff = dx::XMVectorSubtract(pos1, pos2);
@@ -70,7 +70,7 @@ public:
             gradients[1] = dx::XMFLOAT3(-1.0f, 0.0f, 0.0f);
         }
 		
-        float C = distance - m_restLength;
+        float C = distance - mRestLength;
 
 		return C;
     }
@@ -86,14 +86,14 @@ public:
     // 返回：受约束影响的粒子的数组
     virtual Particle** GetParticles() override
     {
-        return &m_particle1;
+        return &mParticle1;
     }
 
     // 获取受此约束影响的所有粒子
     // 返回：受约束影响的粒子的数组
     virtual const Particle** GetParticles() const override
     {
-        return (const Particle**)(&m_particle1);
+        return (const Particle**)(&mParticle1);
     }
 
     // 设置约束的静止长度
@@ -101,14 +101,14 @@ public:
     //   length - 新的静止长度
     void SetRestLength(float length)
     {
-        m_restLength = length;
+        mRestLength = length;
     }
     
     // 获取约束的静止长度
     // 返回：静止长度值
     float GetRestLength() const
     {
-        return m_restLength;
+        return mRestLength;
     }
     
     // 获取约束类型
@@ -119,11 +119,11 @@ public:
 
 private:
     // 受约束的两个粒子
-    Particle* m_particle1; // 第一个粒子
-    Particle* m_particle2; // 第二个粒子
+    Particle* mParticle1; // 第一个粒子
+    Particle* mParticle2; // 第二个粒子
     
     // 约束的静止长度
-    float m_restLength; // 两个粒子之间的目标距离
+    float mRestLength; // 两个粒子之间的目标距离
 };
 
 #endif // SYMPCONV_DISTANCE_CONSTRAINT_H

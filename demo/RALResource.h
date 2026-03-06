@@ -487,8 +487,8 @@ class IRALResource
 {
 public:
 	IRALResource(RALResourceType type) 
-		: m_refCount(0)
-		, m_resourceType(type)
+		: mRefCount(0)
+		, mResourceType(type)
 	{
 	}
 
@@ -499,19 +499,19 @@ public:
 	// 获取资源类型
 	RALResourceType GetResourceType() const 
 	{
-		return m_resourceType;
+		return mResourceType;
 	}
 
 	// 获取资源状态
 	RALResourceState GetResourceState() const
 	{
-		return m_resourceState;
+		return mResourceState;
 	}
 
 	// 设置资源状态
 	void SetResourceState(RALResourceState state)
 	{
-		m_resourceState = state;
+		mResourceState = state;
 	}
 
 	// 获取原生资源指针
@@ -520,22 +520,22 @@ public:
 	// 增加引用计数
 	void AddRef()
 	{
-		m_refCount.fetch_add(1, std::memory_order_acquire);
+		mRefCount.fetch_add(1, std::memory_order_acquire);
 	}
 
 	// 减少引用计数
 	void Release()
 	{
-		if (m_refCount.fetch_sub(1, std::memory_order_acq_rel) == 1)
+		if (mRefCount.fetch_sub(1, std::memory_order_acq_rel) == 1)
 		{
 			delete this;
 		}
 	}
 
 protected:
-	std::atomic<int32_t> m_refCount;
-	RALResourceType m_resourceType;
-	RALResourceState m_resourceState;
+	std::atomic<int32_t> mRefCount;
+	RALResourceType mResourceType;
+	RALResourceState mResourceState;
 };
 
 // Shader基类
@@ -544,7 +544,7 @@ class IRALShader : public IRALResource
 public:
 	IRALShader(RALShaderType shaderType)
 		: IRALResource(RALResourceType::Shader)
-		, m_shaderType(shaderType)
+		, mShaderType(shaderType)
 	{
 	}
 
@@ -552,11 +552,11 @@ public:
 
 	RALShaderType GetShaderType() const
 	{
-		return m_shaderType;
+		return mShaderType;
 	}
 
 protected:
-	RALShaderType m_shaderType;
+	RALShaderType mShaderType;
 };
 
 // 顶点着色器类
@@ -753,7 +753,7 @@ class IRALTexture : public IRALResource
 public:
 	IRALTexture(ETextureType textureType)
 		: IRALResource(RALResourceType::Texture)
-		, m_textureType(textureType)
+		, mTextureType(textureType)
 	{
 
 	}
@@ -773,7 +773,7 @@ public:
 	}
 
 protected:
-	ETextureType m_textureType;
+	ETextureType mTextureType;
 };
 
 struct RALRange
@@ -791,17 +791,17 @@ class IRALBuffer : public IRALResource
 public:
 	IRALBuffer(RALResourceType type, uint32_t size)
 		: IRALResource(type)
-		, m_size(size)
+		, mSize(size)
 	{
 	}
 
 	uint32_t GetSize() const
 	{
-		return m_size;
+		return mSize;
 	}
 
 protected:
-	uint32_t m_size;
+	uint32_t mSize;
 };
 
 // 顶点缓冲区接口
@@ -822,8 +822,8 @@ class IRALIndexBuffer : public IRALBuffer
 public:
 	IRALIndexBuffer(uint32_t count, uint32_t size, bool is32BitIndex)
 		: IRALBuffer(RALResourceType::IndexBuffer, size)
-		, m_count(count)
-		, m_is32BitIndex(is32BitIndex)
+		, mCount(count)
+		, mIs32BitIndex(is32BitIndex)
 	{
 	}
 
@@ -831,16 +831,16 @@ public:
 
 	uint32_t GetIndexCount() const
 	{
-		return m_count;
+		return mCount;
 	}
 	bool Is32BitIndex() const
 	{
-		return m_is32BitIndex;
+		return mIs32BitIndex;
 	}
 
 protected:
-	uint32_t m_count;
-	bool m_is32BitIndex;
+	uint32_t mCount;
+	bool mIs32BitIndex;
 };
 
 // ConstBuffer接口
@@ -1162,9 +1162,9 @@ class IRALRenderTarget : public IRALResource
 public:
 	IRALRenderTarget(uint32_t width, uint32_t height, RALDataFormat format)
 		: IRALResource(RALResourceType::RenderTarget)
-		, m_width(width)
-		, m_height(height)
-		, m_format(format)
+		, mWidth(width)
+		, mHeight(height)
+		, mFormat(format)
 	{
 	}
 	
@@ -1173,25 +1173,25 @@ public:
 	// 获取宽度
 	uint32_t GetWidth() const
 	{
-		return m_width;
+		return mWidth;
 	}
 	
 	// 获取高度
 	uint32_t GetHeight() const
 	{
-		return m_height;
+		return mHeight;
 	}
 	
 	// 获取格式
 	RALDataFormat GetFormat() const
 	{
-		return m_format;
+		return mFormat;
 	}
 
 protected:
-	uint32_t m_width;
-	uint32_t m_height;
-	RALDataFormat m_format;
+	uint32_t mWidth;
+	uint32_t mHeight;
+	RALDataFormat mFormat;
 };
 
 // DepthStencil基类
@@ -1200,9 +1200,9 @@ class IRALDepthStencil : public IRALResource
 public:
 	IRALDepthStencil(uint32_t width, uint32_t height, RALDataFormat format)
 		: IRALResource(RALResourceType::DepthStencil)
-		, m_width(width)
-		, m_height(height)
-		, m_format(format)
+		, mWidth(width)
+		, mHeight(height)
+		, mFormat(format)
 	{
 	}
 
@@ -1211,25 +1211,25 @@ public:
 	// 获取宽度
 	uint32_t GetWidth() const
 	{
-		return m_width;
+		return mWidth;
 	}
 
 	// 获取高度
 	uint32_t GetHeight() const
 	{
-		return m_height;
+		return mHeight;
 	}
 
 	// 获取格式
 	RALDataFormat GetFormat() const
 	{
-		return m_format;
+		return mFormat;
 	}
 
 protected:
-	uint32_t m_width;
-	uint32_t m_height;
-	RALDataFormat m_format;
+	uint32_t mWidth;
+	uint32_t mHeight;
+	RALDataFormat mFormat;
 };
 
 // 深度模板视图接口

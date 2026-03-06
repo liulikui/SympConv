@@ -9,8 +9,8 @@ D3D_PRIMITIVE_TOPOLOGY ConvertToDX12PrimitiveTopology(RALPrimitiveTopologyType t
 // DX12RALGraphicsCommandList构造函数
 DX12RALGraphicsCommandList::DX12RALGraphicsCommandList(ID3D12CommandAllocator* commandAllocator, ID3D12GraphicsCommandList* commandList)
     : IRALGraphicsCommandList()
-    , m_commandAllocator(commandAllocator)
-    , m_commandList(commandList)
+    , mCommandAllocator(commandAllocator)
+    , mCommandList(commandList)
 {    
 }
 
@@ -62,25 +62,25 @@ void DX12RALGraphicsCommandList::ResourceBarriers(const RALResourceBarrier* barr
         dxBarriers.push_back(dxBarrier);
     }
     
-    m_commandList->ResourceBarrier((UINT)count, dxBarriers.data());
+    mCommandList->ResourceBarrier((UINT)count, dxBarriers.data());
 }
 
 // 关闭命令列表（准备执行）
 void DX12RALGraphicsCommandList::Close()
 {
-    m_commandList->Close();
+    mCommandList->Close();
 }
 
 // 重置命令列表（重新开始录制）
 void DX12RALGraphicsCommandList::Reset()
 {
-    m_commandList->Reset(m_commandAllocator.Get(), nullptr);
+    mCommandList->Reset(mCommandAllocator.Get(), nullptr);
 }
 
 // 获取原生命令列表指针
 void* DX12RALGraphicsCommandList::GetNativeCommandList()
 {
-    return m_commandList.Get();
+    return mCommandList.Get();
 }
 
 // 清除渲染目标
@@ -93,7 +93,7 @@ void DX12RALGraphicsCommandList::ClearRenderTarget(IRALRenderTargetView* renderT
     D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = dx12RTV->GetRTVCPUHandle();
     
     // 直接使用RALClearValue中的颜色数据
-    m_commandList->ClearRenderTargetView(rtvHandle, clearValue.clearValue.color, 0, nullptr);
+    mCommandList->ClearRenderTargetView(rtvHandle, clearValue.clearValue.color, 0, nullptr);
 }
 
 // 清除深度/模板视图
@@ -109,7 +109,7 @@ void DX12RALGraphicsCommandList::ClearDepthStencil(IRALDepthStencilView* depthSt
     D3D12_CLEAR_FLAGS d3dClearFlags = D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL;
     
     // 使用RALClearValue中提供的值
-    m_commandList->ClearDepthStencilView(
+    mCommandList->ClearDepthStencilView(
         dsvHandle, 
         d3dClearFlags, 
         clearValue.clearValue.depthStencil.depth, 
@@ -129,7 +129,7 @@ void DX12RALGraphicsCommandList::SetViewport(float x, float y, float width, floa
     viewport.Height = height;
     viewport.MinDepth = minDepth;
     viewport.MaxDepth = maxDepth;
-    m_commandList->RSSetViewports(1, &viewport);
+    mCommandList->RSSetViewports(1, &viewport);
 }
 
 // 设置裁剪矩形
@@ -140,7 +140,7 @@ void DX12RALGraphicsCommandList::SetScissorRect(int32_t left, int32_t top, int32
     scissorRect.top = top;
     scissorRect.right = right;
     scissorRect.bottom = bottom;
-    m_commandList->RSSetScissorRects(1, &scissorRect);
+    mCommandList->RSSetScissorRects(1, &scissorRect);
 }
 
 // 设置管线状态
@@ -150,7 +150,7 @@ void DX12RALGraphicsCommandList::SetPipelineState(IRALResource* pipelineState)
     {
         DX12RALGraphicsPipelineState* dx12PipelineState = static_cast<DX12RALGraphicsPipelineState*>(pipelineState);
         ID3D12PipelineState* nativePipelineState = static_cast<ID3D12PipelineState*>(dx12PipelineState->GetNativeResource());
-        m_commandList->SetPipelineState(nativePipelineState);
+        mCommandList->SetPipelineState(nativePipelineState);
     }
 }
 
@@ -166,7 +166,7 @@ void DX12RALGraphicsCommandList::SetVertexBuffers(uint32_t startSlot, uint32_t c
         bufferViews.push_back(view);
     }
     
-    m_commandList->IASetVertexBuffers(startSlot, bufferViews.size(), bufferViews.data());
+    mCommandList->IASetVertexBuffers(startSlot, bufferViews.size(), bufferViews.data());
 }
 
 // 绑定索引缓冲区
@@ -175,11 +175,11 @@ void DX12RALGraphicsCommandList::SetIndexBuffer(IRALIndexBuffer* indexBuffer)
     if (indexBuffer)
     {
         D3D12_INDEX_BUFFER_VIEW view = (static_cast<DX12RALIndexBuffer*>(indexBuffer))->GetIndexBufferView();
-        m_commandList->IASetIndexBuffer(&view);
+        mCommandList->IASetIndexBuffer(&view);
     }
     else
     {
-        m_commandList->IASetIndexBuffer(nullptr);
+        mCommandList->IASetIndexBuffer(nullptr);
     }
 }
 
@@ -189,19 +189,19 @@ void DX12RALGraphicsCommandList::SetGraphicsRootSignature(IRALRootSignature* roo
     if (rootSignature)
     {
         ID3D12RootSignature* dxRootSignature = static_cast<ID3D12RootSignature*>(rootSignature->GetNativeResource());
-        m_commandList->SetGraphicsRootSignature(dxRootSignature);
+        mCommandList->SetGraphicsRootSignature(dxRootSignature);
     }
 }
 
 // 绑定根常量
 void DX12RALGraphicsCommandList::SetGraphicsRootConstant(uint32_t rootParameterIndex, uint32_t shaderRegister, uint32_t value)
 {
-    m_commandList->SetGraphicsRoot32BitConstant(rootParameterIndex, value, shaderRegister);
+    mCommandList->SetGraphicsRoot32BitConstant(rootParameterIndex, value, shaderRegister);
 }
 
 void DX12RALGraphicsCommandList::SetGraphicsRootConstants(uint32_t rootParameterIndex, uint32_t shaderRegister, uint32_t count, const uint32_t* values)
 {
-    m_commandList->SetGraphicsRoot32BitConstants(rootParameterIndex, count, values, shaderRegister);
+    mCommandList->SetGraphicsRoot32BitConstants(rootParameterIndex, count, values, shaderRegister);
 }
 
 // 绑定根描述符表
@@ -211,7 +211,7 @@ void DX12RALGraphicsCommandList::SetGraphicsRootDescriptorTable(uint32_t rootPar
     {
         D3D12_GPU_DESCRIPTOR_HANDLE handle = {};
         handle.ptr = reinterpret_cast<uint64_t>(descriptorTable);
-        m_commandList->SetGraphicsRootDescriptorTable(rootParameterIndex, handle);
+        mCommandList->SetGraphicsRootDescriptorTable(rootParameterIndex, handle);
     }
 }
 
@@ -228,10 +228,10 @@ void DX12RALGraphicsCommandList::SetGraphicsRootDescriptorTable(uint32_t rootPar
             ID3D12DescriptorHeap* heaps[1];
             heaps[0] = srvHeap;
 
-            m_commandList->SetDescriptorHeaps(1, heaps); // 绑定堆
+            mCommandList->SetDescriptorHeaps(1, heaps); // 绑定堆
 
             D3D12_GPU_DESCRIPTOR_HANDLE gpuHandle = dx12SRV->GetSRVGPUHandle();
-            m_commandList->SetGraphicsRootDescriptorTable(rootParameterIndex, gpuHandle);
+            mCommandList->SetGraphicsRootDescriptorTable(rootParameterIndex, gpuHandle);
         }
     }
 }
@@ -240,14 +240,14 @@ void DX12RALGraphicsCommandList::SetGraphicsRootDescriptorTable(uint32_t rootPar
 void DX12RALGraphicsCommandList::SetGraphicsRootConstantBuffer(uint32_t rootParameterIndex, IRALConstBuffer* constBuffer)
 {
     DX12RALConstBuffer* dx12ConstBuffer = (DX12RALConstBuffer*)constBuffer;
-    m_commandList->SetGraphicsRootConstantBufferView(rootParameterIndex, dx12ConstBuffer->GetGPUVirtualAddress());
+    mCommandList->SetGraphicsRootConstantBufferView(rootParameterIndex, dx12ConstBuffer->GetGPUVirtualAddress());
 }
 
 // 绑定根着色器资源视图（常量缓冲区）
 void DX12RALGraphicsCommandList::SetGraphicsRootShaderResource(uint32_t rootParameterIndex, IRALConstBuffer* constBuffer)
 {
     DX12RALConstBuffer* dx12ConstBuffer = (DX12RALConstBuffer*)constBuffer;
-    m_commandList->SetGraphicsRootShaderResourceView(rootParameterIndex, dx12ConstBuffer->GetGPUVirtualAddress());
+    mCommandList->SetGraphicsRootShaderResourceView(rootParameterIndex, dx12ConstBuffer->GetGPUVirtualAddress());
 }
 
 // 注意：已删除SetGraphicsRootShaderResource(IRALShaderResourceView*)方法实现
@@ -256,19 +256,19 @@ void DX12RALGraphicsCommandList::SetGraphicsRootShaderResource(uint32_t rootPara
 void DX12RALGraphicsCommandList::SetGraphicsRootUnorderedAccess(uint32_t rootParameterIndex, IRALConstBuffer* constBuffer)
 {
     DX12RALConstBuffer* dx12ConstBuffer = (DX12RALConstBuffer*)constBuffer;
-    m_commandList->SetGraphicsRootUnorderedAccessView(rootParameterIndex, dx12ConstBuffer->GetGPUVirtualAddress());
+    mCommandList->SetGraphicsRootUnorderedAccessView(rootParameterIndex, dx12ConstBuffer->GetGPUVirtualAddress());
 }
 
 // 绘制调用（无索引）
 void DX12RALGraphicsCommandList::Draw(uint32_t vertexCount, uint32_t instanceCount, uint32_t startVertexLocation, uint32_t startInstanceLocation)
 {
-    m_commandList->DrawInstanced(vertexCount, instanceCount, startVertexLocation, startInstanceLocation);
+    mCommandList->DrawInstanced(vertexCount, instanceCount, startVertexLocation, startInstanceLocation);
 }
 
 // 绘制调用（有索引）
 void DX12RALGraphicsCommandList::DrawIndexed(uint32_t indexCount, uint32_t instanceCount, uint32_t startIndexLocation, int32_t baseVertexLocation, uint32_t startInstanceLocation)
 {
-    m_commandList->DrawIndexedInstanced(indexCount, instanceCount, startIndexLocation, baseVertexLocation, startInstanceLocation);
+    mCommandList->DrawIndexedInstanced(indexCount, instanceCount, startIndexLocation, baseVertexLocation, startInstanceLocation);
 }
 
 // 绘制调用（间接）
@@ -333,7 +333,7 @@ void DX12RALGraphicsCommandList::SetRenderTargets(uint32_t renderTargetCount, IR
         dsvHandle = dx12Dsv->GetDSVCPUHandle();
     }
     
-    m_commandList->OMSetRenderTargets(
+    mCommandList->OMSetRenderTargets(
         renderTargetCount,
         renderTargetCount > 0 ? rtvHandles.data() : nullptr,
         FALSE, // 不绑定到所有视图
@@ -352,5 +352,5 @@ void DX12RALGraphicsCommandList::ExecuteRenderPass(const void* renderPass, const
 void DX12RALGraphicsCommandList::SetPrimitiveTopology(RALPrimitiveTopologyType topology)
 {
     D3D_PRIMITIVE_TOPOLOGY dxTopology = ConvertToDX12PrimitiveTopology(topology);
-    m_commandList->IASetPrimitiveTopology(dxTopology);
+    mCommandList->IASetPrimitiveTopology(dxTopology);
 }

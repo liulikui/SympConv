@@ -276,7 +276,7 @@ BOOL RegisterWindowClass(HINSTANCE hInstance)
     wc.hCursor = LoadCursor(NULL, IDC_ARROW);
     wc.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
     wc.lpszMenuName = NULL;
-    wc.lpszClassName = TEXT("DX12ClothSimulator");
+    wc.lpszClassName = TEXT("SympConv");
     wc.hIconSm = LoadIcon(NULL, IDI_APPLICATION);
 
     return RegisterClassEx(&wc);
@@ -332,8 +332,8 @@ BOOL CreateWindowApp(HINSTANCE hInstance)
     // 创建窗口，使用CreateWindowEx以支持扩展样式
     hWnd = CreateWindowEx(
         exStyle,                  // 扩展窗口样式
-        TEXT("DX12ClothSimulator"),  // 窗口类名称
-        TEXT("ClothSimulator"),  // 窗口标题
+        TEXT("SympConv"),  // 窗口类名称
+        TEXT("SympConv"),  // 窗口标题
         windowStyle,                // 窗口样式
         xPos, yPos,                 // 窗口位置
         windowWidth, windowHeight,  // 窗口尺寸
@@ -388,7 +388,7 @@ BOOL InitializeDevice()
 {
     std::cout << "  - Converting window title to wide character..." << std::endl;
     // 转换窗口标题为宽字符
-    std::wstring windowName(L"XPBD Cloth Simulator");
+    std::wstring windowName(L"SympConv");
 
     std::cout << "  - Creating DX12RALDevice object..." << std::endl;
     // 使用实际窗口尺寸参数，而不是硬编码值
@@ -522,7 +522,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     // 检查是否需要显示帮助信息
     if (cmdLine.Find("-help"))
     {
-        std::wcout << L"XPBD Cloth Simulator (DirectX 12) - 命令行参数帮助" << std::endl;
+        std::wcout << L"SympConv - 命令行参数帮助" << std::endl;
         std::wcout << L"===================================================" << std::endl;
         std::wcout << L"可用的命令行参数：" << std::endl;
         std::wcout << L"  -help                 显示此帮助信息并退出" << std::endl;

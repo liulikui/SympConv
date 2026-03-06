@@ -10,7 +10,7 @@ class Commandline
 {
 public:
     // 构造函数，接受命令行参数字符串
-    Commandline(const std::string& cmdLine) : m_cmdLine(cmdLine) {}
+    Commandline(const std::string& cmdLine) : mCmdLine(cmdLine) {}
     
     // 构造函数，接受argc和argv
     Commandline(int argc, char* argv[])
@@ -24,19 +24,19 @@ public:
                 cmdLineStream << " ";
             }
         }
-        m_cmdLine = cmdLineStream.str();
+        mCmdLine = cmdLineStream.str();
     }
     
     // 检查是否存在指定参数
     bool Find(const char* param) const
     {
-        return m_cmdLine.find(param) != std::string::npos;
+        return mCmdLine.find(param) != std::string::npos;
     }
     
     // 获取整数类型参数值
     bool Get(const char* param, int& value, int defaultValue) const
     {
-        size_t pos = m_cmdLine.find(param);
+        size_t pos = mCmdLine.find(param);
         if (pos == std::string::npos)
         {
             value = defaultValue;
@@ -44,13 +44,13 @@ public:
         }
         
         size_t start = pos + strlen(param);
-        size_t end = m_cmdLine.find(' ', start);
+        size_t end = mCmdLine.find(' ', start);
         if (end == std::string::npos)
         {
-            end = m_cmdLine.length();
+            end = mCmdLine.length();
         }
         
-        std::string valueStr = m_cmdLine.substr(start, end - start);
+        std::string valueStr = mCmdLine.substr(start, end - start);
         try
         {
             value = std::stoi(valueStr);
@@ -66,7 +66,7 @@ public:
     // 获取浮点数类型参数值
     bool Get(const char* param, float& value, float defaultValue) const
     {
-        size_t pos = m_cmdLine.find(param);
+        size_t pos = mCmdLine.find(param);
         if (pos == std::string::npos)
         {
             value = defaultValue;
@@ -74,13 +74,13 @@ public:
         }
         
         size_t start = pos + strlen(param);
-        size_t end = m_cmdLine.find(' ', start);
+        size_t end = mCmdLine.find(' ', start);
         if (end == std::string::npos)
         {
-            end = m_cmdLine.length();
+            end = mCmdLine.length();
         }
         
-        std::string valueStr = m_cmdLine.substr(start, end - start);
+        std::string valueStr = mCmdLine.substr(start, end - start);
         try
         {
             value = std::stof(valueStr);
@@ -96,7 +96,7 @@ public:
     // 获取布尔类型参数值
     bool Get(const char* param, bool& value, bool defaultValue) const
     {
-        size_t pos = m_cmdLine.find(param);
+        size_t pos = mCmdLine.find(param);
         if (pos == std::string::npos)
         {
             value = defaultValue;
@@ -104,13 +104,13 @@ public:
         }
         
         size_t start = pos + strlen(param);
-        size_t end = m_cmdLine.find(' ', start);
+        size_t end = mCmdLine.find(' ', start);
         if (end == std::string::npos)
         {
-            end = m_cmdLine.length();
+            end = mCmdLine.length();
         }
         
-        std::string valueStr = m_cmdLine.substr(start, end - start);
+        std::string valueStr = mCmdLine.substr(start, end - start);
         
         if (valueStr == "false" || valueStr == "0" || valueStr == "no")
         {
@@ -132,7 +132,7 @@ public:
     // 获取无符号整数类型参数值
     bool Get(const char* param, uint32_t& value, uint32_t defaultValue) const
     {
-        size_t pos = m_cmdLine.find(param);
+        size_t pos = mCmdLine.find(param);
         if (pos == std::string::npos)
         {
             value = defaultValue;
@@ -140,13 +140,13 @@ public:
         }
         
         size_t start = pos + strlen(param);
-        size_t end = m_cmdLine.find(' ', start);
+        size_t end = mCmdLine.find(' ', start);
         if (end == std::string::npos)
         {
-            end = m_cmdLine.length();
+            end = mCmdLine.length();
         }
         
-        std::string valueStr = m_cmdLine.substr(start, end - start);
+        std::string valueStr = mCmdLine.substr(start, end - start);
         try
         {
             value = static_cast<uint32_t>(std::stoi(valueStr));
@@ -162,7 +162,7 @@ public:
     // 获取字符串类型参数值
     bool Get(const char* param, std::string& value, const std::string& defaultValue) const
     {
-        size_t pos = m_cmdLine.find(param);
+        size_t pos = mCmdLine.find(param);
         if (pos == std::string::npos)
         {
             value = defaultValue;
@@ -170,24 +170,24 @@ public:
         }
         
         size_t start = pos + strlen(param);
-        size_t end = m_cmdLine.find(' ', start);
+        size_t end = mCmdLine.find(' ', start);
         if (end == std::string::npos) 
         {
-            end = m_cmdLine.length();
+            end = mCmdLine.length();
         }
         
-        value = m_cmdLine.substr(start, end - start);
+        value = mCmdLine.substr(start, end - start);
         return true;
     }
     
     // 获取完整的命令行字符串
     const std::string& GetCommandLineString() const
     {
-        return m_cmdLine;
+        return mCmdLine;
     }
     
 private:
-    std::string m_cmdLine; // 存储命令行参数字符串
+    std::string mCmdLine; // 存储命令行参数字符串
 };
 
 #endif // COMMANDLINE_H

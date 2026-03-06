@@ -7,6 +7,7 @@
 #include <vector>
 #include <memory>
 #include <DirectXMath.h>
+#include "SympConv/PhysicWorld.h"
 
 // 前向声明
 class IRALDevice;
@@ -33,7 +34,7 @@ public:
     // 获取场景中Primitive对象的数量
     size_t GetPrimitiveCount() const
     {
-        return m_primitives.size();
+        return mPrimitives.size();
     }
 
     // 更新场景中所有Primitive对象的状态
@@ -66,37 +67,37 @@ public:
     // 设置场景的背景颜色
     void SetBackgroundColor(const dx::XMFLOAT4& color)
     {
-        m_backgroundColor = color;
+        mBackgroundColor = color;
     }
 
     // 获取场景的背景颜色
     const dx::XMFLOAT4& GetBackgroundColor() const
     {
-        return m_backgroundColor;
+        return mBackgroundColor;
     }
 
     // 设置场景的光源位置
     void SetLightPosition(const dx::XMFLOAT3& position)
     {
-        m_lightPosition = position;
+        mLightPosition = position;
     }
 
     // 获取场景的光源位置
     const dx::XMFLOAT3& GetLightPosition() const 
     {
-        return m_lightPosition;
+        return mLightPosition;
     }
 
     // 设置场景的光源颜色
     void SetLightDiffuseColor(const dx::XMFLOAT4& color)
     {
-        m_lightDiffuseColor = color;
+        mLightDiffuseColor = color;
     }
 
     // 获取场景的光源颜色
     const dx::XMFLOAT4& GetLightDiffuseColor() const 
     { 
-        return m_lightDiffuseColor; 
+        return mLightDiffuseColor; 
     }
     
     // 设置场景的光源方向（自动归一化）
@@ -105,19 +106,19 @@ public:
     // 获取场景的光源方向
     const dx::XMFLOAT3& GetLightDirection() const 
     { 
-        return m_lightDirection; 
+        return mLightDirection; 
     }
     
     // 设置场景的环境光颜色
     void SetLightAmbientColor(const dx::XMFLOAT4& color)
     { 
-        m_lightAmbientColor = color; 
+        mLightAmbientColor = color; 
     }
     
     // 获取场景的环境光颜色
     const dx::XMFLOAT4& GetLightAmbientColor() const 
     { 
-        return m_lightAmbientColor; 
+        return mLightAmbientColor; 
     }
     
     // 调整渲染资源大小
@@ -154,6 +155,9 @@ private:
     bool CreateRenderingResources(uint32_t width, uint32_t height);
     // 释放所有渲染资源
     void ReleaseRenderingResources();
+    // 初始化
+    bool CreatePhysicWorld();
+    void DestroyPhysicWorld();
     
     // 创建全屏四边形
     void CreateFullscreenQuad();
@@ -168,87 +172,91 @@ private:
     void ExecuteTonemappingPass();
 
 private:
-    IRALDevice* m_device;
+    // 渲染设备
+    IRALDevice* mDevice;
+
+    // 物理世界
+    SympConv::PhysicWorld* mPhysicWorld;
 
     // 添加Primitive的请求列表
-    std::vector<AddPrimitiveRequest> m_addPrimitiveRequests;
+    std::vector<AddPrimitiveRequest> mAddPrimitiveRequests;
 
     // 场景中的所有Mesh对象
-    std::vector<PrimitiveInfo> m_primitives;
+    std::vector<PrimitiveInfo> mPrimitives;
 
     // 场景的背景颜色
-    dx::XMFLOAT4 m_backgroundColor; // 默认浅灰色背景
+    dx::XMFLOAT4 mBackgroundColor; // 默认浅灰色背景
 
     // 光源属性
-    dx::XMFLOAT3 m_lightPosition; // 默认光源位置
-    dx::XMFLOAT3 m_lightDirection; // 默认光源方向
-    dx::XMFLOAT4 m_lightDiffuseColor;       // 默认光源颜色（白色）
-    dx::XMFLOAT4 m_lightSpecularColor;       // 默认光源颜色（白色）
-    dx::XMFLOAT4 m_lightAmbientColor;        // 默认环境光颜色
+    dx::XMFLOAT3 mLightPosition; // 默认光源位置
+    dx::XMFLOAT3 mLightDirection; // 默认光源方向
+    dx::XMFLOAT4 mLightDiffuseColor;       // 默认光源颜色（白色）
+    dx::XMFLOAT4 mLightSpecularColor;       // 默认光源颜色（白色）
+    dx::XMFLOAT4 mLightAmbientColor;        // 默认环境光颜色
 
     // 延迟着色相关 - 几何阶段管道状态
-    TRefCountPtr<IRALGraphicsPipelineState> m_gbufferPipelineState;
-    TRefCountPtr<IRALVertexShader> m_gbufferVertexShader;
-    TRefCountPtr<IRALPixelShader> m_gbufferPixelShader;
-    TRefCountPtr<IRALRootSignature> m_gbufferRootSignature;
+    TRefCountPtr<IRALGraphicsPipelineState> mGbufferPipelineState;
+    TRefCountPtr<IRALVertexShader> mGbufferVertexShader;
+    TRefCountPtr<IRALPixelShader> mGbufferPixelShader;
+    TRefCountPtr<IRALRootSignature> mGbufferRootSignature;
 
     // 延迟着色相关 - 光照阶段管道状态
-    TRefCountPtr<IRALGraphicsPipelineState> m_lightPipelineState;
-    TRefCountPtr<IRALVertexShader> m_lightVertexShader;
-    TRefCountPtr<IRALPixelShader> m_lightPixelShader;
-    TRefCountPtr<IRALRootSignature> m_lightRootSignature;
+    TRefCountPtr<IRALGraphicsPipelineState> mLightPipelineState;
+    TRefCountPtr<IRALVertexShader> mLightVertexShader;
+    TRefCountPtr<IRALPixelShader> mLightPixelShader;
+    TRefCountPtr<IRALRootSignature> mLightRootSignature;
     
     // 延迟着色相关 - Resolve阶段管道状态
-    TRefCountPtr<IRALGraphicsPipelineState> m_resolvePipelineState;
-    TRefCountPtr<IRALVertexShader> m_resolveVertexShader;
-    TRefCountPtr<IRALPixelShader> m_resolvePixelShader;
-    TRefCountPtr<IRALRootSignature> m_resolveRootSignature;
+    TRefCountPtr<IRALGraphicsPipelineState> mResolvePipelineState;
+    TRefCountPtr<IRALVertexShader> mResolveVertexShader;
+    TRefCountPtr<IRALPixelShader> mResolvePixelShader;
+    TRefCountPtr<IRALRootSignature> mResolveRootSignature;
 
     // GBuffer相关
-    TRefCountPtr<IRALRenderTarget> m_gbufferA; // RRG为世界空间法线
-    TRefCountPtr<IRALRenderTarget> m_gbufferB; // Metallic, Specular, Roughness
-    TRefCountPtr<IRALRenderTarget> m_gbufferC; // BaseColor RGB
-    TRefCountPtr<IRALDepthStencil> m_gbufferDepthStencil;
+    TRefCountPtr<IRALRenderTarget> mGbufferA; // RRG为世界空间法线
+    TRefCountPtr<IRALRenderTarget> mGbufferB; // Metallic, Specular, Roughness
+    TRefCountPtr<IRALRenderTarget> mGbufferC; // BaseColor RGB
+    TRefCountPtr<IRALDepthStencil> mGbufferDepthStencil;
     
     // GBuffer对应的视图
-    TRefCountPtr<IRALRenderTargetView> m_gbufferARTV;
-    TRefCountPtr<IRALRenderTargetView> m_gbufferBRTV;
-    TRefCountPtr<IRALRenderTargetView> m_gbufferCRTV;
-    TRefCountPtr<IRALDepthStencilView> m_gbufferDSV;
+    TRefCountPtr<IRALRenderTargetView> mGbufferARTV;
+    TRefCountPtr<IRALRenderTargetView> mGbufferBRTV;
+    TRefCountPtr<IRALRenderTargetView> mGbufferCRTV;
+    TRefCountPtr<IRALDepthStencilView> mGbufferDSV;
     
     // GBuffer对应的SRV（用于光照阶段采样）
-    TRefCountPtr<IRALShaderResourceView> m_gbufferASRV;
-    TRefCountPtr<IRALShaderResourceView> m_gbufferBSRV;
-    TRefCountPtr<IRALShaderResourceView> m_gbufferCSRV;
-    TRefCountPtr<IRALShaderResourceView> m_gbufferDepthSRV;
+    TRefCountPtr<IRALShaderResourceView> mGbufferASRV;
+    TRefCountPtr<IRALShaderResourceView> mGbufferBSRV;
+    TRefCountPtr<IRALShaderResourceView> mGbufferCSRV;
+    TRefCountPtr<IRALShaderResourceView> mGbufferDepthSRV;
     
     // 光照结果RT（用于保存Diffuse和Specular的光照计算结果）
-    TRefCountPtr<IRALRenderTarget> m_diffuseLightRT; // 保存Diffuse光照计算结果
-    TRefCountPtr<IRALRenderTarget> m_specularLightRT; // 保存Specular光照计算结果
+    TRefCountPtr<IRALRenderTarget> mDiffuseLightRT; // 保存Diffuse光照计算结果
+    TRefCountPtr<IRALRenderTarget> mSpecularLightRT; // 保存Specular光照计算结果
     
     // 光照结果RT对应的视图
-    TRefCountPtr<IRALRenderTargetView> m_diffuseLightRTV;
-    TRefCountPtr<IRALRenderTargetView> m_specularLightRTV;
-    TRefCountPtr<IRALShaderResourceView> m_diffuseLightSRV;
-    TRefCountPtr<IRALShaderResourceView> m_specularLightSRV;
+    TRefCountPtr<IRALRenderTargetView> mDiffuseLightRTV;
+    TRefCountPtr<IRALRenderTargetView> mSpecularLightRTV;
+    TRefCountPtr<IRALShaderResourceView> mDiffuseLightSRV;
+    TRefCountPtr<IRALShaderResourceView> mSpecularLightSRV;
     
     // HDR场景颜色渲染目标（用于延迟着色Resolve结果）
-    TRefCountPtr<IRALRenderTarget> m_HDRSceneColor;        // HDR场景颜色RT
-    TRefCountPtr<IRALRenderTargetView> m_HDRSceneColorRTV; // HDR场景颜色RTV
-    TRefCountPtr<IRALShaderResourceView> m_HDRSceneColorSRV; // HDR场景颜色SRV
+    TRefCountPtr<IRALRenderTarget> mHDRSceneColor;        // HDR场景颜色RT
+    TRefCountPtr<IRALRenderTargetView> mHDRSceneColorRTV; // HDR场景颜色RTV
+    TRefCountPtr<IRALShaderResourceView> mHDRSceneColorSRV; // HDR场景颜色SRV
     
     // 色调映射相关
-    TRefCountPtr<IRALRootSignature> m_tonemappingRootSignature;          // 色调映射根签名
-    TRefCountPtr<IRALGraphicsPipelineState> m_tonemappingPipelineState;   // 色调映射管线状态
-    TRefCountPtr<IRALVertexShader> m_tonemappingVS;                       // 色调映射顶点着色器
-    TRefCountPtr<IRALPixelShader> m_tonemappingPS;                        // 色调映射像素着色器
+    TRefCountPtr<IRALRootSignature> mTonemappingRootSignature;          // 色调映射根签名
+    TRefCountPtr<IRALGraphicsPipelineState> mTonemappingPipelineState;   // 色调映射管线状态
+    TRefCountPtr<IRALVertexShader> mTonemappingVS;                       // 色调映射顶点着色器
+    TRefCountPtr<IRALPixelShader> mTonemappingPS;                        // 色调映射像素着色器
     
-    TRefCountPtr<IRALConstBuffer> m_lightPassConstBuffer;
-    TRefCountPtr<IRALVertexBuffer> m_fullscreenQuadVB;
-    TRefCountPtr<IRALIndexBuffer> m_fullscreenQuadIB;
+    TRefCountPtr<IRALConstBuffer> mLightPassConstBuffer;
+    TRefCountPtr<IRALVertexBuffer> mFullscreenQuadVB;
+    TRefCountPtr<IRALIndexBuffer> mFullscreenQuadIB;
 
     // 场景相关常量
-    TRefCountPtr<IRALConstBuffer> m_sceneConstBuffer;
+    TRefCountPtr<IRALConstBuffer> mSceneConstBuffer;
 };
 
 #endif // SCENE_H

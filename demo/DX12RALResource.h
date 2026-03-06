@@ -197,17 +197,17 @@ public:
 	// 设置原生Shader指针
 	void SetNativeShader(ID3DBlob* shader)
 	{
-		m_nativeShader = shader;
+		mNativeShader = shader;
 	}
 
 	// 获取原生Shader指针
 	ID3DBlob* GetNativeShader() const
 	{
-		return m_nativeShader.Get();
+		return mNativeShader.Get();
 	}
 
 protected:
-	ComPtr<ID3DBlob> m_nativeShader; // ID3D12ShaderBytecode* 或其他DX12 Shader相关指针
+	ComPtr<ID3DBlob> mNativeShader; // ID3D12ShaderBytecode* 或其他DX12 Shader相关指针
 };
 
 // DX12实现的顶点着色器
@@ -224,13 +224,13 @@ public:
 	// 设置原生顶点着色器指针
 	void SetNativeShader(ID3DBlob* shader)
 	{
-		m_nativeShader = shader;
+		mNativeShader = shader;
 	}
 
 	// 获取原生顶点着色器指针
 	ID3DBlob* GetNativeShader() const
 	{
-		return m_nativeShader.Get();
+		return mNativeShader.Get();
 	}
 
 	// 实现IRALResource接口
@@ -240,7 +240,7 @@ public:
 	}
 
 protected:
-	ComPtr<ID3DBlob> m_nativeShader; // ID3D12ShaderBytecode* 或 ID3DBlob*
+	ComPtr<ID3DBlob> mNativeShader; // ID3D12ShaderBytecode* 或 ID3DBlob*
 };
 
 // DX12实现的像素着色器
@@ -257,13 +257,13 @@ public:
 	// 设置原生像素着色器指针
 	void SetNativeShader(ID3DBlob* shader)
 	{
-		m_nativeShader = shader;
+		mNativeShader = shader;
 	}
 
 	// 获取原生像素着色器指针
 	ID3DBlob* GetNativeShader() const
 	{
-		return m_nativeShader.Get();
+		return mNativeShader.Get();
 	}
 
 	// 实现IRALResource接口
@@ -273,7 +273,7 @@ public:
 	}
 
 protected:
-	ComPtr<ID3DBlob> m_nativeShader; // ID3D12ShaderBytecode* 或 ID3DBlob*
+	ComPtr<ID3DBlob> mNativeShader; // ID3D12ShaderBytecode* 或 ID3DBlob*
 };
 
 // DX12实现的网格着色器
@@ -290,13 +290,13 @@ public:
 	// 设置原生网格着色器指针
 	void SetNativeShader(ID3DBlob* shader)
 	{
-		m_nativeShader = shader;
+		mNativeShader = shader;
 	}
 
 	// 获取原生网格着色器指针
 	ID3DBlob* GetNativeShader() const
 	{
-		return m_nativeShader.Get();
+		return mNativeShader.Get();
 	}
 
 	// 实现IRALResource接口
@@ -306,7 +306,7 @@ public:
 	}
 
 protected:
-	ComPtr<ID3DBlob> m_nativeShader; // ID3D12ShaderBytecode* 或 ID3DBlob*
+	ComPtr<ID3DBlob> mNativeShader; // ID3D12ShaderBytecode* 或 ID3DBlob*
 };
 
 // DX12实现的放大着色器
@@ -323,13 +323,13 @@ public:
 	// 设置原生放大着色器指针
 	void SetNativeShader(ID3DBlob* shader)
 	{
-		m_nativeShader = shader;
+		mNativeShader = shader;
 	}
 
 	// 获取原生放大着色器指针
 	ID3DBlob* GetNativeShader() const
 	{
-		return m_nativeShader.Get();
+		return mNativeShader.Get();
 	}
 
 	// 实现IRALResource接口
@@ -339,7 +339,7 @@ public:
 	}
 
 protected:
-	ComPtr<ID3DBlob> m_nativeShader; // ID3D12ShaderBytecode* 或 ID3DBlob*
+	ComPtr<ID3DBlob> mNativeShader; // ID3D12ShaderBytecode* 或 ID3DBlob*
 };
 
 // DX12实现的几何着色器
@@ -356,13 +356,13 @@ public:
 	// 设置原生几何着色器指针
 	void SetNativeShader(ID3DBlob* shader)
 	{
-		m_nativeShader = shader;
+		mNativeShader = shader;
 	}
 
 	// 获取原生几何着色器指针
 	ID3DBlob* GetNativeShader() const
 	{
-		return m_nativeShader.Get();
+		return mNativeShader.Get();
 	}
 
 	// 实现IRALResource接口
@@ -372,7 +372,7 @@ public:
 	}
 
 protected:
-	ComPtr<ID3DBlob> m_nativeShader; // ID3D12ShaderBytecode* 或 ID3DBlob*
+	ComPtr<ID3DBlob> mNativeShader; // ID3D12ShaderBytecode* 或 ID3DBlob*
 };
 
 // DX12实现的计算着色器
@@ -389,13 +389,13 @@ public:
 	// 设置原生计算着色器指针
 	void SetNativeShader(ID3DBlob* shader)
 	{
-		m_nativeShader = shader;
+		mNativeShader = shader;
 	}
 
 	// 获取原生计算着色器指针
 	ID3DBlob* GetNativeShader() const
 	{
-		return m_nativeShader.Get();
+		return mNativeShader.Get();
 	}
 
 	// 实现IRALResource接口
@@ -405,7 +405,7 @@ public:
 	}
 
 protected:
-	ComPtr<ID3DBlob> m_nativeShader; // ID3D12ShaderBytecode* 或 ID3DBlob*
+	ComPtr<ID3DBlob> mNativeShader; // ID3D12ShaderBytecode* 或 ID3DBlob*
 };
 
 // DX12实现的光线生成着色器
@@ -422,13 +422,13 @@ public:
 	// 设置原生光线生成着色器指针
 	void SetNativeShader(ID3DBlob* shader)
 	{
-		m_nativeShader = shader;
+		mNativeShader = shader;
 	}
 
 	// 获取原生光线生成着色器指针
 	ID3DBlob* GetNativeShader() const
 	{
-		return m_nativeShader.Get();
+		return mNativeShader.Get();
 	}
 
 	// 实现IRALResource接口
@@ -438,7 +438,7 @@ public:
 	}
 
 protected:
-	ComPtr<ID3DBlob> m_nativeShader; // ID3D12ShaderBytecode* 或 ID3DBlob*
+	ComPtr<ID3DBlob> mNativeShader; // ID3D12ShaderBytecode* 或 ID3DBlob*
 };
 
 // DX12实现的光线未命中着色器
@@ -455,13 +455,13 @@ public:
 	// 设置原生光线未命中着色器指针
 	void SetNativeShader(ID3DBlob* shader)
 	{
-		m_nativeShader = shader;
+		mNativeShader = shader;
 	}
 
 	// 获取原生光线未命中着色器指针
 	ID3DBlob* GetNativeShader() const
 	{
-		return m_nativeShader.Get();
+		return mNativeShader.Get();
 	}
 
 	// 实现IRALResource接口
@@ -471,7 +471,7 @@ public:
 	}
 
 protected:
-	ComPtr<ID3DBlob> m_nativeShader; // ID3D12ShaderBytecode* 或 ID3DBlob*
+	ComPtr<ID3DBlob> mNativeShader; // ID3D12ShaderBytecode* 或 ID3DBlob*
 };
 
 // DX12实现的光线命中组着色器
@@ -488,13 +488,13 @@ public:
 	// 设置原生光线命中组着色器指针
 	void SetNativeShader(void* shader)
 	{
-		m_nativeShader = shader;
+		mNativeShader = shader;
 	}
 
 	// 获取原生光线命中组着色器指针
 	void* GetNativeShader() const
 	{
-		return m_nativeShader;
+		return mNativeShader;
 	}
 
 	// 实现IRALResource接口
@@ -506,26 +506,26 @@ public:
 	// 设置最近命中着色器
 	void SetClosestHitShader(ID3DBlob* shader)
 	{
-		m_closestHitShader = shader;
+		mClosestHitShader = shader;
 	}
 
 	// 设置相交着色器
 	void SetIntersectionShader(ID3DBlob* shader)
 	{
-		m_intersectionShader = shader;
+		mIntersectionShader = shader;
 	}
 
 	// 设置任意命中着色器
 	void SetAnyHitShader(ID3DBlob* shader)
 	{
-		m_anyHitShader = shader;
+		mAnyHitShader = shader;
 	}
 
 protected:
-	void* m_nativeShader;        // 命中组相关指针
-	ComPtr<ID3DBlob> m_closestHitShader;    // 最近命中着色器
-	ComPtr<ID3DBlob> m_intersectionShader;  // 相交着色器
-	ComPtr<ID3DBlob> m_anyHitShader;        // 任意命中着色器
+	void* mNativeShader;        // 命中组相关指针
+	ComPtr<ID3DBlob> mClosestHitShader;    // 最近命中着色器
+	ComPtr<ID3DBlob> mIntersectionShader;  // 相交着色器
+	ComPtr<ID3DBlob> mAnyHitShader;        // 任意命中着色器
 };
 
 // DX12实现的光线可调用着色器
@@ -542,13 +542,13 @@ public:
 	// 设置原生光线可调用着色器指针
 	void SetNativeShader(ID3DBlob* shader)
 	{
-		m_nativeShader = shader;
+		mNativeShader = shader;
 	}
 
 	// 获取原生光线可调用着色器指针
 	ID3DBlob* GetNativeShader() const
 	{
-		return m_nativeShader.Get();
+		return mNativeShader.Get();
 	}
 
 	// 实现IRALResource接口
@@ -558,7 +558,7 @@ public:
 	}
 
 protected:
-	ComPtr<ID3DBlob> m_nativeShader; // ID3D12ShaderBytecode* 或 ID3DBlob*
+	ComPtr<ID3DBlob> mNativeShader; // ID3D12ShaderBytecode* 或 ID3DBlob*
 };
 
 // DX12实现的Texture
@@ -575,56 +575,56 @@ public:
 	// 设置原生资源指针
 	void SetNativeResource(ID3D12Resource* nativeResource)
 	{
-		m_nativeResource.Attach(nativeResource);
+		mNativeResource.Attach(nativeResource);
 	}
 
 	// 获取原生资源指针
 	void* GetNativeResource() const
 	{
-		return m_nativeResource.Get();
+		return mNativeResource.Get();
 	}
 
 	// 设置原生Shader resource view
 	void SetNativeShaderResourceView(void* srv)
 	{
-		m_nativeShaderResourceView = srv;
+		mNativeShaderResourceView = srv;
 	}
 
 	// 获取原生Shader resource view
 	virtual void* GetNativeShaderResourceView() const override
 	{
-		return m_nativeShaderResourceView;
+		return mNativeShaderResourceView;
 	}
 
 	// 设置原生Render target view
 	void SetNativeRenderTargetView(void* rtv)
 	{
-		m_nativeRenderTargetView = rtv;
+		mNativeRenderTargetView = rtv;
 	}
 
 	// 获取原生Render target view
 	void* GetNativeRenderTargetView() const
 	{
-		return m_nativeRenderTargetView;
+		return mNativeRenderTargetView;
 	}
 
 	// 设置原生Depth stencil view
 	void SetNativeDepthStencilView(void* dsv)
 	{
-		m_nativeDepthStencilView = dsv;
+		mNativeDepthStencilView = dsv;
 	}
 
 	// 获取原生Depth stencil view
 	void* GetNativeDepthStencilView() const
 	{
-		return m_nativeDepthStencilView;
+		return mNativeDepthStencilView;
 	}
 
 protected:
-	ComPtr<ID3D12Resource> m_nativeResource;             // ID3D12Resource*
-	void* m_nativeShaderResourceView;   // ID3D12DescriptorHeap中的SRV
-	void* m_nativeRenderTargetView;     // ID3D12DescriptorHeap中的RTV
-	void* m_nativeDepthStencilView;     // ID3D12DescriptorHeap中的DSV
+	ComPtr<ID3D12Resource> mNativeResource;             // ID3D12Resource*
+	void* mNativeShaderResourceView;   // ID3D12DescriptorHeap中的SRV
+	void* mNativeRenderTargetView;     // ID3D12DescriptorHeap中的RTV
+	void* mNativeDepthStencilView;     // ID3D12DescriptorHeap中的DSV
 };
 
 // DX12实现的顶点缓冲区
@@ -633,7 +633,7 @@ class DX12RALVertexBuffer : public IRALVertexBuffer
 public:
 	DX12RALVertexBuffer(uint32_t size, uint32_t stride)
 		: IRALVertexBuffer(size)
-		, m_stride(stride)
+		, mStride(stride)
 	{
 	}
 
@@ -642,31 +642,31 @@ public:
 	// 设置原生资源指针
 	void SetNativeResource(ID3D12Resource* resource)
 	{
-		m_nativeResource = resource;
+		mNativeResource = resource;
 	}
 
 	// 获取原生资源指针
 	virtual void* GetNativeResource() const override
 	{
-		return m_nativeResource.Get();
+		return mNativeResource.Get();
 	}
 
 	D3D12_VERTEX_BUFFER_VIEW GetVertexBufferView() const
 	{
 		D3D12_VERTEX_BUFFER_VIEW vbView = {};
 
-		if (m_nativeResource)
+		if (mNativeResource)
 		{
-			vbView.BufferLocation = m_nativeResource->GetGPUVirtualAddress();
+			vbView.BufferLocation = mNativeResource->GetGPUVirtualAddress();
 			vbView.SizeInBytes = static_cast<UINT>(GetSize());
-			vbView.StrideInBytes = m_stride;
+			vbView.StrideInBytes = mStride;
 		}
 		return vbView;
 	}
 
 protected:
-	ComPtr<ID3D12Resource> m_nativeResource;     // ID3D12Resource*
-	uint32_t m_stride;                          // 顶点步长
+	ComPtr<ID3D12Resource> mNativeResource;     // ID3D12Resource*
+	uint32_t mStride;                          // 顶点步长
 };
 
 // DX12实现的索引缓冲区
@@ -683,28 +683,28 @@ public:
 	// 设置原生资源指针
 	void SetNativeResource(ID3D12Resource* resource)
 	{
-		m_nativeResource = resource;
+		mNativeResource = resource;
 	}
 
 	// 获取原生资源指针
 	virtual void* GetNativeResource() const override
 	{
-		return m_nativeResource.Get();
+		return mNativeResource.Get();
 	}
 
 	D3D12_INDEX_BUFFER_VIEW GetIndexBufferView() const
 	{
 		D3D12_INDEX_BUFFER_VIEW ibView = {};
-		if (m_nativeResource)
+		if (mNativeResource)
 		{
-			ibView.BufferLocation = m_nativeResource->GetGPUVirtualAddress();
+			ibView.BufferLocation = mNativeResource->GetGPUVirtualAddress();
 			ibView.SizeInBytes = static_cast<UINT>(GetSize());
 			ibView.Format = Is32BitIndex() ? DXGI_FORMAT_R32_UINT : DXGI_FORMAT_R16_UINT;
 		}
 		return ibView;
 	}
 protected:
-	ComPtr<ID3D12Resource> m_nativeResource;     // ID3D12Resource*
+	ComPtr<ID3D12Resource> mNativeResource;     // ID3D12Resource*
 };
 
 // DX12实现的常量缓冲区
@@ -721,13 +721,13 @@ public:
 	// 获取原生资源指针
 	virtual void* GetNativeResource() const override
 	{
-		return m_nativeResource.Get();
+		return mNativeResource.Get();
 	}
 
 	// 设置原生资源指针
 	void SetNativeResource(ID3D12Resource* resource)
 	{
-		m_nativeResource = resource;
+		mNativeResource = resource;
 	}
 
 	virtual bool Map(void** ppData) override
@@ -736,7 +736,7 @@ public:
 		range.Begin = 0;
 		range.End = GetSize();
 
-		HRESULT hr = m_nativeResource->Map(0, &range, ppData);
+		HRESULT hr = mNativeResource->Map(0, &range, ppData);
 
 		if (FAILED(hr))
 		{
@@ -748,16 +748,16 @@ public:
 
 	virtual void Unmap() override
 	{
-		m_nativeResource->Unmap(0, nullptr);
+		mNativeResource->Unmap(0, nullptr);
 	}
 
 	D3D12_GPU_VIRTUAL_ADDRESS GetGPUVirtualAddress()
 	{
-		return m_nativeResource->GetGPUVirtualAddress();
+		return mNativeResource->GetGPUVirtualAddress();
 	}
 
 protected:
-	ComPtr<ID3D12Resource> m_nativeResource;     // ID3D12Resource*
+	ComPtr<ID3D12Resource> mNativeResource;     // ID3D12Resource*
 };
 
 // DX12实现的渲染目标
@@ -774,17 +774,17 @@ public:
 	// 获取原生资源指针
 	void* GetNativeResource() const
 	{
-		return m_nativeResource.Get();
+		return mNativeResource.Get();
 	}
 
 	// 设置原生资源指针
 	void SetNativeResource(ID3D12Resource* resource)
 	{
-		m_nativeResource = resource;
+		mNativeResource = resource;
 	}
 
 protected:
-	ComPtr<ID3D12Resource> m_nativeResource;        // ID3D12Resource*
+	ComPtr<ID3D12Resource> mNativeResource;        // ID3D12Resource*
 };
 
 // DX12实现的DepthStencil
@@ -801,17 +801,17 @@ public:
 	// 获取原生资源指针
 	void* GetNativeResource() const
 	{
-		return m_nativeResource.Get();
+		return mNativeResource.Get();
 	}
 
 	// 设置原生资源指针
 	void SetNativeResource(ID3D12Resource* resource)
 	{
-		m_nativeResource = resource;
+		mNativeResource = resource;
 	}
 
 protected:
-	ComPtr<ID3D12Resource> m_nativeResource;		// ID3D12Resource*
+	ComPtr<ID3D12Resource> mNativeResource;		// ID3D12Resource*
 };
 
 // DX12实现的根签名
@@ -828,17 +828,17 @@ public:
 	// 设置原生根签名指针
 	void SetNativeRootSignature(ID3D12RootSignature* rootSignature)
 	{
-		m_nativeRootSignature = rootSignature;
+		mNativeRootSignature = rootSignature;
 	}
 
 	// 获取原生根签名指针
 	virtual void* GetNativeResource() const override
 	{
-		return m_nativeRootSignature.Get();
+		return mNativeRootSignature.Get();
 	}
 
 protected:
-	ComPtr<ID3D12RootSignature> m_nativeRootSignature; // ID3D12RootSignature*
+	ComPtr<ID3D12RootSignature> mNativeRootSignature; // ID3D12RootSignature*
 };
 
 // DX12实现的图形管线状态
@@ -855,17 +855,17 @@ public:
 	// 设置原生管线状态指针
 	void SetNativePipelineState(ID3D12PipelineState* pipelineState)
 	{
-		m_nativePipelineState = pipelineState;
+		mNativePipelineState = pipelineState;
 	}
 
 	// 获取原生管线状态指针
 	virtual void* GetNativeResource() const override
 	{
-		return m_nativePipelineState.Get();
+		return mNativePipelineState.Get();
 	}
 
 protected:
-	ComPtr<ID3D12PipelineState> m_nativePipelineState; // ID3D12PipelineState*
+	ComPtr<ID3D12PipelineState> mNativePipelineState; // ID3D12PipelineState*
 };
 
 // DX12实现的深度模板视图
@@ -874,10 +874,10 @@ class DX12RALDepthStencilView : public IRALDepthStencilView
 public:
 	DX12RALDepthStencilView()
 		: IRALDepthStencilView()
-		, m_device(nullptr)
-		, m_dsvIndex(0)
+		, mDevice(nullptr)
+		, mDsvIndex(0)
 	{
-		m_dsvCPUHandle.ptr = 0;
+		mDsvCPUHandle.ptr = 0;
 	}
 
 	virtual ~DX12RALDepthStencilView() override;
@@ -885,81 +885,81 @@ public:
 	// 实现IRALResource接口
 	virtual void* GetNativeResource() const override
 	{
-		return const_cast<void*>(reinterpret_cast<const void*>(&m_dsvCPUHandle));
+		return const_cast<void*>(reinterpret_cast<const void*>(&mDsvCPUHandle));
 	}
 
 	// 实现IRALDepthStencilView接口
 	virtual IRALDepthStencil* GetDepthStencil() const override
 	{
-		return m_depthStencil.Get();
+		return mDepthStencil.Get();
 	}
 
 	virtual void* GetNativeDepthStencilView() const override
 	{
-		return const_cast<void*>(reinterpret_cast<const void*>(&m_dsvCPUHandle));
+		return const_cast<void*>(reinterpret_cast<const void*>(&mDsvCPUHandle));
 	}
 
 	// 设置深度模板资源
 	void SetDepthStencil(IRALDepthStencil* depthStencil)
 	{
-		m_depthStencil = depthStencil;
+		mDepthStencil = depthStencil;
 	}
 
 	// 设置DSV描述符句柄
 	void SetDSVCPUHandle(D3D12_CPU_DESCRIPTOR_HANDLE handle)
 	{
-		m_dsvCPUHandle = handle;
+		mDsvCPUHandle = handle;
 	}
 
 	// 设置DSV GPU描述符句柄
 	void SetDSVGPUHandle(D3D12_GPU_DESCRIPTOR_HANDLE handle)
 	{
-		m_dsvGPUHandle = handle;
+		mDsvGPUHandle = handle;
 	}
 
 	// 设置设备指针
 	void SetDevice(DX12RALDevice* device)
 	{
-		m_device = device;
+		mDevice = device;
 	}
 
 	// 设置DSV索引
 	void SetDSVIndex(uint32_t index)
 	{
-		m_dsvIndex = index;
+		mDsvIndex = index;
 	}
 
 	// 设置DSV堆
 	void SetDSVHeap(ID3D12DescriptorHeap* heap)
 	{
-		m_dsvHeap = heap;
+		mDsvHeap = heap;
 	}
 
 	// 获取DSV描述符句柄
 	D3D12_CPU_DESCRIPTOR_HANDLE GetDSVCPUHandle() const
 	{
-		return m_dsvCPUHandle;
+		return mDsvCPUHandle;
 	}
 
 	// 获取DSV GPU描述符句柄
 	D3D12_GPU_DESCRIPTOR_HANDLE GetDSVGPUHandle() const
 	{
-		return m_dsvGPUHandle;
+		return mDsvGPUHandle;
 	}
 
 	// 获取DSV堆
 	ID3D12DescriptorHeap* GetDSVHeap() const
 	{
-		return m_dsvHeap.Get();
+		return mDsvHeap.Get();
 	}
 
 protected:
-	TRefCountPtr<IRALDepthStencil> m_depthStencil;	// 关联的深度模板资源
-	D3D12_CPU_DESCRIPTOR_HANDLE m_dsvCPUHandle;		// DSV CPU描述符句柄
-	D3D12_GPU_DESCRIPTOR_HANDLE m_dsvGPUHandle;		// DSV GPU描述符句柄
-	DX12RALDevice* m_device;						// 设备指针
-	uint32_t m_dsvIndex;							// DSV索引
-	ComPtr<ID3D12DescriptorHeap> m_dsvHeap;			// DSV堆
+	TRefCountPtr<IRALDepthStencil> mDepthStencil;	// 关联的深度模板资源
+	D3D12_CPU_DESCRIPTOR_HANDLE mDsvCPUHandle;		// DSV CPU描述符句柄
+	D3D12_GPU_DESCRIPTOR_HANDLE mDsvGPUHandle;		// DSV GPU描述符句柄
+	DX12RALDevice* mDevice;						// 设备指针
+	uint32_t mDsvIndex;							// DSV索引
+	ComPtr<ID3D12DescriptorHeap> mDsvHeap;			// DSV堆
 };
 
 // DX12实现的渲染目标视图
@@ -968,10 +968,10 @@ class DX12RALRenderTargetView : public IRALRenderTargetView
 public:
 	DX12RALRenderTargetView()
 		: IRALRenderTargetView()
-		, m_device(nullptr)
-		, m_rtvIndex(0)
+		, mDevice(nullptr)
+		, mRtvIndex(0)
 	{
-		m_rtvCPUHandle.ptr = 0;
+		mRtvCPUHandle.ptr = 0;
 	}
 
 	virtual ~DX12RALRenderTargetView() override;
@@ -979,81 +979,81 @@ public:
 	// 实现IRALResource接口
 	virtual void* GetNativeResource() const override
 	{
-		return const_cast<void*>(reinterpret_cast<const void*>(&m_rtvCPUHandle));
+		return const_cast<void*>(reinterpret_cast<const void*>(&mRtvCPUHandle));
 	}
 
 	// 实现IRALRenderTargetView接口
 	virtual IRALRenderTarget* GetRenderTarget() const override
 	{
-		return m_renderTarget.Get();
+		return mRenderTarget.Get();
 	}
 
 	virtual void* GetNativeRenderTargetView() const override
 	{
-		return const_cast<void*>(reinterpret_cast<const void*>(&m_rtvCPUHandle));
+		return const_cast<void*>(reinterpret_cast<const void*>(&mRtvCPUHandle));
 	}
 
 	// 设置渲染目标资源
 	void SetRenderTarget(IRALRenderTarget* renderTarget)
 	{
-		m_renderTarget = renderTarget;
+		mRenderTarget = renderTarget;
 	}
 
 	// 设置RTV描述符句柄
 	void SetRTVCPUHandle(D3D12_CPU_DESCRIPTOR_HANDLE handle)
 	{
-		m_rtvCPUHandle = handle;
+		mRtvCPUHandle = handle;
 	}
 
 	// 设置RTV GPU描述符句柄
 	void SetRTVGPUHandle(D3D12_GPU_DESCRIPTOR_HANDLE handle)
 	{
-		m_rtvGPUHandle = handle;
+		mRtvGPUHandle = handle;
 	}
 
 	// 获取RTV堆
 	ID3D12DescriptorHeap* GetRTVHeap() const
 	{
-		return m_rtvHeap.Get();
+		return mRtvHeap.Get();
 	}
 
 	// 获取RTV描述符句柄
 	D3D12_CPU_DESCRIPTOR_HANDLE GetRTVCPUHandle() const
 	{
-		return m_rtvCPUHandle;
+		return mRtvCPUHandle;
 	}
 
 	// 获取RTV GPU描述符句柄
 	D3D12_GPU_DESCRIPTOR_HANDLE GetRTVGPUHandle() const
 	{
-		return m_rtvGPUHandle;
+		return mRtvGPUHandle;
 	}
 
 	// 设置RTV索引
 	void SetRTVIndex(uint32_t index)
 	{
-		m_rtvIndex = index;
+		mRtvIndex = index;
 	}
 
 	// 设置设备指针
 	void SetDevice(DX12RALDevice* device)
 	{
-		m_device = device;
+		mDevice = device;
 	}
 
 	// 设置RTV堆
 	void SetRTVHeap(ID3D12DescriptorHeap* rtvHeap)
 	{
-		m_rtvHeap = rtvHeap;
+		mRtvHeap = rtvHeap;
 	}
 
 protected:
-	TRefCountPtr<IRALRenderTarget> m_renderTarget;		// 关联的渲染目标资源
-	D3D12_CPU_DESCRIPTOR_HANDLE m_rtvCPUHandle;			// RTV CPU描述符句柄
-	D3D12_GPU_DESCRIPTOR_HANDLE m_rtvGPUHandle;			// RTV GPU描述符句柄
-	DX12RALDevice* m_device;							// 设备指针
-	uint32_t m_rtvIndex;								// RTV索引
-	ComPtr<ID3D12DescriptorHeap> m_rtvHeap;				// RTV堆
+	TRefCountPtr<IRALRenderTarget> mRenderTarget;		// 关联的渲染目标资源
+	D3D12_CPU_DESCRIPTOR_HANDLE mRtvCPUHandle;			// RTV CPU描述符句柄
+	D3D12_GPU_DESCRIPTOR_HANDLE mRtvGPUHandle;			// RTV GPU描述符句柄
+	DX12RALDevice* mDevice;							// 设备指针
+	uint32_t mRtvIndex;								// RTV索引
+	ComPtr<ID3D12DescriptorHeap> mRtvHeap;				// RTV堆
 };
 
 // DX12实现的着色器资源视图
@@ -1062,10 +1062,10 @@ class DX12RALShaderResourceView : public IRALShaderResourceView
 public:
 	DX12RALShaderResourceView()
 		: IRALShaderResourceView()
-		, m_device(nullptr)
-		, m_srvIndex(0)
+		, mDevice(nullptr)
+		, mSrvIndex(0)
 	{
-		m_srvCPUHandle.ptr = 0;
+		mSrvCPUHandle.ptr = 0;
 	}
 
 	virtual ~DX12RALShaderResourceView() override;
@@ -1073,81 +1073,81 @@ public:
 	// 实现IRALResource接口
 	virtual void* GetNativeResource() const override
 	{
-		return const_cast<void*>(reinterpret_cast<const void*>(&m_srvCPUHandle));
+		return const_cast<void*>(reinterpret_cast<const void*>(&mSrvCPUHandle));
 	}
 
 	// 实现IRALShaderResourceView接口
 	virtual IRALResource* GetResource() const override
 	{
-		return m_resource.Get();
+		return mResource.Get();
 	}
 
 	virtual void* GetNativeShaderResourceView() const override
 	{
-		return const_cast<void*>(reinterpret_cast<const void*>(&m_srvCPUHandle));
+		return const_cast<void*>(reinterpret_cast<const void*>(&mSrvCPUHandle));
 	}
 
 	// 设置关联的资源
 	void SetResource(IRALResource* resource)
 	{
-		m_resource = resource;
+		mResource = resource;
 	}
 
 	// 设置SRV描述符句柄
 	void SetSRVCPUHandle(D3D12_CPU_DESCRIPTOR_HANDLE handle)
 	{
-		m_srvCPUHandle = handle;
+		mSrvCPUHandle = handle;
 	}
 
 	// 设置SRV GPU描述符句柄
 	void SetSRVGPUHandle(D3D12_GPU_DESCRIPTOR_HANDLE handle)
 	{
-		m_srvGPUHandle = handle;
+		mSrvGPUHandle = handle;
 	}
 
 	// 获取SRV描述符句柄
 	D3D12_CPU_DESCRIPTOR_HANDLE GetSRVCPUHandle() const
 	{
-		return m_srvCPUHandle;
+		return mSrvCPUHandle;
 	}
 
 	// 获取SRV GPU描述符句柄
 	D3D12_GPU_DESCRIPTOR_HANDLE GetSRVGPUHandle() const
 	{
-		return m_srvGPUHandle;
+		return mSrvGPUHandle;
 	}
 
 	// 设置SRV堆
 	void SetSRVHeap(ID3D12DescriptorHeap* srvHeap)
 	{
-		m_srvHeap = srvHeap;
+		mSrvHeap = srvHeap;
 	}
 
 	// 获取SRV堆
 	ID3D12DescriptorHeap* GetSRVHeap() const
 	{
-		return m_srvHeap.Get();
+		return mSrvHeap.Get();
 	}
 
 	// 设置设备指针
 	void SetDevice(DX12RALDevice* device)
 	{
-		m_device = device;
+		mDevice = device;
 	}
 
 	// 设置SRV索引
 	void SetSRVIndex(uint32_t index)
 	{
-		m_srvIndex = index;
+		mSrvIndex = index;
 	}
 
 protected:
-	TRefCountPtr<IRALResource> m_resource;				// 关联的资源
-	D3D12_CPU_DESCRIPTOR_HANDLE m_srvCPUHandle;         // SRV CPU描述符句柄
-	D3D12_GPU_DESCRIPTOR_HANDLE m_srvGPUHandle;         // SRV GPU描述符句柄
-	ComPtr<ID3D12DescriptorHeap> m_srvHeap;             // SRV堆
-	DX12RALDevice* m_device;                            // 设备指针
-	uint32_t m_srvIndex;                                // SRV索引
+	TRefCountPtr<IRALResource> mResource;				// 关联的资源
+	D3D12_CPU_DESCRIPTOR_HANDLE mSrvCPUHandle;         // SRV CPU描述符句柄
+	D3D12_GPU_DESCRIPTOR_HANDLE mSrvGPUHandle;         // SRV GPU描述符句柄
+	ComPtr<ID3D12DescriptorHeap> mSrvHeap;             // SRV堆
+	DX12RALDevice* mDevice;                            // 设备指针
+	uint32_t mSrvIndex;                                // SRV索引
 };
 
 #endif // DX12RALRESOURCE_H
