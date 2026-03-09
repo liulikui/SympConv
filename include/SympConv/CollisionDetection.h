@@ -8,6 +8,7 @@
 #include "Box.h"
 #include "Sphere.h"
 #include "Capsule.h"
+#include "Segment.h"
 #include <type_traits>
 #include <limits>
 
@@ -334,6 +335,23 @@ bool RayIntersectsSegment(const TRay<T>& ray, const TVector3<T>& start, const TV
  * @brief 计算射线与线段的相交
  * @tparam T 浮点类型，如float、double
  * @param ray 射线
+ * @param segment 线段
+ * @param t 相交参数
+ * @param s 线段参数 [0, 1]
+ * @return 是否相交
+ */
+template<typename T>
+bool RayIntersectsSegment(const TRay<T>& ray, const TSegment<T>& segment, T& t, T& s)
+{
+    static_assert(std::is_floating_point_v<T>, "T must be floating point");
+    
+    return RayIntersectsSegment(ray, segment.mStart, segment.mEnd, t, s);
+}
+
+/**
+ * @brief 计算射线与线段的相交
+ * @tparam T 浮点类型，如float、double
+ * @param ray 射线
  * @param start 线段起点
  * @param end 线段终点
  * @return 是否相交
@@ -345,6 +363,22 @@ bool RayIntersectsSegment(const TRay<T>& ray, const TVector3<T>& start, const TV
     
     T t, s;
     return RayIntersectsSegment(ray, start, end, t, s);
+}
+
+/**
+ * @brief 计算射线与线段的相交
+ * @tparam T 浮点类型，如float、double
+ * @param ray 射线
+ * @param segment 线段
+ * @return 是否相交
+ */
+template<typename T>
+bool RayIntersectsSegment(const TRay<T>& ray, const TSegment<T>& segment)
+{
+    static_assert(std::is_floating_point_v<T>, "T must be floating point");
+    
+    T t, s;
+    return RayIntersectsSegment(ray, segment, t, s);
 }
 
 /**

@@ -17,6 +17,7 @@ using Plane = SympConv::Plane;
 using Box = SympConv::Box;
 using Sphere = SympConv::Sphere;
 using Capsule = SympConv::Capsule;
+using Segment = SympConv::Segment;
 
 TEST(CollisionDetectionTest, RayIntersectsAABB) {
     // 创建一个AABB
@@ -105,18 +106,19 @@ TEST(CollisionDetectionTest, RayIntersectsSegment) {
     // 线段从(0,0,0)到(1,1,0)
     Vec3 start(0.0f, 0.0f, 0.0f);
     Vec3 end(1.0f, 1.0f, 0.0f);
+    Segment segment(start, end);
     
     // 从(0.5, 0.5, -1)向z轴正方向发射的射线
     Ray ray1(Vec3(0.5f, 0.5f, -1.0f), Vec3(0.0f, 0.0f, 1.0f));
     float t, s;
-    EXPECT_TRUE(SympConv::RayIntersectsSegment(ray1, start, end, t, s));
+    EXPECT_TRUE(SympConv::RayIntersectsSegment(ray1, segment, t, s));
     EXPECT_TRUE(FloatEqual(t, 1.0f));
     EXPECT_TRUE(FloatEqual(s, 0.5f));
     
     // 不相交的射线
     Ray ray2(Vec3(2.0f, 2.0f, -1.0f), Vec3(0.0f, 0.0f, 1.0f));
     float t2, s2;
-    EXPECT_FALSE(SympConv::RayIntersectsSegment(ray2, start, end, t2, s2));
+    EXPECT_FALSE(SympConv::RayIntersectsSegment(ray2, segment, t2, s2));
 }
 
 TEST(CollisionDetectionTest, AABBIntersectsAABB) {
