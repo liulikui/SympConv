@@ -4,6 +4,8 @@
 #include "Constraint.h"
 #include <DirectXMath.h>
 
+namespace SympConv {
+
 #ifdef DEBUG_SOLVER
 #include <string>
 extern void logDebug(const std::string& message);
@@ -23,7 +25,7 @@ public:
     //   p3 - 第一个三角形的第三个顶点（三角形1：p1-p2-p3）
     //   p4 - 第二个三角形的第三个顶点（三角形2：p1-p2-p4）
     //   compliance - 约束的柔度
-    DihedralBendingConstraint(Particle* p1, Particle* p2, Particle* p3, Particle* p4, 
+    DihedralBendingConstraint(Particle* p1, Particle* p2, Particle* p3, Particle* p4,
         float compliance, float damping)
         : Constraint(compliance, damping)
         , mParticle1(p1)
@@ -136,7 +138,7 @@ public:
         logDebug(buffer);
 #endif//DEBUG_SOLVER
 
-		if (fabs(d - 1.0f) < 1e-6f) // d约等于1，法向量平行且方向相同
+        if (fabs(d - 1.0f) < 1e-6f) // d约等于1，法向量平行且方向相同
         {
             // 共面且方向相同，梯度为零
             gradients[0] = dx::XMFLOAT3(0.0f, 0.0f, 0.0f);
@@ -144,9 +146,9 @@ public:
             gradients[2] = dx::XMFLOAT3(0.0f, 1.0f, 0.0f);
             gradients[3] = dx::XMFLOAT3(0.0f, -1.0f, 0.0f);
 
-			return currentDihedralAngle - mRestDihedralAngle;
+            return currentDihedralAngle - mRestDihedralAngle;
         }
-		else if (fabs(d + 1.0f) < 1e-6f) // d约等于-1，法向量平行但方向相反
+        else if (fabs(d + 1.0f) < 1e-6f) // d约等于-1，法向量平行但方向相反
         {
             // 共面但方向相反，梯度无法定义，使用任意垂直于公共边的方向
             dx::XMVECTOR e2Norm = dx::XMVector3Normalize(e2);
@@ -166,15 +168,15 @@ public:
             dx::XMStoreFloat3(&gradients[3], q4);
 
             return currentDihedralAngle - mRestDihedralAngle;
-		}
+        }
         else
         {
             dx::XMVECTOR e2_x_n2 = dx::XMVector3Cross(e3, n2Norm);
             dx::XMVECTOR n1_x_e2 = dx::XMVector3Cross(n1Norm, e2);
-            
+
             dx::XMVECTOR e2_x_n1 = dx::XMVector3Cross(e2, n1Norm);
             dx::XMVECTOR n2_x_e2 = dx::XMVector3Cross(n2Norm, e2);
-            
+
             dx::XMVECTOR e3_x_n2 = dx::XMVector3Cross(e3, n2Norm);
             dx::XMVECTOR n1_x_e3 = dx::XMVector3Cross(n1Norm, e3);
             dx::XMVECTOR e4_x_n1 = dx::XMVector3Cross(e4, n1Norm);
@@ -290,7 +292,7 @@ private:
         {
             return dx::XM_2PI - normalAngle;
         }
-	}
+    }
 private:
     // 受约束的四个顶点（两个相邻三角形：(p0,p1,p2)和(p0,p1,p3)，共享边p0-p1）
     Particle* mParticle1;
@@ -301,5 +303,5 @@ private:
     // 约束参数
     float mRestDihedralAngle;  // 静止二面角（弧度，范围[0, dx::XM_PI]）
 };
-
+}
 #endif // SYMPCONV_DIHEDRAL_BENDING_CONSTRAINT_H

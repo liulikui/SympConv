@@ -3,6 +3,8 @@
 
 #include <DirectXMath.h>
 
+namespace SympConv {
+
 // 为了方便使用，定义一个简化的命名空间别名
 namespace dx = DirectX;
 
@@ -34,15 +36,15 @@ public:
     //   f - 要应用的力向量
     void ApplyForce(const dx::XMFLOAT3& f)
     {
-        if (!mIsStatic) 
+        if (!mIsStatic)
         {
             // 将力转换为XMVECTOR进行计算
             dx::XMVECTOR forceVector = dx::XMLoadFloat3(&mForce);
             dx::XMVECTOR appliedForce = dx::XMLoadFloat3(&f);
-            
+
             // 叠加力
             forceVector = dx::XMVectorAdd(forceVector, appliedForce);
-            
+
             // 将结果转换回XMFLOAT3
             dx::XMStoreFloat3(&mForce, forceVector);
         }
@@ -70,4 +72,5 @@ public:
 #endif//DEBUG_SOLVER
 };
 
+}
 #endif // SYMPCONV_PARTICLE_H

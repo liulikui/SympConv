@@ -6,6 +6,8 @@
 #include "Constraint.h"
 #include "Particle.h"
 
+namespace SympConv {
+
 namespace dx = DirectX;
 
 // LRA约束类，继承自约束基类
@@ -37,12 +39,12 @@ public:
         dx::XMVECTOR attachPos = dx::XMLoadFloat3(&mAttachmentPoint);
         dx::XMVECTOR delta = dx::XMVectorSubtract(pos, attachPos);
         float currentDistance = dx::XMVectorGetX(dx::XMVector3Length(delta));
-        
+
         float constraintValue = currentDistance - mGeodesicDistance * (1 + mMaxStretch);
 
         if (constraintValue > 0.0f)
         {
-			dx::XMVECTOR gradient;
+            dx::XMVECTOR gradient;
             if (currentDistance > 1e-9f)
             {
                 gradient = dx::XMVectorScale(delta, 1.0f / currentDistance);
@@ -55,12 +57,12 @@ public:
             dx::XMFLOAT3 gradientFloat3;
             dx::XMStoreFloat3(&gradientFloat3, gradient);
             gradients[0] = gradientFloat3;
-			
-			return constraintValue;
- 		}
+
+            return constraintValue;
+        }
         else
         {
-			gradients[0] = dx::XMFLOAT3(0.0f, 0.0f, 0.0f);
+            gradients[0] = dx::XMFLOAT3(0.0f, 0.0f, 0.0f);
             return 0.0f;
         }
     }
@@ -80,7 +82,7 @@ public:
     }
 
     // 获取受此约束影响的所有粒子
-     // 返回：受约束影响的粒子的数组
+        // 返回：受约束影响的粒子的数组
     virtual const Particle** GetParticles() const override
     {
         return (const Particle**)(&mParticle);
@@ -117,5 +119,5 @@ private:
     float mGeodesicDistance;
     float mMaxStretch;
 };
-
+}
 #endif // SYMPCONV_LRA_CONSTRAINT_H

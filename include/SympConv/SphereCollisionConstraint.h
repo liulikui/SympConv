@@ -5,6 +5,8 @@
 #include "Constraint.h"
 #include "Particle.h"
 
+namespace SympConv {
+
 namespace dx = DirectX;
 
 class SphereCollisionConstraint : public Constraint
@@ -86,4 +88,5 @@ private:
     float mSphereRadius;
 };
 
+}
 #endif // SYMPCONV_SPHERE_COLLISION_CONSTRAINT_H

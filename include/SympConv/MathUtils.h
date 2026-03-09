@@ -36,9 +36,9 @@ T MathUtils::Lerp(T a, T b, T t)
 template <typename T>
 T MathUtils::Sign(T value)
 {
-	 if (value > 0) return 1;
-	 if (value < 0) return -1;
-	 return 0;
+		if (value > 0) return 1;
+		if (value < 0) return -1;
+		return 0;
 }
 
 } // namespace SympConv

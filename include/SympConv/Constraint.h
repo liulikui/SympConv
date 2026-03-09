@@ -4,6 +4,8 @@
 #include <DirectXMath.h>
 #include "Particle.h"
 
+namespace SympConv {
+
 // 为了方便使用，定义一个简化的命名空间别名
 namespace dx = DirectX;
 
@@ -19,7 +21,8 @@ public:
         : mLambda(0.0f)
         , mCompliance(compliance)
         , mDamping(damping)
-    {}
+    {
+    }
 
     // 虚析构函数
     virtual ~Constraint() = default;
@@ -32,7 +35,7 @@ public:
     //   gradients - 存储每个受约束粒子的梯度向量的向量
     // 返回：约束偏差值C(x)
     virtual float ComputeConstraintAndGradient(dx::XMFLOAT3* gradients) const = 0;
-    
+
     // 获取受此约束影响的所有粒子的数量
     // 返回：受约束影响的粒子数量
     virtual uint32_t GetParticlesCount() const = 0;
@@ -58,14 +61,14 @@ public:
     {
         mCompliance = c;
     }
-    
+
     // 获取约束的柔度
     // 返回：柔度值
     inline float GetCompliance() const
     {
         return mCompliance;
     }
-    
+
     // 设置约束的阻尼系数
     // 参数：
     //   d - 新的阻尼系数
@@ -102,4 +105,5 @@ protected:
     float mDamping;        // 阻尼系数，控制约束方向的阻尼强度，0为无阻尼
 };
 
+}
 #endif // SYMPCONV_CONSTRAINT_H
