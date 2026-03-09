@@ -5,8 +5,8 @@ project(SympConv)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# 添加UTF-8编码支持
-add_compile_options("/source-charset:utf-8" "/execution-charset:utf-8")
+# 添加UTF-8编码支持和PDB文件共享选项
+add_compile_options("/source-charset:utf-8" "/execution-charset:utf-8" "/FS")
 
 set(CMAKE_CONFIGURATION_TYPES "Debug;Release;Release_SolverDebug;Debug_SolverDebug" CACHE STRING "Available build types" FORCE)
 
@@ -31,8 +31,8 @@ file(GLOB_RECURSE SRC_HEADERS "src/*.h")
 file(GLOB_RECURSE INCLUDE_HEADERS "include/**/*.h")
 
 # 收集demo目录下的源文件和头文件
-file(GLOB_RECURSE TEST_SOURCES "demo/*.cpp")
-file(GLOB_RECURSE TEST_HEADERS "demo/*.h")
+file(GLOB_RECURSE DEMO_SOURCES "demo/*.cpp")
+file(GLOB_RECURSE DEMO_HEADERS "demo/*.h")
 
 # 构建库
 add_library(SympConv SHARED ${SRC_SOURCES} ${SRC_HEADERS} ${INCLUDE_HEADERS})
@@ -40,12 +40,12 @@ target_include_directories(SympConv PRIVATE src)
 target_compile_definitions(SympConv PRIVATE SYMPCONV_EXPORTS)
 
 # 构建可执行文件
-add_executable(SympConvTest ${TEST_SOURCES} ${TEST_HEADERS})
-target_include_directories(SympConvTest PRIVATE demo)
-target_link_libraries(SympConvTest PRIVATE SympConv)
+add_executable(SympConvDemo ${DEMO_SOURCES} ${DEMO_HEADERS})
+target_include_directories(SympConvDemo PRIVATE demo)
+target_link_libraries(SympConvDemo PRIVATE SympConv)
 
 # 链接库
-target_link_libraries(SympConvTest PRIVATE
+target_link_libraries(SympConvDemo PRIVATE
     d3d12.lib
     dxgi.lib
     dxguid.lib
@@ -56,13 +56,13 @@ target_link_libraries(SympConvTest PRIVATE
 )
 
 # 定义预处理器宏
-target_compile_definitions(SympConvTest PRIVATE
+target_compile_definitions(SympConvDemo PRIVATE
     UNICODE
     _UNICODE
 )
 
 # 设置Windows子系统（GUI应用）
-set_target_properties(SympConvTest PROPERTIES
+set_target_properties(SympConvDemo PROPERTIES
     WIN32_EXECUTABLE YES
 )
 
@@ -79,7 +79,7 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
         $<$<CONFIG:Debug_SolverDebug>:/Zi /Od /DDEBUG=1 /DDEBUG_SOLVER=1>
     )
     
-    target_compile_options(SympConvTest PRIVATE
+    target_compile_options(SympConvDemo PRIVATE
         $<$<CONFIG:Debug>:/Zi /Od /DDEBUG=1>
         # 为Release版本添加调试信息但保持优化
         $<$<CONFIG:Release>:/Zi /O2 /Oy- /Gw /GS /GL>
@@ -101,7 +101,7 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
         $<$<CONFIG:Debug_SolverDebug>:/DEBUG:FULL /INCREMENTAL:NO>
     )
     
-    target_link_options(SympConvTest PRIVATE
+    target_link_options(SympConvDemo PRIVATE
         # 为Debug版本添加链接器调试选项
         $<$<CONFIG:Debug>:/DEBUG:FULL /INCREMENTAL:NO>
         # 为Release版本添加链接器调试选项，确保生成完整的调试信息，并添加/LTCG以匹配/GL编译选项
@@ -123,13 +123,13 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
         PDB_OUTPUT_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}"
     )
     
-    set_target_properties(SympConvTest PROPERTIES
+    set_target_properties(SympConvDemo PROPERTIES
         # 编译PDB配置
-        COMPILE_PDB_NAME "SympConvTest"
+        COMPILE_PDB_NAME "SympConvDemo"
         COMPILE_PDB_OUTPUT_DIR "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}"
         
         # 确保调试信息和可执行文件在同一目录
-        PDB_NAME "SympConvTest"
+        PDB_NAME "SympConvDemo"
         PDB_OUTPUT_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}"
         
         # 确保符号信息完整
