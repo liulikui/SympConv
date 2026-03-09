@@ -14,7 +14,7 @@ namespace SympConv {
  * @tparam T 浮点类型，如float、double
  */
 template<typename T>
-struct Quaternion
+struct TQuaternion
 {
     static_assert(std::is_floating_point_v<T>, "T must be floating point");
 
@@ -28,7 +28,7 @@ public:
     /**
      * @brief 默认构造函数
      */
-    Quaternion() : x(T(0)), y(T(0)), z(T(0)), w(T(1)) {}
+    TQuaternion() : x(T(0)), y(T(0)), z(T(0)), w(T(1)) {}
 
     /**
      * @brief 带参数的构造函数
@@ -37,14 +37,14 @@ public:
      * @param z 虚部z分量
      * @param w 实部
      */
-    Quaternion(T x, T y, T z, T w) : x(x), y(y), z(z), w(w) {}
+    TQuaternion(T x, T y, T z, T w) : x(x), y(y), z(z), w(w) {}
 
     /**
      * @brief 从向量和标量构造四元数
      * @param v 虚部向量
      * @param w 实部
      */
-    Quaternion(const TVector3<T>& v, T w) : x(v.x), y(v.y), z(v.z), w(w) {}
+    TQuaternion(const TVector3<T>& v, T w) : x(v.x), y(v.y), z(v.z), w(w) {}
 
     /**
      * @brief 虚部设置函数
@@ -53,7 +53,7 @@ public:
      * @param z 虚部z分量
      * @return 引用到当前四元数
      */
-    Quaternion<T>& Set(T x, T y, T z)
+    TQuaternion<T>& Set(T x, T y, T z)
     {
         this->x = x;
         this->y = y;
@@ -66,9 +66,9 @@ public:
      * @param q 另一个四元数
      * @return 两个四元数的和
      */
-    Quaternion<T> operator+(const Quaternion<T>& q) const
+    TQuaternion<T> operator+(const TQuaternion<T>& q) const
     {
-        return Quaternion<T>(x + q.x, y + q.y, z + q.z, w + q.w);
+        return TQuaternion<T>(x + q.x, y + q.y, z + q.z, w + q.w);
     }
 
     /**
@@ -76,9 +76,9 @@ public:
      * @param q 另一个四元数
      * @return 两个四元数的差
      */
-    Quaternion<T> operator-(const Quaternion<T>& q) const
+    TQuaternion<T> operator-(const TQuaternion<T>& q) const
     {
-        return Quaternion<T>(x - q.x, y - q.y, z - q.z, w - q.w);
+        return TQuaternion<T>(x - q.x, y - q.y, z - q.z, w - q.w);
     }
 
     /**
@@ -86,9 +86,9 @@ public:
      * @param q 另一个四元数
      * @return 两个四元数的乘积
      */
-    Quaternion<T> operator*(const Quaternion<T>& q) const
+    TQuaternion<T> operator*(const TQuaternion<T>& q) const
     {
-        return Quaternion<T>(
+        return TQuaternion<T>(
             w * q.x + x * q.w + y * q.z - z * q.y,
             w * q.y - x * q.z + y * q.w + z * q.x,
             w * q.z + x * q.y - y * q.x + z * q.w,
@@ -101,9 +101,9 @@ public:
      * @param scalar 标量值
      * @return 四元数与标量的乘积
      */
-    Quaternion<T> operator*(T scalar) const
+    TQuaternion<T> operator*(T scalar) const
     {
-        return Quaternion<T>(x * scalar, y * scalar, z * scalar, w * scalar);
+        return TQuaternion<T>(x * scalar, y * scalar, z * scalar, w * scalar);
     }
 
     /**
@@ -111,9 +111,9 @@ public:
      * @param scalar 标量值
      * @return 四元数与标量的商
      */
-    Quaternion<T> operator/(T scalar) const
+    TQuaternion<T> operator/(T scalar) const
     {
-        return Quaternion<T>(x / scalar, y / scalar, z / scalar, w / scalar);
+        return TQuaternion<T>(x / scalar, y / scalar, z / scalar, w / scalar);
     }
 
     /**
@@ -121,7 +121,7 @@ public:
      * @param q 另一个四元数
      * @return 引用到当前四元数
      */
-    Quaternion<T>& operator+=(const Quaternion<T>& q)
+    TQuaternion<T>& operator+=(const TQuaternion<T>& q)
     {
         x += q.x;
         y += q.y;
@@ -135,7 +135,7 @@ public:
      * @param q 另一个四元数
      * @return 引用到当前四元数
      */
-    Quaternion<T>& operator-=(const Quaternion<T>& q)
+    TQuaternion<T>& operator-=(const TQuaternion<T>& q)
     {
         x -= q.x;
         y -= q.y;
@@ -149,7 +149,7 @@ public:
      * @param q 另一个四元数
      * @return 引用到当前四元数
      */
-    Quaternion<T>& operator*=(const Quaternion<T>& q)
+    TQuaternion<T>& operator*=(const TQuaternion<T>& q)
     {
         *this = *this * q;
         return *this;
@@ -160,7 +160,7 @@ public:
      * @param scalar 标量值
      * @return 引用到当前四元数
      */
-    Quaternion<T>& operator*=(T scalar)
+    TQuaternion<T>& operator*=(T scalar)
     {
         x *= scalar;
         y *= scalar;
@@ -174,7 +174,7 @@ public:
      * @param scalar 标量值
      * @return 引用到当前四元数
      */
-    Quaternion<T>& operator/=(T scalar)
+    TQuaternion<T>& operator/=(T scalar)
     {
         x /= scalar;
         y /= scalar;
@@ -188,7 +188,7 @@ public:
      * @param q 另一个四元数
      * @return 点积结果
      */
-    T Dot(const Quaternion<T>& q) const
+    T Dot(const TQuaternion<T>& q) const
     {
         return x * q.x + y * q.y + z * q.z + w * q.w;
     }
@@ -199,7 +199,7 @@ public:
      * @param b 第二个四元数
      * @return 点积结果
      */
-    static T DotProduct(const Quaternion<T>& a, const Quaternion<T>& b)
+    static T DotProduct(const TQuaternion<T>& a, const TQuaternion<T>& b)
     {
         return a.Dot(b);
     }
@@ -235,39 +235,39 @@ public:
      * @brief 归一化四元数
      * @return 归一化后的四元数
      */
-    Quaternion<T> Normalize() const
+    TQuaternion<T> Normalize() const
     {
         T len = Length();
         if (len > T(0))
         {
             T invLen = T(1) / len;
-            return Quaternion<T>(x * invLen, y * invLen, z * invLen, w * invLen);
+            return TQuaternion<T>(x * invLen, y * invLen, z * invLen, w * invLen);
         }
-        return Quaternion<T>::Identity();
+        return TQuaternion<T>::Identity();
     }
 
     /**
      * @brief 四元数共轭
      * @return 共轭四元数
      */
-    Quaternion<T> Conjugate() const
+    TQuaternion<T> Conjugate() const
     {
-        return Quaternion<T>(-x, -y, -z, w);
+        return TQuaternion<T>(-x, -y, -z, w);
     }
 
     /**
      * @brief 四元数逆
      * @return 逆四元数
      */
-    Quaternion<T> Inverse() const
+    TQuaternion<T> Inverse() const
     {
         T lenSq = LengthSquared();
         if (lenSq > T(0))
         {
             T invLenSq = T(1) / lenSq;
-            return Quaternion<T>(-x * invLenSq, -y * invLenSq, -z * invLenSq, w * invLenSq);
+            return TQuaternion<T>(-x * invLenSq, -y * invLenSq, -z * invLenSq, w * invLenSq);
         }
-        return Quaternion<T>::Identity();
+        return TQuaternion<T>::Identity();
     }
 
     /**
@@ -275,11 +275,11 @@ public:
      * @param exponent 指数
      * @return 幂运算结果
      */
-    Quaternion<T> Pow(T exponent) const
+    TQuaternion<T> Pow(T exponent) const
     {
         if (LengthSquared() == T(0))
         {
-            return Quaternion<T>::Identity();
+            return TQuaternion<T>::Identity();
         }
 
         T theta = std::acos(w);
@@ -291,7 +291,7 @@ public:
         }
 
         T coeff = exponent * theta / sinTheta;
-        return Quaternion<T>(
+        return TQuaternion<T>(
             x * std::sin(coeff) / sinTheta,
             y * std::sin(coeff) / sinTheta,
             z * std::sin(coeff) / sinTheta,
@@ -305,20 +305,20 @@ public:
      * @param t 插值参数 [0, 1]
      * @return 插值结果四元数
      */
-    Quaternion<T> Slerp(const Quaternion<T>& target, T t) const
+    TQuaternion<T> Slerp(const TQuaternion<T>& target, T t) const
     {
         T dot = Dot(target);
 
-        Quaternion<T> q = target;
+        TQuaternion<T> q = target;
         if (dot < T(0))
         {
-            q = Quaternion<T>(-target.x, -target.y, -target.z, -target.w);
+            q = TQuaternion<T>(-target.x, -target.y, -target.z, -target.w);
             dot = -dot;
         }
 
         if (dot > T(1) - T(1e-6))
         {
-            return Quaternion<T>(
+            return TQuaternion<T>(
                 x + t * (q.x - x),
                 y + t * (q.y - y),
                 z + t * (q.z - z),
@@ -334,7 +334,7 @@ public:
         T s0 = std::cos(theta) - dot * sinTheta / sinTheta0;
         T s1 = sinTheta / sinTheta0;
 
-        return Quaternion<T>(
+        return TQuaternion<T>(
             x * s0 + q.x * s1,
             y * s0 + q.y * s1,
             z * s0 + q.z * s1,
@@ -349,7 +349,7 @@ public:
      * @param t 插值参数 [0, 1]
      * @return 插值结果四元数
      */
-    static Quaternion<T> Slerp(const Quaternion<T>& a, const Quaternion<T>& b, T t)
+    static TQuaternion<T> Slerp(const TQuaternion<T>& a, const TQuaternion<T>& b, T t)
     {
         return a.Slerp(b, t);
     }
@@ -361,8 +361,8 @@ public:
      */
     TVector3<T> RotateVector(const TVector3<T>& vec) const
     {
-        Quaternion<T> qv(vec.x, vec.y, vec.z, T(0));
-        Quaternion<T> result = *this * qv * Inverse();
+        TQuaternion<T> qv(vec.x, vec.y, vec.z, T(0));
+        TQuaternion<T> result = *this * qv * Inverse();
         return result.GetImaginary();
     }
 
@@ -372,7 +372,7 @@ public:
      * @param vec 要旋转的向量
      * @return 旋转后的向量
      */
-    static TVector3<T> RotateVector(const Quaternion<T>& q, const TVector3<T>& vec)
+    static TVector3<T> RotateVector(const TQuaternion<T>& q, const TVector3<T>& vec)
     {
         return q.RotateVector(vec);
     }
@@ -420,14 +420,14 @@ public:
      * @param mat 3x3旋转矩阵
      * @return 对应的四元数
      */
-    static Quaternion<T> FromMatrix3x3(const Matrix3x3<T>& mat)
+    static TQuaternion<T> FromMatrix3x3(const Matrix3x3<T>& mat)
     {
         T trace = mat.mRows[0].x + mat.mRows[1].y + mat.mRows[2].z;
 
         if (trace > T(0))
         {
             T s = T(0.5) / std::sqrt(trace + T(1));
-            return Quaternion<T>(
+            return TQuaternion<T>(
                 (mat.mRows[2].y - mat.mRows[1].z) * s,
                 (mat.mRows[0].z - mat.mRows[2].x) * s,
                 (mat.mRows[1].x - mat.mRows[0].y) * s,
@@ -437,7 +437,7 @@ public:
         else if (mat.mRows[0].x > mat.mRows[1].y && mat.mRows[0].x > mat.mRows[2].z)
         {
             T s = T(2) * std::sqrt(T(1) + mat.mRows[0].x - mat.mRows[1].y - mat.mRows[2].z);
-            return Quaternion<T>(
+            return TQuaternion<T>(
                 T(0.25) * s,
                 (mat.mRows[0].y + mat.mRows[1].x) / s,
                 (mat.mRows[0].z + mat.mRows[2].x) / s,
@@ -447,7 +447,7 @@ public:
         else if (mat.mRows[1].y > mat.mRows[2].z)
         {
             T s = T(2) * std::sqrt(T(1) + mat.mRows[1].y - mat.mRows[0].x - mat.mRows[2].z);
-            return Quaternion<T>(
+            return TQuaternion<T>(
                 (mat.mRows[0].y + mat.mRows[1].x) / s,
                 T(0.25) * s,
                 (mat.mRows[1].z + mat.mRows[2].y) / s,
@@ -457,7 +457,7 @@ public:
         else
         {
             T s = T(2) * std::sqrt(T(1) + mat.mRows[2].z - mat.mRows[0].x - mat.mRows[1].y);
-            return Quaternion<T>(
+            return TQuaternion<T>(
                 (mat.mRows[0].z + mat.mRows[2].x) / s,
                 (mat.mRows[1].z + mat.mRows[2].y) / s,
                 T(0.25) * s,
@@ -471,7 +471,7 @@ public:
      * @param mat 4x4旋转矩阵
      * @return 对应的四元数
      */
-    static Quaternion<T> FromMatrix4x4(const Matrix4x4<T>& mat)
+    static TQuaternion<T> FromMatrix4x4(const Matrix4x4<T>& mat)
     {
         Matrix3x3<T> m3(
             mat.mRows[0].x, mat.mRows[0].y, mat.mRows[0].z,
@@ -487,13 +487,13 @@ public:
      * @param angle 旋转角度（弧度）
      * @return 对应的四元数
      */
-    static Quaternion<T> FromAxisAngle(const TVector3<T>& axis, T angle)
+    static TQuaternion<T> FromAxisAngle(const TVector3<T>& axis, T angle)
     {
         T halfAngle = angle * T(0.5);
         T sinHalfAngle = std::sin(halfAngle);
         T cosHalfAngle = std::cos(halfAngle);
 
-        return Quaternion<T>(
+        return TQuaternion<T>(
             axis.x * sinHalfAngle,
             axis.y * sinHalfAngle,
             axis.z * sinHalfAngle,
@@ -540,7 +540,7 @@ public:
      * @param z 绕Z轴旋转角度（弧度）
      * @return 对应的四元数
      */
-    static Quaternion<T> FromEulerAngles(T x, T y, T z)
+    static TQuaternion<T> FromEulerAngles(T x, T y, T z)
     {
         T halfX = x * T(0.5);
         T halfY = y * T(0.5);
@@ -553,7 +553,7 @@ public:
         T sinZ = std::sin(halfZ);
         T cosZ = std::cos(halfZ);
 
-        return Quaternion<T>(
+        return TQuaternion<T>(
             sinY * cosX * cosZ + cosY * sinX * sinZ,
             cosY * sinX * cosZ - sinY * cosX * sinZ,
             cosY * cosX * sinZ - sinY * sinX * cosZ,
@@ -593,7 +593,7 @@ public:
      * @param euler 欧拉角向量（弧度），按XYZ顺序
      * @return 对应的四元数
      */
-    static Quaternion<T> FromEulerAngles(const TVector3<T>& euler)
+    static TQuaternion<T> FromEulerAngles(const TVector3<T>& euler)
     {
         return FromEulerAngles(euler.x, euler.y, euler.z);
     }
@@ -614,7 +614,7 @@ public:
      * @param angle 旋转角度（弧度）
      * @return 旋转后的四元数
      */
-    static Quaternion<T> RotateX(T angle)
+    static TQuaternion<T> RotateX(T angle)
     {
         return FromAxisAngle(TVector3<T>(T(1), T(0), T(0)), angle);
     }
@@ -624,7 +624,7 @@ public:
      * @param angle 旋转角度（弧度）
      * @return 旋转后的四元数
      */
-    static Quaternion<T> RotateY(T angle)
+    static TQuaternion<T> RotateY(T angle)
     {
         return FromAxisAngle(TVector3<T>(T(0), T(1), T(0)), angle);
     }
@@ -634,7 +634,7 @@ public:
      * @param angle 旋转角度（弧度）
      * @return 旋转后的四元数
      */
-    static Quaternion<T> RotateZ(T angle)
+    static TQuaternion<T> RotateZ(T angle)
     {
         return FromAxisAngle(TVector3<T>(T(0), T(0), T(1)), angle);
     }
@@ -645,7 +645,7 @@ public:
      * @param angle 旋转角度（弧度）
      * @return 旋转后的四元数
      */
-    static Quaternion<T> RotateAxis(const TVector3<T>& axis, T angle)
+    static TQuaternion<T> RotateAxis(const TVector3<T>& axis, T angle)
     {
         return FromAxisAngle(axis, angle);
     }
@@ -654,18 +654,18 @@ public:
      * @brief 创建单位四元数（无旋转）
      * @return 单位四元数
      */
-    static Quaternion<T> Identity()
+    static TQuaternion<T> Identity()
     {
-        return Quaternion<T>(T(0), T(0), T(0), T(1));
+        return TQuaternion<T>(T(0), T(0), T(0), T(1));
     }
 
     /**
      * @brief 创建零四元数
      * @return 零四元数
      */
-    static Quaternion<T> Zero()
+    static TQuaternion<T> Zero()
     {
-        return Quaternion<T>(T(0), T(0), T(0), T(0));
+        return TQuaternion<T>(T(0), T(0), T(0), T(0));
     }
 
     /**
@@ -673,7 +673,7 @@ public:
      * @param q 另一个四元数
      * @return 与原四元数夹角较小的那个四元数
      */
-    const Quaternion<T>& MinimizeAngle(const Quaternion<T>& q) const
+    const TQuaternion<T>& MinimizeAngle(const TQuaternion<T>& q) const
     {
         if (Dot(q) < T(0))
         {
@@ -684,7 +684,7 @@ public:
 };
 
 template<typename T>
-Quaternion<T> operator*(T scalar, const Quaternion<T>& q)
+TQuaternion<T> operator*(T scalar, const TQuaternion<T>& q)
 {
     return q * scalar;
 }
