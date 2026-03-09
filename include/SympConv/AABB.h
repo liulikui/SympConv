@@ -209,32 +209,9 @@ public:
      */
     bool Intersects(const TAABB<T>& other) const
     {
-        return !(mMin.x > other.mMax.x || mMax.x < other.mMin.x ||
-                 mMin.y > other.mMax.y || mMax.y < other.mMin.y ||
-                 mMin.z > other.mMax.z || mMax.z < other.mMin.z);
-    }
-
-    /**
-     * @brief 检查与射线是否相交
-     * @param ray 射线
-     * @param tMin 最小相交参数
-     * @param tMax 最大相交参数
-     * @return 是否相交
-     */
-    bool Intersects(const TRay<T>& ray, T& tMin, T& tMax) const
-    {
-        return ray.Intersects(*this, tMin, tMax);
-    }
-
-    /**
-     * @brief 检查与射线是否相交
-     * @param ray 射线
-     * @return 是否相交
-     */
-    bool Intersects(const TRay<T>& ray) const
-    {
-        T tMin, tMax;
-        return Intersects(ray, tMin, tMax);
+        return !(mMin.x >= other.mMax.x || mMax.x <= other.mMin.x ||
+                 mMin.y >= other.mMax.y || mMax.y <= other.mMin.y ||
+                 mMin.z >= other.mMax.z || mMax.z <= other.mMin.z);
     }
 
     /**

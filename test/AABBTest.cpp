@@ -3,6 +3,7 @@
 #include "SympConv/Vector.h"
 #include "SympConv/Ray.h"
 #include "SympConv/Transform.h"
+#include "SympConv/CollisionDetection.h"
 #include "TestUtils.h"
 
 namespace SympConvTest {
@@ -115,14 +116,14 @@ TEST(AABBTest, IntersectsAABB) {
 TEST(AABBTest, IntersectsRay) {
     AABB aabb(Vec3(0.0f, 0.0f, 0.0f), Vec3(1.0f, 1.0f, 1.0f));
     Ray ray(Vec3(-1.0f, 0.5f, 0.5f), Vec3(1.0f, 0.0f, 0.0f));
-    EXPECT_TRUE(aabb.Intersects(ray));
+    EXPECT_TRUE(SympConv::RayIntersectsAABB(ray, aabb));
 }
 
 TEST(AABBTest, IntersectsRayWithParams) {
     AABB aabb(Vec3(0.0f, 0.0f, 0.0f), Vec3(1.0f, 1.0f, 1.0f));
     Ray ray(Vec3(-1.0f, 0.5f, 0.5f), Vec3(1.0f, 0.0f, 0.0f));
     float tMin, tMax;
-    EXPECT_TRUE(aabb.Intersects(ray, tMin, tMax));
+    EXPECT_TRUE(SympConv::RayIntersectsAABB(ray, aabb, tMin, tMax));
     EXPECT_TRUE(FloatEqual(tMin, 1.0f));
     EXPECT_TRUE(FloatEqual(tMax, 2.0f));
 }
