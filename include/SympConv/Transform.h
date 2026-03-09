@@ -1,6 +1,7 @@
 #ifndef SYMPCONV_TRANSFORM_H
 #define SYMPCONV_TRANSFORM_H
 
+#include "Config.h"
 #include "Quaternion.h"
 #include "Vector.h"
 #include "Matrix.h"
@@ -495,6 +496,11 @@ public:
         return transform;
     }
 };
+
+// 类型别名
+typedef TTransform<float> Transformf;
+typedef TTransform<double> Transformd;
+typedef TTransform<fpnumber> Transform;
 
 } // namespace SympConv
 

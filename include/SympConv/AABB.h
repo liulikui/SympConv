@@ -1,6 +1,7 @@
 #ifndef SYMPCONV_AABB_H
 #define SYMPCONV_AABB_H
 
+#include "Config.h"
 #include "Vector.h"
 #include "Ray.h"
 #include "Transform.h"
@@ -354,6 +355,11 @@ public:
         return TAABB<T>(center - offset, center + offset);
     }
 };
+
+// 类型别名
+typedef TAABB<float> AABBf;
+typedef TAABB<double> AABBd;
+typedef TAABB<fpnumber> AABB;
 
 } // namespace SympConv
 

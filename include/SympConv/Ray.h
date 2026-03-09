@@ -1,6 +1,7 @@
 #ifndef SYMPCONV_RAY_H
 #define SYMPCONV_RAY_H
 
+#include "Config.h"
 #include "Vector.h"
 #include <type_traits>
 
@@ -182,6 +183,11 @@ public:
         return result;
     }
 };
+
+// 类型别名
+typedef TRay<float> Rayf;
+typedef TRay<double> Rayd;
+typedef TRay<fpnumber> Ray;
 
 } // namespace SympConv
 

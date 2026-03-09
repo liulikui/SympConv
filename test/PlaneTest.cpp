@@ -7,9 +7,9 @@
 
 namespace SympConvTest {
 
-using Plane = SympConv::TPlane<float>;
-using Vec3 = SympConv::TVector3<float>;
-using Ray = SympConv::TRay<float>;
+using Plane = SympConv::Plane;
+using Vec3 = SympConv::Vector3;
+using Ray = SympConv::Ray;
 
 TEST(PlaneTest, DefaultConstructor) {
     Plane plane;

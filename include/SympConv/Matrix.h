@@ -1,6 +1,7 @@
 #ifndef SYMPCONV_MATRIX_H
 #define SYMPCONV_MATRIX_H
 
+#include "Config.h"
 #include "Vector.h"
 #include <cmath>
 
@@ -728,6 +729,137 @@ public:
     }
 
     /**
+     * @brief 计算矩阵行列式
+     * @return 行列式值
+     */
+    T Determinant() const
+    {
+        // 使用拉普拉斯展开计算4x4矩阵行列式
+        return mRows[0].x * (
+                   mRows[1].y * (mRows[2].z * mRows[3].w - mRows[2].w * mRows[3].z) - 
+                   mRows[1].z * (mRows[2].y * mRows[3].w - mRows[2].w * mRows[3].y) + 
+                   mRows[1].w * (mRows[2].y * mRows[3].z - mRows[2].z * mRows[3].y)
+               ) - 
+               mRows[0].y * (
+                   mRows[1].x * (mRows[2].z * mRows[3].w - mRows[2].w * mRows[3].z) - 
+                   mRows[1].z * (mRows[2].x * mRows[3].w - mRows[2].w * mRows[3].x) + 
+                   mRows[1].w * (mRows[2].x * mRows[3].z - mRows[2].z * mRows[3].x)
+               ) + 
+               mRows[0].z * (
+                   mRows[1].x * (mRows[2].y * mRows[3].w - mRows[2].w * mRows[3].y) - 
+                   mRows[1].y * (mRows[2].x * mRows[3].w - mRows[2].w * mRows[3].x) + 
+                   mRows[1].w * (mRows[2].x * mRows[3].y - mRows[2].y * mRows[3].x)
+               ) - 
+               mRows[0].w * (
+                   mRows[1].x * (mRows[2].y * mRows[3].z - mRows[2].z * mRows[3].y) - 
+                   mRows[1].y * (mRows[2].x * mRows[3].z - mRows[2].z * mRows[3].x) + 
+                   mRows[1].z * (mRows[2].x * mRows[3].y - mRows[2].y * mRows[3].x)
+               );
+    }
+
+    /**
+     * @brief 求逆矩阵
+     * @return 逆矩阵
+     */
+    TMatrix4x4<T> Inverse() const
+    {
+        T det = Determinant();
+        if (det == T(0))
+        {
+            return TMatrix4x4<T>();
+        }
+        T invDet = T(1) / det;
+
+        // 计算伴随矩阵
+        TMatrix4x4<T> adjoint;
+        adjoint.mRows[0].x = (
+            mRows[1].y * (mRows[2].z * mRows[3].w - mRows[2].w * mRows[3].z) - 
+            mRows[1].z * (mRows[2].y * mRows[3].w - mRows[2].w * mRows[3].y) + 
+            mRows[1].w * (mRows[2].y * mRows[3].z - mRows[2].z * mRows[3].y)
+        ) * invDet;
+        adjoint.mRows[0].y = -(
+            mRows[0].y * (mRows[2].z * mRows[3].w - mRows[2].w * mRows[3].z) - 
+            mRows[0].z * (mRows[2].y * mRows[3].w - mRows[2].w * mRows[3].y) + 
+            mRows[0].w * (mRows[2].y * mRows[3].z - mRows[2].z * mRows[3].y)
+        ) * invDet;
+        adjoint.mRows[0].z = (
+            mRows[0].y * (mRows[1].z * mRows[3].w - mRows[1].w * mRows[3].z) - 
+            mRows[0].z * (mRows[1].y * mRows[3].w - mRows[1].w * mRows[3].y) + 
+            mRows[0].w * (mRows[1].y * mRows[3].z - mRows[1].z * mRows[3].y)
+        ) * invDet;
+        adjoint.mRows[0].w = -(
+            mRows[0].y * (mRows[1].z * mRows[2].w - mRows[1].w * mRows[2].z) - 
+            mRows[0].z * (mRows[1].y * mRows[2].w - mRows[1].w * mRows[2].y) + 
+            mRows[0].w * (mRows[1].y * mRows[2].z - mRows[1].z * mRows[2].y)
+        ) * invDet;
+
+        adjoint.mRows[1].x = -(
+            mRows[1].x * (mRows[2].z * mRows[3].w - mRows[2].w * mRows[3].z) - 
+            mRows[1].z * (mRows[2].x * mRows[3].w - mRows[2].w * mRows[3].x) + 
+            mRows[1].w * (mRows[2].x * mRows[3].z - mRows[2].z * mRows[3].x)
+        ) * invDet;
+        adjoint.mRows[1].y = (
+            mRows[0].x * (mRows[2].z * mRows[3].w - mRows[2].w * mRows[3].z) - 
+            mRows[0].z * (mRows[2].x * mRows[3].w - mRows[2].w * mRows[3].x) + 
+            mRows[0].w * (mRows[2].x * mRows[3].z - mRows[2].z * mRows[3].x)
+        ) * invDet;
+        adjoint.mRows[1].z = -(
+            mRows[0].x * (mRows[1].z * mRows[3].w - mRows[1].w * mRows[3].z) - 
+            mRows[0].z * (mRows[1].x * mRows[3].w - mRows[1].w * mRows[3].x) + 
+            mRows[0].w * (mRows[1].x * mRows[3].z - mRows[1].z * mRows[3].x)
+        ) * invDet;
+        adjoint.mRows[1].w = (
+            mRows[0].x * (mRows[1].z * mRows[2].w - mRows[1].w * mRows[2].z) - 
+            mRows[0].z * (mRows[1].x * mRows[2].w - mRows[1].w * mRows[2].x) + 
+            mRows[0].w * (mRows[1].x * mRows[2].z - mRows[1].z * mRows[2].x)
+        ) * invDet;
+
+        adjoint.mRows[2].x = (
+            mRows[1].x * (mRows[2].y * mRows[3].w - mRows[2].w * mRows[3].y) - 
+            mRows[1].y * (mRows[2].x * mRows[3].w - mRows[2].w * mRows[3].x) + 
+            mRows[1].w * (mRows[2].x * mRows[3].y - mRows[2].y * mRows[3].x)
+        ) * invDet;
+        adjoint.mRows[2].y = -(
+            mRows[0].x * (mRows[2].y * mRows[3].w - mRows[2].w * mRows[3].y) - 
+            mRows[0].y * (mRows[2].x * mRows[3].w - mRows[2].w * mRows[3].x) + 
+            mRows[0].w * (mRows[2].x * mRows[3].y - mRows[2].y * mRows[3].x)
+        ) * invDet;
+        adjoint.mRows[2].z = (
+            mRows[0].x * (mRows[1].y * mRows[3].w - mRows[1].w * mRows[3].y) - 
+            mRows[0].y * (mRows[1].x * mRows[3].w - mRows[1].w * mRows[3].x) + 
+            mRows[0].w * (mRows[1].x * mRows[3].y - mRows[1].y * mRows[3].x)
+        ) * invDet;
+        adjoint.mRows[2].w = -(
+            mRows[0].x * (mRows[1].y * mRows[2].w - mRows[1].w * mRows[2].y) - 
+            mRows[0].y * (mRows[1].x * mRows[2].w - mRows[1].w * mRows[2].x) + 
+            mRows[0].w * (mRows[1].x * mRows[2].y - mRows[1].y * mRows[2].x)
+        ) * invDet;
+
+        adjoint.mRows[3].x = -(
+            mRows[1].x * (mRows[2].y * mRows[3].z - mRows[2].z * mRows[3].y) - 
+            mRows[1].y * (mRows[2].x * mRows[3].z - mRows[2].z * mRows[3].x) + 
+            mRows[1].z * (mRows[2].x * mRows[3].y - mRows[2].y * mRows[3].x)
+        ) * invDet;
+        adjoint.mRows[3].y = (
+            mRows[0].x * (mRows[2].y * mRows[3].z - mRows[2].z * mRows[3].y) - 
+            mRows[0].y * (mRows[2].x * mRows[3].z - mRows[2].z * mRows[3].x) + 
+            mRows[0].z * (mRows[2].x * mRows[3].y - mRows[2].y * mRows[3].x)
+        ) * invDet;
+        adjoint.mRows[3].z = -(
+            mRows[0].x * (mRows[1].y * mRows[3].z - mRows[1].z * mRows[3].y) - 
+            mRows[0].y * (mRows[1].x * mRows[3].z - mRows[1].z * mRows[3].x) + 
+            mRows[0].z * (mRows[1].x * mRows[3].y - mRows[1].y * mRows[3].x)
+        ) * invDet;
+        adjoint.mRows[3].w = (
+            mRows[0].x * (mRows[1].y * mRows[2].z - mRows[1].z * mRows[2].y) - 
+            mRows[0].y * (mRows[1].x * mRows[2].z - mRows[1].z * mRows[2].x) + 
+            mRows[0].z * (mRows[1].x * mRows[2].y - mRows[1].y * mRows[2].x)
+        ) * invDet;
+
+        return adjoint;
+    }
+
+    /**
      * @brief 下标访问运算符
      * @param index 行索引
      * @return 对应行的向量引用
@@ -747,6 +879,19 @@ public:
         return mRows[index];
     }
 };
+
+// 类型别名
+typedef TMatrix2x2<float> Matrix2x2f;
+typedef TMatrix2x2<double> Matrix2x2d;
+typedef TMatrix2x2<fpnumber> Matrix2x2;
+
+typedef TMatrix3x3<float> Matrix3x3f;
+typedef TMatrix3x3<double> Matrix3x3d;
+typedef TMatrix3x3<fpnumber> Matrix3x3;
+
+typedef TMatrix4x4<float> Matrix4x4f;
+typedef TMatrix4x4<double> Matrix4x4d;
+typedef TMatrix4x4<fpnumber> Matrix4x4;
 
 } // namespace SympConv
 

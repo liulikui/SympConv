@@ -4,14 +4,18 @@
 #include "SympConv/Ray.h"
 #include "SympConv/AABB.h"
 #include "SympConv/Plane.h"
+#include "SympConv/Box.h"
+#include "SympConv/Sphere.h"
 #include "TestUtils.h"
 
 namespace SympConvTest {
 
-using Vec3 = SympConv::TVector3<float>;
-using Ray = SympConv::TRay<float>;
-using AABB = SympConv::TAABB<float>;
-using Plane = SympConv::TPlane<float>;
+using Vec3 = SympConv::Vector3;
+using Ray = SympConv::Ray;
+using AABB = SympConv::AABB;
+using Plane = SympConv::Plane;
+using Box = SympConv::Box;
+using Sphere = SympConv::Sphere;
 
 TEST(CollisionDetectionTest, RayIntersectsAABB) {
     // 创建一个AABB
@@ -158,6 +162,59 @@ TEST(CollisionDetectionTest, PointOnPlane) {
     Vec3 point3(1.0f, 1.0f, -1.0f);
     EXPECT_FALSE(SympConv::PointOnPlanePositiveSide(point3, plane));
     EXPECT_TRUE(SympConv::PointOnPlaneNegativeSide(point3, plane));
+}
+
+TEST(CollisionDetectionTest, RayIntersectsBox) {
+    // 创建一个盒子
+    Box box(Vec3(0.0f, 0.0f, 0.0f), Vec3(1.0f, 1.0f, 1.0f));
+    
+    // 从盒子前面发射的射线
+    Ray ray1(Vec3(0.0f, 0.0f, -2.0f), Vec3(0.0f, 0.0f, 1.0f));
+    float t1;
+    EXPECT_TRUE(SympConv::RayIntersectsBox(ray1, box, t1));
+    
+    // 从盒子后面发射的射线
+    Ray ray2(Vec3(0.0f, 0.0f, 2.0f), Vec3(0.0f, 0.0f, -1.0f));
+    float t2;
+    EXPECT_TRUE(SympConv::RayIntersectsBox(ray2, box, t2));
+    
+    // 不相交的射线
+    Ray ray3(Vec3(2.0f, 2.0f, 2.0f), Vec3(1.0f, 1.0f, 1.0f));
+    float t3;
+    EXPECT_FALSE(SympConv::RayIntersectsBox(ray3, box, t3));
+}
+
+TEST(CollisionDetectionTest, BoxIntersectsBox) {
+    // 创建两个相交的盒子
+    Box box1(Vec3(0.0f, 0.0f, 0.0f), Vec3(1.0f, 1.0f, 1.0f));
+    Box box2(Vec3(0.5f, 0.5f, 0.5f), Vec3(1.0f, 1.0f, 1.0f));
+    EXPECT_TRUE(SympConv::BoxIntersectsBox(box1, box2));
+    
+    // 创建两个不相交的盒子
+    Box box3(Vec3(2.0f, 2.0f, 2.0f), Vec3(1.0f, 1.0f, 1.0f));
+    EXPECT_FALSE(SympConv::BoxIntersectsBox(box1, box3));
+}
+
+TEST(CollisionDetectionTest, SphereIntersectsBox) {
+    // 创建一个球体和一个盒子
+    Sphere sphere(Vec3(0.0f, 0.0f, 0.0f), 1.0f);
+    Box box(Vec3(0.0f, 0.0f, 0.0f), Vec3(1.0f, 1.0f, 1.0f));
+    EXPECT_TRUE(SympConv::SphereIntersectsBox(sphere, box));
+    
+    // 创建一个不相交的球体和盒子
+    Sphere sphere2(Vec3(3.0f, 0.0f, 0.0f), 1.0f);
+    EXPECT_FALSE(SympConv::SphereIntersectsBox(sphere2, box));
+}
+
+TEST(CollisionDetectionTest, SphereIntersectsSphere) {
+    // 创建两个相交的球体
+    Sphere sphere1(Vec3(0.0f, 0.0f, 0.0f), 1.0f);
+    Sphere sphere2(Vec3(1.0f, 0.0f, 0.0f), 1.0f);
+    EXPECT_TRUE(SympConv::SphereIntersectsSphere(sphere1, sphere2));
+    
+    // 创建两个不相交的球体
+    Sphere sphere3(Vec3(3.0f, 0.0f, 0.0f), 1.0f);
+    EXPECT_FALSE(SympConv::SphereIntersectsSphere(sphere1, sphere3));
 }
 
 } // namespace SympConvTest

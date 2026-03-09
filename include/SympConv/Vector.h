@@ -1,6 +1,7 @@
 #ifndef SYMPCONV_VECTOR_H
 #define SYMPCONV_VECTOR_H
 
+#include "Config.h"
 #include <type_traits>
 #include <cmath>
 
@@ -695,6 +696,19 @@ public:
         );
     }
 };
+
+// 类型别名
+typedef TVector2<float> Vector2f;
+typedef TVector2<double> Vector2d;
+typedef TVector2<fpnumber> Vector2;
+
+typedef TVector3<float> Vector3f;
+typedef TVector3<double> Vector3d;
+typedef TVector3<fpnumber> Vector3;
+
+typedef TVector4<float> Vector4f;
+typedef TVector4<double> Vector4d;
+typedef TVector4<fpnumber> Vector4;
 
 } // namespace SympConv
 

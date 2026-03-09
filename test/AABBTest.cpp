@@ -8,10 +8,10 @@
 
 namespace SympConvTest {
 
-using AABB = SympConv::TAABB<float>;
-using Vec3 = SympConv::TVector3<float>;
-using Ray = SympConv::TRay<float>;
-using Transform = SympConv::TTransform<float>;
+using AABB = SympConv::AABB;
+using Vec3 = SympConv::Vector3;
+using Ray = SympConv::Ray;
+using Transform = SympConv::Transform;
 
 TEST(AABBTest, DefaultConstructor) {
     AABB emptyAABB;

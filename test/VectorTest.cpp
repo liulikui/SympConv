@@ -4,9 +4,9 @@
 
 namespace SympConvTest {
 
-using Vec2 = SympConv::TVector2<float>;
-using Vec3 = SympConv::TVector3<float>;
-using Vec4 = SympConv::TVector4<float>;
+using Vec2 = SympConv::Vector2;
+using Vec3 = SympConv::Vector3;
+using Vec4 = SympConv::Vector4;
 
 TEST(VectorTest, Vector2Constructor) {
     Vec2 vec2;

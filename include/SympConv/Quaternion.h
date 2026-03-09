@@ -1,6 +1,7 @@
 #ifndef SYMPCONV_QUATERNION_H
 #define SYMPCONV_QUATERNION_H
 
+#include "Config.h"
 #include "Vector.h"
 #include "Matrix.h"
 #include <type_traits>
@@ -691,6 +692,11 @@ TQuaternion<T> operator*(T scalar, const TQuaternion<T>& q)
 {
     return q * scalar;
 }
+
+// 类型别名
+typedef TQuaternion<float> Quaternionf;
+typedef TQuaternion<double> Quaterniond;
+typedef TQuaternion<fpnumber> Quaternion;
 
 } // namespace SympConv
 

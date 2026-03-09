@@ -8,10 +8,10 @@
 
 namespace SympConvTest {
 
-using Transform = SympConv::TTransform<float>;
-using Vec3 = SympConv::TVector3<float>;
-using Quat = SympConv::TQuaternion<float>;
-using Mat4 = SympConv::TMatrix4x4<float>;
+using Transform = SympConv::Transform;
+using Vec3 = SympConv::Vector3;
+using Quaternion = SympConv::Quaternion;
+using Mat4 = SympConv::Matrix4x4;
 
 TEST(TransformTest, DefaultConstructor) {
     Transform transform1;
@@ -22,7 +22,7 @@ TEST(TransformTest, DefaultConstructor) {
 TEST(TransformTest, ParameterizedConstructor) {
     Vec3 translation(1.0f, 2.0f, 3.0f);
     Vec3 scale(2.0f, 2.0f, 2.0f);
-    Quat rotation = Quat::Identity();
+    Quaternion rotation = Quaternion::Identity();
     Transform transform2(translation, scale, rotation);
     EXPECT_TRUE(FloatEqual(transform2.mTranslation.x, 1.0f));
     EXPECT_TRUE(FloatEqual(transform2.mScale.x, 2.0f));
@@ -30,7 +30,7 @@ TEST(TransformTest, ParameterizedConstructor) {
 
 TEST(TransformTest, TranslationRotationConstructor) {
     Vec3 translation(1.0f, 2.0f, 3.0f);
-    Quat rotation = Quat::Identity();
+    Quaternion rotation = Quaternion::Identity();
     Transform transform3(translation, rotation);
     EXPECT_TRUE(FloatEqual(transform3.mTranslation.x, 1.0f));
     EXPECT_TRUE(FloatEqual(transform3.mScale.x, 1.0f));
@@ -44,7 +44,7 @@ TEST(TransformTest, TranslationConstructor) {
 }
 
 TEST(TransformTest, QuaternionConstructor) {
-    Quat rotation = Quat::Identity();
+    Quaternion rotation = Quaternion::Identity();
     Transform transform5(rotation);
     EXPECT_TRUE(FloatEqual(transform5.mTranslation.x, 0.0f));
     EXPECT_TRUE(FloatEqual(transform5.mScale.x, 1.0f));
@@ -53,7 +53,7 @@ TEST(TransformTest, QuaternionConstructor) {
 TEST(TransformTest, TransformPoint) {
     Vec3 translation(1.0f, 2.0f, 3.0f);
     Vec3 scale(2.0f, 2.0f, 2.0f);
-    Quat rotation = Quat::Identity();
+    Quaternion rotation = Quaternion::Identity();
     Transform transform2(translation, scale, rotation);
     
     Vec3 point(1.0f, 0.0f, 0.0f);
@@ -66,7 +66,7 @@ TEST(TransformTest, TransformPoint) {
 TEST(TransformTest, TransformVector) {
     Vec3 translation(1.0f, 2.0f, 3.0f);
     Vec3 scale(2.0f, 2.0f, 2.0f);
-    Quat rotation = Quat::Identity();
+    Quaternion rotation = Quaternion::Identity();
     Transform transform2(translation, scale, rotation);
     
     Vec3 vector(1.0f, 0.0f, 0.0f);
@@ -79,7 +79,7 @@ TEST(TransformTest, TransformVector) {
 TEST(TransformTest, TransformDirection) {
     Vec3 translation(1.0f, 2.0f, 3.0f);
     Vec3 scale(2.0f, 2.0f, 2.0f);
-    Quat rotation = Quat::Identity();
+    Quaternion rotation = Quaternion::Identity();
     Transform transform2(translation, scale, rotation);
     
     Vec3 direction(1.0f, 0.0f, 0.0f);
@@ -90,7 +90,7 @@ TEST(TransformTest, TransformDirection) {
 TEST(TransformTest, InverseTransformPoint) {
     Vec3 translation(1.0f, 2.0f, 3.0f);
     Vec3 scale(2.0f, 2.0f, 2.0f);
-    Quat rotation = Quat::Identity();
+    Quaternion rotation = Quaternion::Identity();
     Transform transform2(translation, scale, rotation);
     
     Vec3 point(1.0f, 0.0f, 0.0f);
@@ -106,7 +106,7 @@ TEST(TransformTest, InverseTransformPoint) {
 TEST(TransformTest, InverseTransformVector) {
     Vec3 translation(1.0f, 2.0f, 3.0f);
     Vec3 scale(2.0f, 2.0f, 2.0f);
-    Quat rotation = Quat::Identity();
+    Quaternion rotation = Quaternion::Identity();
     Transform transform2(translation, scale, rotation);
     
     Vec3 vector(1.0f, 0.0f, 0.0f);
@@ -122,7 +122,7 @@ TEST(TransformTest, InverseTransformVector) {
 TEST(TransformTest, InverseTransformDirection) {
     Vec3 translation(1.0f, 2.0f, 3.0f);
     Vec3 scale(2.0f, 2.0f, 2.0f);
-    Quat rotation = Quat::Identity();
+    Quaternion rotation = Quaternion::Identity();
     Transform transform2(translation, scale, rotation);
     
     Vec3 direction(1.0f, 0.0f, 0.0f);
@@ -143,7 +143,7 @@ TEST(TransformTest, StaticMethods) {
     Transform trans = Transform::Translation(Vec3(1.0f, 0.0f, 0.0f));
     EXPECT_TRUE(FloatEqual(trans.mTranslation.x, 1.0f));
     
-    Quat rotation = Quat::Identity();
+    Quaternion rotation = Quaternion::Identity();
     Transform rot = Transform::Rotation(rotation);
     EXPECT_TRUE(FloatEqual(rot.mOrientation.w, rotation.w));
     

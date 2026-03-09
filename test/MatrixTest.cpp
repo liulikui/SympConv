@@ -5,12 +5,12 @@
 
 namespace SympConvTest {
 
-using Mat2 = SympConv::TMatrix2x2<float>;
-using Mat3 = SympConv::TMatrix3x3<float>;
-using Mat4 = SympConv::TMatrix4x4<float>;
-using Vec2 = SympConv::TVector2<float>;
-using Vec3 = SympConv::TVector3<float>;
-using Vec4 = SympConv::TVector4<float>;
+using Mat2 = SympConv::Matrix2x2;
+using Mat3 = SympConv::Matrix3x3;
+using Mat4 = SympConv::Matrix4x4;
+using Vec2 = SympConv::Vector2;
+using Vec3 = SympConv::Vector3;
+using Vec4 = SympConv::Vector4;
 
 TEST(MatrixTest, Matrix2x2Constructors) {
     Mat2 mat2;
@@ -116,6 +116,86 @@ TEST(MatrixTest, ZeroMatrix) {
     EXPECT_TRUE(FloatEqual(zero4.mRows[1].y, 0.0f));
     EXPECT_TRUE(FloatEqual(zero4.mRows[2].z, 0.0f));
     EXPECT_TRUE(FloatEqual(zero4.mRows[3].w, 0.0f));
+}
+
+TEST(MatrixTest, Matrix4x4Determinant) {
+    // 测试单位矩阵的行列式
+    Mat4 identity = Mat4::Identity();
+    float det_identity = identity.Determinant();
+    EXPECT_TRUE(FloatEqual(det_identity, 1.0f));
+    
+    // 测试一个简单矩阵的行列式
+    // 矩阵: [1, 2, 3, 4]
+    //       [5, 6, 7, 8]
+    //       [9, 10, 11, 12]
+    //       [13, 14, 15, 16]
+    // 这个矩阵的行列式应该是0，因为行是线性相关的
+    Mat4 mat4(1.0f, 2.0f, 3.0f, 4.0f, 
+              5.0f, 6.0f, 7.0f, 8.0f, 
+              9.0f, 10.0f, 11.0f, 12.0f, 
+              13.0f, 14.0f, 15.0f, 16.0f);
+    float det = mat4.Determinant();
+    EXPECT_TRUE(FloatEqual(det, 0.0f));
+    
+    // 测试一个可逆矩阵的行列式
+    // 矩阵: [1, 0, 0, 0]
+    //       [0, 2, 0, 0]
+    //       [0, 0, 3, 0]
+    //       [0, 0, 0, 4]
+    // 这个矩阵的行列式应该是1*2*3*4=24
+    Mat4 mat4_diag(1.0f, 0.0f, 0.0f, 0.0f, 
+                   0.0f, 2.0f, 0.0f, 0.0f, 
+                   0.0f, 0.0f, 3.0f, 0.0f, 
+                   0.0f, 0.0f, 0.0f, 4.0f);
+    float det_diag = mat4_diag.Determinant();
+    EXPECT_TRUE(FloatEqual(det_diag, 24.0f));
+}
+
+TEST(MatrixTest, Matrix4x4Inverse) {
+    // 测试单位矩阵的逆矩阵
+    Mat4 identity = Mat4::Identity();
+    Mat4 identity_inv = identity.Inverse();
+    Mat4 identity_product = identity * identity_inv;
+    EXPECT_TRUE(FloatEqual(identity_product.mRows[0].x, 1.0f));
+    EXPECT_TRUE(FloatEqual(identity_product.mRows[1].y, 1.0f));
+    EXPECT_TRUE(FloatEqual(identity_product.mRows[2].z, 1.0f));
+    EXPECT_TRUE(FloatEqual(identity_product.mRows[3].w, 1.0f));
+    
+    // 测试一个可逆矩阵的逆矩阵
+    // 矩阵: [1, 0, 0, 0]
+    //       [0, 2, 0, 0]
+    //       [0, 0, 3, 0]
+    //       [0, 0, 0, 4]
+    // 逆矩阵应该是: [1, 0, 0, 0]
+    //               [0, 0.5, 0, 0]
+    //               [0, 0, 1/3, 0]
+    //               [0, 0, 0, 0.25]
+    Mat4 mat4_diag(1.0f, 0.0f, 0.0f, 0.0f, 
+                   0.0f, 2.0f, 0.0f, 0.0f, 
+                   0.0f, 0.0f, 3.0f, 0.0f, 
+                   0.0f, 0.0f, 0.0f, 4.0f);
+    Mat4 mat4_diag_inv = mat4_diag.Inverse();
+    Mat4 mat4_diag_product = mat4_diag * mat4_diag_inv;
+    EXPECT_TRUE(FloatEqual(mat4_diag_product.mRows[0].x, 1.0f));
+    EXPECT_TRUE(FloatEqual(mat4_diag_product.mRows[1].y, 1.0f));
+    EXPECT_TRUE(FloatEqual(mat4_diag_product.mRows[2].z, 1.0f));
+    EXPECT_TRUE(FloatEqual(mat4_diag_product.mRows[3].w, 1.0f));
+    
+    // 测试不可逆矩阵的逆矩阵（应该返回零矩阵）
+    // 矩阵: [1, 2, 3, 4]
+    //       [5, 6, 7, 8]
+    //       [9, 10, 11, 12]
+    //       [13, 14, 15, 16]
+    Mat4 mat4_singular(1.0f, 2.0f, 3.0f, 4.0f, 
+                       5.0f, 6.0f, 7.0f, 8.0f, 
+                       9.0f, 10.0f, 11.0f, 12.0f, 
+                       13.0f, 14.0f, 15.0f, 16.0f);
+    Mat4 mat4_singular_inv = mat4_singular.Inverse();
+    // 检查是否返回零矩阵
+    EXPECT_TRUE(FloatEqual(mat4_singular_inv.mRows[0].x, 0.0f));
+    EXPECT_TRUE(FloatEqual(mat4_singular_inv.mRows[1].y, 0.0f));
+    EXPECT_TRUE(FloatEqual(mat4_singular_inv.mRows[2].z, 0.0f));
+    EXPECT_TRUE(FloatEqual(mat4_singular_inv.mRows[3].w, 0.0f));
 }
 
 } // namespace SympConvTest

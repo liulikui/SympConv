@@ -1,6 +1,7 @@
 #ifndef SYMPCONV_PLANE_H
 #define SYMPCONV_PLANE_H
 
+#include "Config.h"
 #include <type_traits>
 #include <cmath>
 #include "Vector.h"
@@ -181,6 +182,11 @@ public:
         return true;
     }
 };
+
+// 类型别名
+typedef TPlane<float> Planef;
+typedef TPlane<double> Planed;
+typedef TPlane<fpnumber> Plane;
 
 } // namespace SympConv
 

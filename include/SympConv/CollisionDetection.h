@@ -5,6 +5,8 @@
 #include "Ray.h"
 #include "AABB.h"
 #include "Plane.h"
+#include "Box.h"
+#include "Sphere.h"
 #include <type_traits>
 #include <limits>
 
@@ -418,6 +420,191 @@ bool PointOnPlane(const TVector3<T>& point, const TPlane<T>& plane, T epsilon = 
     static_assert(std::is_floating_point_v<T>, "T must be floating point");
     
     return plane.Contains(point, epsilon);
+}
+
+/**
+ * @brief 计算射线与盒子的相交
+ * @tparam T 浮点类型，如float、double
+ * @param ray 射线
+ * @param box 盒子
+ * @param t 相交参数
+ * @return 是否相交
+ */
+template<typename T>
+bool RayIntersectsBox(const TRay<T>& ray, const TBox<T>& box, T& t)
+{
+    static_assert(std::is_floating_point_v<T>, "T must be floating point");
+    
+    // 首先检查射线是否与盒子的AABB相交
+    TAABB<T> aabb = box.GetAABB();
+    T tMin, tMax;
+    if (!RayIntersectsAABB(ray, aabb, tMin, tMax)) {
+        return false;
+    }
+    
+    // 获取盒子的顶点
+    TVector3<T> vertices[8];
+    box.GetVertices(vertices);
+    
+    // 定义盒子的6个面
+    TPlane<T> planes[6] = {
+        // 前面
+        TPlane<T>(vertices[0], vertices[1], vertices[3]),
+        // 后面
+        TPlane<T>(vertices[4], vertices[6], vertices[7]),
+        // 左面
+        TPlane<T>(vertices[0], vertices[2], vertices[4]),
+        // 右面
+        TPlane<T>(vertices[1], vertices[7], vertices[5]),
+        // 下面
+        TPlane<T>(vertices[0], vertices[4], vertices[5]),
+        // 上面
+        TPlane<T>(vertices[2], vertices[3], vertices[7])
+    };
+    
+    // 检查射线是否与任何一个面相交
+    T minT = std::numeric_limits<T>::max();
+    bool intersect = false;
+    
+    for (int i = 0; i < 6; ++i) {
+        T tPlane;
+        if (RayIntersectsPlane(ray, planes[i], tPlane)) {
+            // 检查交点是否在盒子内
+            TVector3<T> point = ray.mOrigin + ray.mDirection * tPlane;
+            if (box.Contains(point)) {
+                if (tPlane < minT) {
+                    minT = tPlane;
+                    intersect = true;
+                }
+            }
+        }
+    }
+    
+    if (intersect) {
+        t = minT;
+    }
+    
+    return intersect;
+}
+
+/**
+ * @brief 计算射线与盒子的相交
+ * @tparam T 浮点类型，如float、double
+ * @param ray 射线
+ * @param box 盒子
+ * @return 是否相交
+ */
+template<typename T>
+bool RayIntersectsBox(const TRay<T>& ray, const TBox<T>& box)
+{
+    static_assert(std::is_floating_point_v<T>, "T must be floating point");
+    
+    T t;
+    return RayIntersectsBox(ray, box, t);
+}
+
+/**
+ * @brief 计算盒子与盒子的相交
+ * @tparam T 浮点类型，如float、double
+ * @param box1 第一个盒子
+ * @param box2 第二个盒子
+ * @return 是否相交
+ */
+template<typename T>
+bool BoxIntersectsBox(const TBox<T>& box1, const TBox<T>& box2)
+{
+    static_assert(std::is_floating_point_v<T>, "T must be floating point");
+    
+    // 首先检查AABB是否相交
+    TAABB<T> aabb1 = box1.GetAABB();
+    TAABB<T> aabb2 = box2.GetAABB();
+    if (!AABBIntersectsAABB(aabb1, aabb2)) {
+        return false;
+    }
+    
+    // 获取盒子的顶点
+    TVector3<T> vertices1[8];
+    TVector3<T> vertices2[8];
+    box1.GetVertices(vertices1);
+    box2.GetVertices(vertices2);
+    
+    // 检查box1的任何顶点是否在box2内
+    for (int i = 0; i < 8; ++i) {
+        if (box2.Contains(vertices1[i])) {
+            return true;
+        }
+    }
+    
+    // 检查box2的任何顶点是否在box1内
+    for (int i = 0; i < 8; ++i) {
+        if (box1.Contains(vertices2[i])) {
+            return true;
+        }
+    }
+    
+    // 这里可以添加更复杂的碰撞检测算法，如SAT（分离轴定理）
+    // 为了简单起见，我们只检查顶点是否在对方盒子内
+    
+    return false;
+}
+
+/**
+ * @brief 计算球体与盒子的相交
+ * @tparam T 浮点类型，如float、double
+ * @param sphere 球体
+ * @param box 盒子
+ * @return 是否相交
+ */
+template<typename T>
+bool SphereIntersectsBox(const TSphere<T>& sphere, const TBox<T>& box)
+{
+    static_assert(std::is_floating_point_v<T>, "T must be floating point");
+    
+    // 首先检查球体的AABB是否与盒子的AABB相交
+    TAABB<T> sphereAABB = sphere.GetAABB();
+    TAABB<T> boxAABB = box.GetAABB();
+    if (!AABBIntersectsAABB(sphereAABB, boxAABB)) {
+        return false;
+    }
+    
+    // 将球体中心转换到盒子的局部坐标系
+    TVector3<T> localCenter = box.mTransform.InverseTransformPoint(sphere.mCenter - box.mCenter);
+    
+    // 计算局部坐标系中球体中心到盒子的最短距离
+    TVector3<T> closest;
+    closest.x = std::max(-box.mHalfExtents.x, std::min(localCenter.x, box.mHalfExtents.x));
+    closest.y = std::max(-box.mHalfExtents.y, std::min(localCenter.y, box.mHalfExtents.y));
+    closest.z = std::max(-box.mHalfExtents.z, std::min(localCenter.z, box.mHalfExtents.z));
+    
+    // 计算距离的平方
+    T distanceSquared = (localCenter - closest).LengthSquared();
+    
+    // 检查距离是否小于等于球体半径的平方
+    return distanceSquared <= sphere.mRadius * sphere.mRadius;
+}
+
+/**
+ * @brief 计算球体与球体的相交
+ * @tparam T 浮点类型，如float、double
+ * @param sphere1 第一个球体
+ * @param sphere2 第二个球体
+ * @return 是否相交
+ */
+template<typename T>
+bool SphereIntersectsSphere(const TSphere<T>& sphere1, const TSphere<T>& sphere2)
+{
+    static_assert(std::is_floating_point_v<T>, "T must be floating point");
+    
+    // 计算两个球体中心之间的距离
+    TVector3<T> delta = sphere1.mCenter - sphere2.mCenter;
+    T distanceSquared = delta.LengthSquared();
+    
+    // 计算两个球体半径之和的平方
+    T radiusSum = sphere1.mRadius + sphere2.mRadius;
+    T radiusSumSquared = radiusSum * radiusSum;
+    
+    // 检查距离是否小于等于半径之和
+    return distanceSquared <= radiusSumSquared;
 }
 
 } // namespace SympConv

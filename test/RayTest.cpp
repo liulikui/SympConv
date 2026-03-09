@@ -7,9 +7,9 @@
 
 namespace SympConvTest {
 
-using Ray = SympConv::TRay<float>;
-using Vec3 = SympConv::TVector3<float>;
-using Transform = SympConv::TTransform<float>;
+using Ray = SympConv::Ray;
+using Vec3 = SympConv::Vector3;
+using Transform = SympConv::Transform;
 
 TEST(RayTest, DefaultConstructor) {
     Ray defaultRay;
