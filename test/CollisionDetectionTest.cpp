@@ -16,6 +16,7 @@ using AABB = SympConv::AABB;
 using Plane = SympConv::Plane;
 using Box = SympConv::Box;
 using Sphere = SympConv::Sphere;
+using Capsule = SympConv::Capsule;
 
 TEST(CollisionDetectionTest, RayIntersectsAABB) {
     // 创建一个AABB
@@ -215,6 +216,96 @@ TEST(CollisionDetectionTest, SphereIntersectsSphere) {
     // 创建两个不相交的球体
     Sphere sphere3(Vec3(3.0f, 0.0f, 0.0f), 1.0f);
     EXPECT_FALSE(SympConv::SphereIntersectsSphere(sphere1, sphere3));
+}
+
+TEST(CollisionDetectionTest, RayIntersectsCapsule) {
+    Vec3 start(0.0f, 0.0f, 0.0f);
+    Vec3 end(0.0f, 0.0f, 2.0f);
+    float radius = 1.0f;
+    Capsule capsule(start, end, radius);
+    
+    // 从胶囊体前面发射的射线
+    Ray ray1(Vec3(0.0f, 0.0f, -2.0f), Vec3(0.0f, 0.0f, 1.0f));
+    float t1;
+    EXPECT_TRUE(SympConv::RayIntersectsCapsule(ray1, capsule, t1));
+    
+    // 从胶囊体后面发射的射线
+    Ray ray2(Vec3(0.0f, 0.0f, 4.0f), Vec3(0.0f, 0.0f, -1.0f));
+    float t2;
+    EXPECT_TRUE(SympConv::RayIntersectsCapsule(ray2, capsule, t2));
+    
+    // 不相交的射线
+    Ray ray3(Vec3(2.0f, 2.0f, 2.0f), Vec3(1.0f, 1.0f, 1.0f));
+    float t3;
+    EXPECT_FALSE(SympConv::RayIntersectsCapsule(ray3, capsule, t3));
+}
+
+TEST(CollisionDetectionTest, PlaneIntersectsCapsule) {
+    Vec3 start(0.0f, 0.0f, 0.0f);
+    Vec3 end(0.0f, 0.0f, 2.0f);
+    float radius = 1.0f;
+    Capsule capsule(start, end, radius);
+    
+    // 与胶囊体相交的平面
+    Plane plane1(Vec3(0.0f, 1.0f, 0.0f), Vec3(0.0f, 0.0f, 1.0f));
+    EXPECT_TRUE(SympConv::PlaneIntersectsCapsule(plane1, capsule));
+    
+    // 与胶囊体不相交的平面
+    Plane plane2(Vec3(0.0f, 1.0f, 0.0f), Vec3(0.0f, 2.0f, 1.0f));
+    EXPECT_FALSE(SympConv::PlaneIntersectsCapsule(plane2, capsule));
+}
+
+TEST(CollisionDetectionTest, BoxIntersectsCapsule) {
+    Vec3 start(0.0f, 0.0f, 0.0f);
+    Vec3 end(0.0f, 0.0f, 2.0f);
+    float radius = 1.0f;
+    Capsule capsule(start, end, radius);
+    
+    // 与胶囊体相交的盒子
+    Box box1(Vec3(0.0f, 0.0f, 1.0f), Vec3(1.0f, 1.0f, 1.0f));
+    EXPECT_TRUE(SympConv::BoxIntersectsCapsule(box1, capsule));
+    
+    // 与胶囊体不相交的盒子
+    Box box2(Vec3(2.0f, 2.0f, 1.0f), Vec3(0.5f, 0.5f, 0.5f));
+    EXPECT_FALSE(SympConv::BoxIntersectsCapsule(box2, capsule));
+}
+
+TEST(CollisionDetectionTest, SphereIntersectsCapsule) {
+    Vec3 start(0.0f, 0.0f, 0.0f);
+    Vec3 end(0.0f, 0.0f, 2.0f);
+    float radius = 1.0f;
+    Capsule capsule(start, end, radius);
+    
+    // 与胶囊体相交的球体
+    Sphere sphere1(Vec3(0.0f, 0.0f, 1.0f), 0.5f);
+    EXPECT_TRUE(SympConv::SphereIntersectsCapsule(sphere1, capsule));
+    
+    // 与胶囊体不相交的球体
+    Sphere sphere2(Vec3(2.0f, 2.0f, 1.0f), 0.5f);
+    EXPECT_FALSE(SympConv::SphereIntersectsCapsule(sphere2, capsule));
+}
+
+TEST(CollisionDetectionTest, CapsuleIntersectsCapsule) {
+    // 相交的两个胶囊体
+    Vec3 start1(0.0f, 0.0f, 0.0f);
+    Vec3 end1(0.0f, 0.0f, 2.0f);
+    float radius1 = 1.0f;
+    Capsule capsule1(start1, end1, radius1);
+    
+    Vec3 start2(1.0f, 0.0f, 1.0f);
+    Vec3 end2(1.0f, 0.0f, 3.0f);
+    float radius2 = 1.0f;
+    Capsule capsule2(start2, end2, radius2);
+    
+    EXPECT_TRUE(SympConv::CapsuleIntersectsCapsule(capsule1, capsule2));
+    
+    // 不相交的两个胶囊体
+    Vec3 start3(3.0f, 0.0f, 0.0f);
+    Vec3 end3(3.0f, 0.0f, 2.0f);
+    float radius3 = 0.5f;
+    Capsule capsule3(start3, end3, radius3);
+    
+    EXPECT_FALSE(SympConv::CapsuleIntersectsCapsule(capsule1, capsule3));
 }
 
 } // namespace SympConvTest
