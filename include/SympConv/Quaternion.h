@@ -290,12 +290,15 @@ public:
             return *this;
         }
 
-        T coeff = exponent * theta / sinTheta;
+        T newTheta = exponent * theta;
+        T sinNewTheta = std::sin(newTheta);
+        T cosNewTheta = std::cos(newTheta);
+
         return TQuaternion<T>(
-            x * std::sin(coeff) / sinTheta,
-            y * std::sin(coeff) / sinTheta,
-            z * std::sin(coeff) / sinTheta,
-            std::cos(coeff)
+            x * sinNewTheta / sinTheta,
+            y * sinNewTheta / sinTheta,
+            z * sinNewTheta / sinTheta,
+            cosNewTheta
         );
     }
 

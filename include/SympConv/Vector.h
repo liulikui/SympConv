@@ -58,6 +58,15 @@ public:
     }
 
     /**
+     * @brief 一元负号运算符
+     * @return 取反后的向量
+     */
+    TVector2<T> operator-() const
+    {
+        return TVector2<T>(-x, -y);
+    }
+
+    /**
      * @brief 向量点积
      * @param V 另一个向量
      * @return 点积结果
@@ -249,6 +258,15 @@ public:
     }
 
     /**
+     * @brief 一元负号运算符
+     * @return 取反后的向量
+     */
+    TVector3<T> operator-() const
+    {
+        return TVector3<T>(-x, -y, -z);
+    }
+
+    /**
      * @brief 向量点积
      * @param V 另一个向量
      * @return 点积结果
@@ -329,6 +347,16 @@ public:
     }
 
     /**
+     * @brief 向量分量除法运算符
+     * @param V 另一个向量
+     * @return 向量的分量除法结果
+     */
+    TVector3<T> operator/(const TVector3<T>& V) const
+    {
+        return TVector3<T>(x / V.x, y / V.y, z / V.z);
+    }
+
+    /**
      * @brief 向量加法复合赋值运算符
      * @param V 另一个向量
      * @return 引用到当前向量
@@ -355,6 +383,19 @@ public:
     }
 
     /**
+     * @brief 向量分量乘法复合赋值运算符
+     * @param V 另一个向量
+     * @return 引用到当前向量
+     */
+    TVector3<T>& operator*=(const TVector3<T>& V)
+    {
+        x *= V.x;
+        y *= V.y;
+        z *= V.z;
+        return *this;
+    }
+
+    /**
      * @brief 标量乘法复合赋值运算符
      * @param scalar 标量值
      * @return 引用到当前向量
@@ -377,6 +418,19 @@ public:
         x /= scalar;
         y /= scalar;
         z /= scalar;
+        return *this;
+    }
+
+    /**
+     * @brief 向量分量除法复合赋值运算符
+     * @param V 另一个向量
+     * @return 引用到当前向量
+     */
+    TVector3<T>& operator/=(const TVector3<T>& V)
+    {
+        x /= V.x;
+        y /= V.y;
+        z /= V.z;
         return *this;
     }
 
@@ -484,6 +538,15 @@ public:
     TVector4<T> operator-(const TVector4<T>& V) const
     {
         return TVector4<T>(x - V.x, y - V.y, z - V.z, w - V.w);
+    }
+
+    /**
+     * @brief 一元负号运算符
+     * @return 取反后的向量
+     */
+    TVector4<T> operator-() const
+    {
+        return TVector4<T>(-x, -y, -z, -w);
     }
 
     /**

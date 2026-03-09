@@ -5,8 +5,8 @@ project(SympConv)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# 添加UTF-8编码支持和PDB文件共享选项
-add_compile_options("/source-charset:utf-8" "/execution-charset:utf-8" "/FS")
+# 添加UTF-8编码支持
+add_compile_options("/utf-8")
 
 set(CMAKE_CONFIGURATION_TYPES "Debug;Release;Release_SolverDebug;Debug_SolverDebug" CACHE STRING "Available build types" FORCE)
 
@@ -70,10 +70,21 @@ set_target_properties(SympConvDemo PROPERTIES
     WIN32_EXECUTABLE YES
 )
 
+# 引入googletest
+include(FetchContent)
+FetchContent_Declare(
+  googletest
+  GIT_REPOSITORY https://github.com/google/googletest.git
+  GIT_TAG release-1.12.1
+)
+# 避免googletest安装自身
+set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+FetchContent_MakeAvailable(googletest)
+
 # 构建测试可执行文件
 add_executable(SympConvTest ${TEST_SOURCES} ${TEST_HEADERS})
 target_include_directories(SympConvTest PRIVATE test)
-target_link_libraries(SympConvTest PRIVATE SympConv)
+target_link_libraries(SympConvTest PRIVATE SympConv gtest gtest_main)
 
 # 为所有构建类型添加调试信息
 if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")

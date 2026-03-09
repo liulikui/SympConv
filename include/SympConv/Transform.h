@@ -105,8 +105,8 @@ public:
      */
     TVector3<T> TransformVector(const TVector3<T>& vec) const
     {
-        // 缩放 -> 旋转 -> 平移
-        return mOrientation.RotateVector(vec * mScale) + mTranslation;
+        // 缩放 -> 旋转（不包含平移）
+        return mOrientation.RotateVector(vec * mScale);
     }
 
     /**
@@ -116,7 +116,8 @@ public:
      */
     TVector3<T> TransformPoint(const TVector3<T>& point) const
     {
-        return TransformVector(point);
+        // 缩放 -> 旋转 -> 平移
+        return mOrientation.RotateVector(point * mScale) + mTranslation;
     }
 
     /**
@@ -137,9 +138,8 @@ public:
      */
     TVector3<T> InverseTransformVector(const TVector3<T>& vec) const
     {
-        // 反向平移 -> 反向旋转 -> 反向缩放
-        TVector3<T> temp = vec - mTranslation;
-        temp = mOrientation.Inverse().RotateVector(temp);
+        // 反向旋转 -> 反向缩放（不包含平移）
+        TVector3<T> temp = mOrientation.Inverse().RotateVector(vec);
         return temp / mScale;
     }
 
@@ -150,7 +150,10 @@ public:
      */
     TVector3<T> InverseTransformPoint(const TVector3<T>& point) const
     {
-        return InverseTransformVector(point);
+        // 反向平移 -> 反向旋转 -> 反向缩放
+        TVector3<T> temp = point - mTranslation;
+        temp = mOrientation.Inverse().RotateVector(temp);
+        return temp / mScale;
     }
 
     /**
@@ -429,7 +432,7 @@ public:
         up = right.Cross(forward).Normalize();
         
         // 构建旋转矩阵
-        Matrix3x3<T> rotMat(
+        TMatrix3x3<T> rotMat(
             right.x, up.x, forward.x,
             right.y, up.y, forward.y,
             right.z, up.z, forward.z

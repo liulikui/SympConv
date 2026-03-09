@@ -307,8 +307,9 @@ public:
             return false;
         }
 
-        TVector3<T> c = mDirection.Dot(q);
-        t = c / a;
+        TVector3<T> closest = start + dir * s;
+        TVector3<T> v = closest - mOrigin;
+        t = v.Dot(mDirection);
 
         if (t < 0) {
             return false;
