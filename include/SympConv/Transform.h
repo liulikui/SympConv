@@ -169,21 +169,21 @@ public:
      * @brief 转换为变换矩阵（4x4）
      * @return 4x4变换矩阵
      */
-    Matrix4x4<T> ToMatrix4x4() const
+    TMatrix4x4<T> ToMatrix4x4() const
     {
         // 计算旋转缩放矩阵
-        Matrix3x3<T> rotScaleMat = mOrientation.ToMatrix3x3();
+        TMatrix3x3<T> rotScaleMat = mOrientation.ToMatrix3x3();
         
         // 应用缩放
-        Matrix3x3<T> scaleMat(
+        TMatrix3x3<T> scaleMat(
             mScale.x, 0, 0,
             0, mScale.y, 0,
             0, 0, mScale.z
         );
-        Matrix3x3<T> rotScale = rotScaleMat * scaleMat;
+        TMatrix3x3<T> rotScale = rotScaleMat * scaleMat;
 
         // 构建4x4矩阵
-        return Matrix4x4<T>(
+        return TMatrix4x4<T>(
             rotScale.mRows[0].x, rotScale.mRows[0].y, rotScale.mRows[0].z, mTranslation.x,
             rotScale.mRows[1].x, rotScale.mRows[1].y, rotScale.mRows[1].z, mTranslation.y,
             rotScale.mRows[2].x, rotScale.mRows[2].y, rotScale.mRows[2].z, mTranslation.z,
@@ -196,7 +196,7 @@ public:
      * @param mat 4x4变换矩阵
      * @return 对应的变换
      */
-    static TTransform<T> FromMatrix4x4(const Matrix4x4<T>& mat)
+    static TTransform<T> FromMatrix4x4(const TMatrix4x4<T>& mat)
     {
         TTransform<T> transform;
         
@@ -204,7 +204,7 @@ public:
         transform.mTranslation = TVector3<T>(mat.mRows[0].w, mat.mRows[1].w, mat.mRows[2].w);
         
         // 提取旋转缩放部分
-        Matrix3x3<T> rotScaleMat(
+        TMatrix3x3<T> rotScaleMat(
             mat.mRows[0].x, mat.mRows[0].y, mat.mRows[0].z,
             mat.mRows[1].x, mat.mRows[1].y, mat.mRows[1].z,
             mat.mRows[2].x, mat.mRows[2].y, mat.mRows[2].z
@@ -224,7 +224,7 @@ public:
         transform.mScale = scale;
         
         // 计算旋转矩阵（去除缩放）
-        Matrix3x3<T> rotMat = rotScaleMat;
+        TMatrix3x3<T> rotMat = rotScaleMat;
         rotMat.mRows[0] /= scale.x;
         rotMat.mRows[1] /= scale.y;
         rotMat.mRows[2] /= scale.z;

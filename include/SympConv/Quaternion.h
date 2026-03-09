@@ -381,7 +381,7 @@ public:
      * @brief 转换为旋转矩阵（3x3）
      * @return 3x3旋转矩阵
      */
-    Matrix3x3<T> ToMatrix3x3() const
+    TMatrix3x3<T> ToMatrix3x3() const
     {
         T xx = x * x;
         T yy = y * y;
@@ -420,7 +420,7 @@ public:
      * @param mat 3x3旋转矩阵
      * @return 对应的四元数
      */
-    static TQuaternion<T> FromMatrix3x3(const Matrix3x3<T>& mat)
+    static TQuaternion<T> FromMatrix3x3(const TMatrix3x3<T>& mat)
     {
         T trace = mat.mRows[0].x + mat.mRows[1].y + mat.mRows[2].z;
 

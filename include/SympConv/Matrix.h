@@ -11,7 +11,7 @@ namespace SympConv {
  * @tparam T 浮点类型，如float、double
  */
 template<typename T>
-struct Matrix2x2
+struct TMatrix2x2
 {
     static_assert(std::is_floating_point_v<T>, "T must be floating point");
 
@@ -22,7 +22,7 @@ public:
     /**
      * @brief 默认构造函数
      */
-    Matrix2x2() = default;
+    TMatrix2x2() = default;
 
     /**
      * @brief 带参数的构造函数
@@ -31,7 +31,7 @@ public:
      * @param m10 第二行第一列元素
      * @param m11 第二行第二列元素
      */
-    Matrix2x2(T m00, T m01, T m10, T m11)
+    TMatrix2x2(T m00, T m01, T m10, T m11)
     {
         mRows[0] = TVector2<T>(m00, m01);
         mRows[1] = TVector2<T>(m10, m11);
@@ -42,9 +42,9 @@ public:
      * @param mat 另一个矩阵
      * @return 两个矩阵的和
      */
-    Matrix2x2<T> operator+(const Matrix2x2<T>& mat) const
+    TMatrix2x2<T> operator+(const TMatrix2x2<T>& mat) const
     {
-        Matrix2x2<T> result;
+        TMatrix2x2<T> result;
         result.mRows[0] = mRows[0] + mat.mRows[0];
         result.mRows[1] = mRows[1] + mat.mRows[1];
         return result;
@@ -55,9 +55,9 @@ public:
      * @param mat 另一个矩阵
      * @return 两个矩阵的差
      */
-    Matrix2x2<T> operator-(const Matrix2x2<T>& mat) const
+    TMatrix2x2<T> operator-(const TMatrix2x2<T>& mat) const
     {
-        Matrix2x2<T> result;
+        TMatrix2x2<T> result;
         result.mRows[0] = mRows[0] - mat.mRows[0];
         result.mRows[1] = mRows[1] - mat.mRows[1];
         return result;
@@ -68,9 +68,9 @@ public:
      * @param mat 另一个矩阵
      * @return 两个矩阵的乘积
      */
-    Matrix2x2<T> operator*(const Matrix2x2<T>& mat) const
+    TMatrix2x2<T> operator*(const TMatrix2x2<T>& mat) const
     {
-        Matrix2x2<T> result;
+        TMatrix2x2<T> result;
         result.mRows[0].x = mRows[0].x * mat.mRows[0].x + mRows[0].y * mat.mRows[1].x;
         result.mRows[0].y = mRows[0].x * mat.mRows[0].y + mRows[0].y * mat.mRows[1].y;
         result.mRows[1].x = mRows[1].x * mat.mRows[0].x + mRows[1].y * mat.mRows[1].x;
@@ -96,9 +96,9 @@ public:
      * @param scalar 标量值
      * @return 矩阵与标量的乘积
      */
-    Matrix2x2<T> operator*(T scalar) const
+    TMatrix2x2<T> operator*(T scalar) const
     {
-        Matrix2x2<T> result;
+        TMatrix2x2<T> result;
         result.mRows[0] = mRows[0] * scalar;
         result.mRows[1] = mRows[1] * scalar;
         return result;
@@ -109,9 +109,9 @@ public:
      * @param scalar 标量值
      * @return 矩阵与标量的商
      */
-    Matrix2x2<T> operator/(T scalar) const
+    TMatrix2x2<T> operator/(T scalar) const
     {
-        Matrix2x2<T> result;
+        TMatrix2x2<T> result;
         result.mRows[0] = mRows[0] / scalar;
         result.mRows[1] = mRows[1] / scalar;
         return result;
@@ -122,7 +122,7 @@ public:
      * @param mat 另一个矩阵
      * @return 引用到当前矩阵
      */
-    Matrix2x2<T>& operator+=(const Matrix2x2<T>& mat)
+    TMatrix2x2<T>& operator+=(const TMatrix2x2<T>& mat)
     {
         mRows[0] += mat.mRows[0];
         mRows[1] += mat.mRows[1];
@@ -134,7 +134,7 @@ public:
      * @param mat 另一个矩阵
      * @return 引用到当前矩阵
      */
-    Matrix2x2<T>& operator-=(const Matrix2x2<T>& mat)
+    TMatrix2x2<T>& operator-=(const TMatrix2x2<T>& mat)
     {
         mRows[0] -= mat.mRows[0];
         mRows[1] -= mat.mRows[1];
@@ -146,7 +146,7 @@ public:
      * @param scalar 标量值
      * @return 引用到当前矩阵
      */
-    Matrix2x2<T>& operator*=(T scalar)
+    TMatrix2x2<T>& operator*=(T scalar)
     {
         mRows[0] *= scalar;
         mRows[1] *= scalar;
@@ -158,7 +158,7 @@ public:
      * @param scalar 标量值
      * @return 引用到当前矩阵
      */
-    Matrix2x2<T>& operator/=(T scalar)
+    TMatrix2x2<T>& operator/=(T scalar)
     {
         mRows[0] /= scalar;
         mRows[1] /= scalar;
@@ -169,9 +169,9 @@ public:
      * @brief 转置矩阵
      * @return 转置后的矩阵
      */
-    Matrix2x2<T> Transpose() const
+    TMatrix2x2<T> Transpose() const
     {
-        Matrix2x2<T> result;
+        TMatrix2x2<T> result;
         result.mRows[0].x = mRows[0].x;
         result.mRows[0].y = mRows[1].x;
         result.mRows[1].x = mRows[0].y;
@@ -192,15 +192,15 @@ public:
      * @brief 求逆矩阵
      * @return 逆矩阵
      */
-    Matrix2x2<T> Inverse() const
+    TMatrix2x2<T> Inverse() const
     {
         T det = Determinant();
         if (det == T(0))
         {
-            return Matrix2x2<T>();
+            return TMatrix2x2<T>();
         }
         T invDet = T(1) / det;
-        Matrix2x2<T> result;
+        TMatrix2x2<T> result;
         result.mRows[0].x = mRows[1].y * invDet;
         result.mRows[0].y = -mRows[0].y * invDet;
         result.mRows[1].x = -mRows[1].x * invDet;
@@ -212,9 +212,9 @@ public:
      * @brief 创建单位矩阵
      * @return 单位矩阵
      */
-    static Matrix2x2<T> Identity()
+    static TMatrix2x2<T> Identity()
     {
-        return Matrix2x2<T>(
+        return TMatrix2x2<T>(
             T(1), T(0),
             T(0), T(1)
         );
@@ -224,9 +224,9 @@ public:
      * @brief 创建零矩阵
      * @return 零矩阵
      */
-    static Matrix2x2<T> Zero()
+    static TMatrix2x2<T> Zero()
     {
-        return Matrix2x2<T>(
+        return TMatrix2x2<T>(
             T(0), T(0),
             T(0), T(0)
         );
@@ -238,7 +238,7 @@ public:
  * @tparam T 浮点类型，如float、double
  */
 template<typename T>
-struct Matrix3x3
+struct TMatrix3x3
 {
     static_assert(std::is_floating_point_v<T>, "T must be floating point");
 
@@ -249,7 +249,7 @@ public:
     /**
      * @brief 默认构造函数
      */
-    Matrix3x3() = default;
+    TMatrix3x3() = default;
 
     /**
      * @brief 带参数的构造函数
@@ -263,7 +263,7 @@ public:
      * @param m21 第三行第二列元素
      * @param m22 第三行第三列元素
      */
-    Matrix3x3(T m00, T m01, T m02, T m10, T m11, T m12, T m20, T m21, T m22)
+    TMatrix3x3(T m00, T m01, T m02, T m10, T m11, T m12, T m20, T m21, T m22)
     {
         mRows[0] = TVector3<T>(m00, m01, m02);
         mRows[1] = TVector3<T>(m10, m11, m12);
@@ -275,9 +275,9 @@ public:
      * @param mat 另一个矩阵
      * @return 两个矩阵的和
      */
-    Matrix3x3<T> operator+(const Matrix3x3<T>& mat) const
+    TMatrix3x3<T> operator+(const TMatrix3x3<T>& mat) const
     {
-        Matrix3x3<T> result;
+        TMatrix3x3<T> result;
         result.mRows[0] = mRows[0] + mat.mRows[0];
         result.mRows[1] = mRows[1] + mat.mRows[1];
         result.mRows[2] = mRows[2] + mat.mRows[2];
@@ -289,9 +289,9 @@ public:
      * @param mat 另一个矩阵
      * @return 两个矩阵的差
      */
-    Matrix3x3<T> operator-(const Matrix3x3<T>& mat) const
+    TMatrix3x3<T> operator-(const TMatrix3x3<T>& mat) const
     {
-        Matrix3x3<T> result;
+        TMatrix3x3<T> result;
         result.mRows[0] = mRows[0] - mat.mRows[0];
         result.mRows[1] = mRows[1] - mat.mRows[1];
         result.mRows[2] = mRows[2] - mat.mRows[2];
@@ -303,9 +303,9 @@ public:
      * @param mat 另一个矩阵
      * @return 两个矩阵的乘积
      */
-    Matrix3x3<T> operator*(const Matrix3x3<T>& mat) const
+    TMatrix3x3<T> operator*(const TMatrix3x3<T>& mat) const
     {
-        Matrix3x3<T> result;
+        TMatrix3x3<T> result;
         result.mRows[0].x = mRows[0].x * mat.mRows[0].x + mRows[0].y * mat.mRows[1].x + mRows[0].z * mat.mRows[2].x;
         result.mRows[0].y = mRows[0].x * mat.mRows[0].y + mRows[0].y * mat.mRows[1].y + mRows[0].z * mat.mRows[2].y;
         result.mRows[0].z = mRows[0].x * mat.mRows[0].z + mRows[0].y * mat.mRows[1].z + mRows[0].z * mat.mRows[2].z;
@@ -337,9 +337,9 @@ public:
      * @param scalar 标量值
      * @return 矩阵与标量的乘积
      */
-    Matrix3x3<T> operator*(T scalar) const
+    TMatrix3x3<T> operator*(T scalar) const
     {
-        Matrix3x3<T> result;
+        TMatrix3x3<T> result;
         result.mRows[0] = mRows[0] * scalar;
         result.mRows[1] = mRows[1] * scalar;
         result.mRows[2] = mRows[2] * scalar;
@@ -351,9 +351,9 @@ public:
      * @param scalar 标量值
      * @return 矩阵与标量的商
      */
-    Matrix3x3<T> operator/(T scalar) const
+    TMatrix3x3<T> operator/(T scalar) const
     {
-        Matrix3x3<T> result;
+        TMatrix3x3<T> result;
         result.mRows[0] = mRows[0] / scalar;
         result.mRows[1] = mRows[1] / scalar;
         result.mRows[2] = mRows[2] / scalar;
@@ -365,7 +365,7 @@ public:
      * @param mat 另一个矩阵
      * @return 引用到当前矩阵
      */
-    Matrix3x3<T>& operator+=(const Matrix3x3<T>& mat)
+    TMatrix3x3<T>& operator+=(const TMatrix3x3<T>& mat)
     {
         mRows[0] += mat.mRows[0];
         mRows[1] += mat.mRows[1];
@@ -378,7 +378,7 @@ public:
      * @param mat 另一个矩阵
      * @return 引用到当前矩阵
      */
-    Matrix3x3<T>& operator-=(const Matrix3x3<T>& mat)
+    TMatrix3x3<T>& operator-=(const TMatrix3x3<T>& mat)
     {
         mRows[0] -= mat.mRows[0];
         mRows[1] -= mat.mRows[1];
@@ -391,7 +391,7 @@ public:
      * @param scalar 标量值
      * @return 引用到当前矩阵
      */
-    Matrix3x3<T>& operator*=(T scalar)
+    TMatrix3x3<T>& operator*=(T scalar)
     {
         mRows[0] *= scalar;
         mRows[1] *= scalar;
@@ -404,7 +404,7 @@ public:
      * @param scalar 标量值
      * @return 引用到当前矩阵
      */
-    Matrix3x3<T>& operator/=(T scalar)
+    TMatrix3x3<T>& operator/=(T scalar)
     {
         mRows[0] /= scalar;
         mRows[1] /= scalar;
@@ -416,9 +416,9 @@ public:
      * @brief 转置矩阵
      * @return 转置后的矩阵
      */
-    Matrix3x3<T> Transpose() const
+    TMatrix3x3<T> Transpose() const
     {
-        Matrix3x3<T> result;
+        TMatrix3x3<T> result;
         result.mRows[0].x = mRows[0].x;
         result.mRows[0].y = mRows[1].x;
         result.mRows[0].z = mRows[2].x;
@@ -446,9 +446,9 @@ public:
      * @brief 创建单位矩阵
      * @return 单位矩阵
      */
-    static Matrix3x3<T> Identity()
+    static TMatrix3x3<T> Identity()
     {
-        return Matrix3x3<T>(
+        return TMatrix3x3<T>(
             T(1), T(0), T(0),
             T(0), T(1), T(0),
             T(0), T(0), T(1)
@@ -459,9 +459,9 @@ public:
      * @brief 创建零矩阵
      * @return 零矩阵
      */
-    static Matrix3x3<T> Zero()
+    static TMatrix3x3<T> Zero()
     {
-        return Matrix3x3<T>(
+        return TMatrix3x3<T>(
             T(0), T(0), T(0),
             T(0), T(0), T(0),
             T(0), T(0), T(0)
@@ -474,7 +474,7 @@ public:
  * @tparam T 浮点类型，如float、double
  */
 template<typename T>
-struct Matrix4x4
+struct TMatrix4x4
 {
     static_assert(std::is_floating_point_v<T>, "T must be floating point");
 
@@ -485,7 +485,7 @@ public:
     /**
      * @brief 默认构造函数
      */
-    Matrix4x4() = default;
+    TMatrix4x4() = default;
 
     /**
      * @brief 带参数的构造函数
@@ -506,7 +506,7 @@ public:
      * @param m32 第四行第三列元素
      * @param m33 第四行第四列元素
      */
-    Matrix4x4(
+    TMatrix4x4(
         T m00, T m01, T m02, T m03,
         T m10, T m11, T m12, T m13,
         T m20, T m21, T m22, T m23,
@@ -524,9 +524,9 @@ public:
      * @param mat 另一个矩阵
      * @return 两个矩阵的和
      */
-    Matrix4x4<T> operator+(const Matrix4x4<T>& mat) const
+    TMatrix4x4<T> operator+(const TMatrix4x4<T>& mat) const
     {
-        Matrix4x4<T> result;
+        TMatrix4x4<T> result;
         result.mRows[0] = mRows[0] + mat.mRows[0];
         result.mRows[1] = mRows[1] + mat.mRows[1];
         result.mRows[2] = mRows[2] + mat.mRows[2];
@@ -539,9 +539,9 @@ public:
      * @param mat 另一个矩阵
      * @return 两个矩阵的差
      */
-    Matrix4x4<T> operator-(const Matrix4x4<T>& mat) const
+    TMatrix4x4<T> operator-(const TMatrix4x4<T>& mat) const
     {
-        Matrix4x4<T> result;
+        TMatrix4x4<T> result;
         result.mRows[0] = mRows[0] - mat.mRows[0];
         result.mRows[1] = mRows[1] - mat.mRows[1];
         result.mRows[2] = mRows[2] - mat.mRows[2];
@@ -554,9 +554,9 @@ public:
      * @param mat 另一个矩阵
      * @return 两个矩阵的乘积
      */
-    Matrix4x4<T> operator*(const Matrix4x4<T>& mat) const
+    TMatrix4x4<T> operator*(const TMatrix4x4<T>& mat) const
     {
-        Matrix4x4<T> result;
+        TMatrix4x4<T> result;
         for (int i = 0; i < 4; ++i)
         {
             for (int j = 0; j < 4; ++j)
@@ -591,9 +591,9 @@ public:
      * @param scalar 标量值
      * @return 矩阵与标量的乘积
      */
-    Matrix4x4<T> operator*(T scalar) const
+    TMatrix4x4<T> operator*(T scalar) const
     {
-        Matrix4x4<T> result;
+        TMatrix4x4<T> result;
         result.mRows[0] = mRows[0] * scalar;
         result.mRows[1] = mRows[1] * scalar;
         result.mRows[2] = mRows[2] * scalar;
@@ -606,9 +606,9 @@ public:
      * @param scalar 标量值
      * @return 矩阵与标量的商
      */
-    Matrix4x4<T> operator/(T scalar) const
+    TMatrix4x4<T> operator/(T scalar) const
     {
-        Matrix4x4<T> result;
+        TMatrix4x4<T> result;
         result.mRows[0] = mRows[0] / scalar;
         result.mRows[1] = mRows[1] / scalar;
         result.mRows[2] = mRows[2] / scalar;
@@ -621,7 +621,7 @@ public:
      * @param mat 另一个矩阵
      * @return 引用到当前矩阵
      */
-    Matrix4x4<T>& operator+=(const Matrix4x4<T>& mat)
+    TMatrix4x4<T>& operator+=(const TMatrix4x4<T>& mat)
     {
         mRows[0] += mat.mRows[0];
         mRows[1] += mat.mRows[1];
@@ -635,7 +635,7 @@ public:
      * @param mat 另一个矩阵
      * @return 引用到当前矩阵
      */
-    Matrix4x4<T>& operator-=(const Matrix4x4<T>& mat)
+    TMatrix4x4<T>& operator-=(const TMatrix4x4<T>& mat)
     {
         mRows[0] -= mat.mRows[0];
         mRows[1] -= mat.mRows[1];
@@ -649,7 +649,7 @@ public:
      * @param scalar 标量值
      * @return 引用到当前矩阵
      */
-    Matrix4x4<T>& operator*=(T scalar)
+    TMatrix4x4<T>& operator*=(T scalar)
     {
         mRows[0] *= scalar;
         mRows[1] *= scalar;
@@ -663,7 +663,7 @@ public:
      * @param scalar 标量值
      * @return 引用到当前矩阵
      */
-    Matrix4x4<T>& operator/=(T scalar)
+    TMatrix4x4<T>& operator/=(T scalar)
     {
         mRows[0] /= scalar;
         mRows[1] /= scalar;
@@ -676,9 +676,9 @@ public:
      * @brief 转置矩阵
      * @return 转置后的矩阵
      */
-    Matrix4x4<T> Transpose() const
+    TMatrix4x4<T> Transpose() const
     {
-        Matrix4x4<T> result;
+        TMatrix4x4<T> result;
         for (int i = 0; i < 4; ++i)
         {
             for (int j = 0; j < 4; ++j)
@@ -693,9 +693,9 @@ public:
      * @brief 创建单位矩阵
      * @return 单位矩阵
      */
-    static Matrix4x4<T> Identity()
+    static TMatrix4x4<T> Identity()
     {
-        return Matrix4x4<T>(
+        return TMatrix4x4<T>(
             T(1), T(0), T(0), T(0),
             T(0), T(1), T(0), T(0),
             T(0), T(0), T(1), T(0),
@@ -707,9 +707,9 @@ public:
      * @brief 创建零矩阵
      * @return 零矩阵
      */
-    static Matrix4x4<T> Zero()
+    static TMatrix4x4<T> Zero()
     {
-        return Matrix4x4<T>(
+        return TMatrix4x4<T>(
             T(0), T(0), T(0), T(0),
             T(0), T(0), T(0), T(0),
             T(0), T(0), T(0), T(0),
