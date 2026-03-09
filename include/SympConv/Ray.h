@@ -2,10 +2,12 @@
 #define SYMPCONV_RAY_H
 
 #include "Vector.h"
-#include "AABB.h"
 #include <type_traits>
 
 namespace SympConv {
+
+template<typename T> struct TAABB;
+template<typename T> struct TTransform;
 
 /**
  * @brief 射线模板类

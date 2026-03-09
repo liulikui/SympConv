@@ -393,7 +393,7 @@ public:
         T wy = w * y;
         T wz = w * z;
 
-        return Matrix3x3<T>(
+        return TMatrix3x3<T>(
             T(1) - T(2) * (yy + zz), T(2) * (xy + wz),        T(2) * (xz - wy),
             T(2) * (xy - wz),        T(1) - T(2) * (xx + zz), T(2) * (yz + wx),
             T(2) * (xz + wy),        T(2) * (yz - wx),        T(1) - T(2) * (xx + yy)
@@ -404,10 +404,10 @@ public:
      * @brief 转换为旋转矩阵（4x4）
      * @return 4x4旋转矩阵
      */
-    Matrix4x4<T> ToMatrix4x4() const
+    TMatrix4x4<T> ToMatrix4x4() const
     {
-        Matrix3x3<T> m3 = ToMatrix3x3();
-        return Matrix4x4<T>(
+        TMatrix3x3<T> m3 = ToMatrix3x3();
+        return TMatrix4x4<T>(
             m3.mRows[0].x, m3.mRows[0].y, m3.mRows[0].z, T(0),
             m3.mRows[1].x, m3.mRows[1].y, m3.mRows[1].z, T(0),
             m3.mRows[2].x, m3.mRows[2].y, m3.mRows[2].z, T(0),
@@ -471,9 +471,9 @@ public:
      * @param mat 4x4旋转矩阵
      * @return 对应的四元数
      */
-    static TQuaternion<T> FromMatrix4x4(const Matrix4x4<T>& mat)
+    static TQuaternion<T> FromMatrix4x4(const TMatrix4x4<T>& mat)
     {
-        Matrix3x3<T> m3(
+        TMatrix3x3<T> m3(
             mat.mRows[0].x, mat.mRows[0].y, mat.mRows[0].z,
             mat.mRows[1].x, mat.mRows[1].y, mat.mRows[1].z,
             mat.mRows[2].x, mat.mRows[2].y, mat.mRows[2].z

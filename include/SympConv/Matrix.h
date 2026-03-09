@@ -557,17 +557,30 @@ public:
     TMatrix4x4<T> operator*(const TMatrix4x4<T>& mat) const
     {
         TMatrix4x4<T> result;
-        for (int i = 0; i < 4; ++i)
-        {
-            for (int j = 0; j < 4; ++j)
-            {
-                result.mRows[i][j] = 
-                    mRows[i][0] * mat.mRows[0][j] +
-                    mRows[i][1] * mat.mRows[1][j] +
-                    mRows[i][2] * mat.mRows[2][j] +
-                    mRows[i][3] * mat.mRows[3][j];
-            }
-        }
+        result.mRows[0] = TVector4<T>(
+            mRows[0].x * mat.mRows[0].x + mRows[0].y * mat.mRows[1].x + mRows[0].z * mat.mRows[2].x + mRows[0].w * mat.mRows[3].x,
+            mRows[0].x * mat.mRows[0].y + mRows[0].y * mat.mRows[1].y + mRows[0].z * mat.mRows[2].y + mRows[0].w * mat.mRows[3].y,
+            mRows[0].x * mat.mRows[0].z + mRows[0].y * mat.mRows[1].z + mRows[0].z * mat.mRows[2].z + mRows[0].w * mat.mRows[3].z,
+            mRows[0].x * mat.mRows[0].w + mRows[0].y * mat.mRows[1].w + mRows[0].z * mat.mRows[2].w + mRows[0].w * mat.mRows[3].w
+        );
+        result.mRows[1] = TVector4<T>(
+            mRows[1].x * mat.mRows[0].x + mRows[1].y * mat.mRows[1].x + mRows[1].z * mat.mRows[2].x + mRows[1].w * mat.mRows[3].x,
+            mRows[1].x * mat.mRows[0].y + mRows[1].y * mat.mRows[1].y + mRows[1].z * mat.mRows[2].y + mRows[1].w * mat.mRows[3].y,
+            mRows[1].x * mat.mRows[0].z + mRows[1].y * mat.mRows[1].z + mRows[1].z * mat.mRows[2].z + mRows[1].w * mat.mRows[3].z,
+            mRows[1].x * mat.mRows[0].w + mRows[1].y * mat.mRows[1].w + mRows[1].z * mat.mRows[2].w + mRows[1].w * mat.mRows[3].w
+        );
+        result.mRows[2] = TVector4<T>(
+            mRows[2].x * mat.mRows[0].x + mRows[2].y * mat.mRows[1].x + mRows[2].z * mat.mRows[2].x + mRows[2].w * mat.mRows[3].x,
+            mRows[2].x * mat.mRows[0].y + mRows[2].y * mat.mRows[1].y + mRows[2].z * mat.mRows[2].y + mRows[2].w * mat.mRows[3].y,
+            mRows[2].x * mat.mRows[0].z + mRows[2].y * mat.mRows[1].z + mRows[2].z * mat.mRows[2].z + mRows[2].w * mat.mRows[3].z,
+            mRows[2].x * mat.mRows[0].w + mRows[2].y * mat.mRows[1].w + mRows[2].z * mat.mRows[2].w + mRows[2].w * mat.mRows[3].w
+        );
+        result.mRows[3] = TVector4<T>(
+            mRows[3].x * mat.mRows[0].x + mRows[3].y * mat.mRows[1].x + mRows[3].z * mat.mRows[2].x + mRows[3].w * mat.mRows[3].x,
+            mRows[3].x * mat.mRows[0].y + mRows[3].y * mat.mRows[1].y + mRows[3].z * mat.mRows[2].y + mRows[3].w * mat.mRows[3].y,
+            mRows[3].x * mat.mRows[0].z + mRows[3].y * mat.mRows[1].z + mRows[3].z * mat.mRows[2].z + mRows[3].w * mat.mRows[3].z,
+            mRows[3].x * mat.mRows[0].w + mRows[3].y * mat.mRows[1].w + mRows[3].z * mat.mRows[2].w + mRows[3].w * mat.mRows[3].w
+        );
         return result;
     }
 
@@ -679,13 +692,10 @@ public:
     TMatrix4x4<T> Transpose() const
     {
         TMatrix4x4<T> result;
-        for (int i = 0; i < 4; ++i)
-        {
-            for (int j = 0; j < 4; ++j)
-            {
-                result.mRows[i][j] = mRows[j][i];
-            }
-        }
+        result.mRows[0] = TVector4<T>(mRows[0].x, mRows[1].x, mRows[2].x, mRows[3].x);
+        result.mRows[1] = TVector4<T>(mRows[0].y, mRows[1].y, mRows[2].y, mRows[3].y);
+        result.mRows[2] = TVector4<T>(mRows[0].z, mRows[1].z, mRows[2].z, mRows[3].z);
+        result.mRows[3] = TVector4<T>(mRows[0].w, mRows[1].w, mRows[2].w, mRows[3].w);
         return result;
     }
 

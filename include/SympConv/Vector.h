@@ -309,6 +309,16 @@ public:
     }
 
     /**
+     * @brief 向量分量乘法运算符
+     * @param V 另一个向量
+     * @return 向量的分量乘积
+     */
+    TVector3<T> operator*(const TVector3<T>& V) const
+    {
+        return TVector3<T>(x * V.x, y * V.y, z * V.z);
+    }
+
+    /**
      * @brief 标量除法运算符
      * @param scalar 标量值
      * @return 向量与标量的商
