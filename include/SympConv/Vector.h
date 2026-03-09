@@ -6,379 +6,623 @@
 
 namespace SympConv {
 
-	template<typename T>
-	struct TVector2
-	{
-		static_assert(std::is_floating_point_v<T>, "T must be floating point");
+/**
+ * @brief 二维向量模板类
+ * @tparam T 浮点类型，如float、double
+ */
+template<typename T>
+struct TVector2
+{
+    static_assert(std::is_floating_point_v<T>, "T must be floating point");
 
-	public:
-		T x;
-		T y;
+public:
+    T x; ///< x分量
+    T y; ///< y分量
 
-	public:
-		TVector2() = default;
-		TVector2(T InX, T InY)
-			: x(InX)
-			, y(InY)
-		{
+public:
+    /**
+     * @brief 默认构造函数
+     */
+    TVector2() = default;
 
-		}
+    /**
+     * @brief 带参数的构造函数
+     * @param InX x分量值
+     * @param InY y分量值
+     */
+    TVector2(T InX, T InY)
+        : x(InX)
+        , y(InY)
+    {
 
-		TVector2<T> operator+(const TVector2<T>& V) const
-		{
-			return TVector2<T>(x + V.x, y + V.y);
-		}
+    }
 
-		TVector2<T> operator-(const TVector2<T>& V) const
-		{
-			return TVector2<T>(x - V.x, y - V.y);
-		}
+    /**
+     * @brief 向量加法运算符
+     * @param V 另一个向量
+     * @return 两个向量的和
+     */
+    TVector2<T> operator+(const TVector2<T>& V) const
+    {
+        return TVector2<T>(x + V.x, y + V.y);
+    }
 
-		T Dot(const TVector2<T>& V) const
-		{
-			return x * V.x + y * V.y;
-		}
+    /**
+     * @brief 向量减法运算符
+     * @param V 另一个向量
+     * @return 两个向量的差
+     */
+    TVector2<T> operator-(const TVector2<T>& V) const
+    {
+        return TVector2<T>(x - V.x, y - V.y);
+    }
 
-		static T DotProduct(const TVector2<T>& A, const TVector2<T>& B)
-		{
-			return A.x * B.x + A.y * B.y;
-		}
+    /**
+     * @brief 向量点积
+     * @param V 另一个向量
+     * @return 点积结果
+     */
+    T Dot(const TVector2<T>& V) const
+    {
+        return x * V.x + y * V.y;
+    }
 
-		// 标量乘法
-		TVector2<T> operator*(T scalar) const
-		{
-			return TVector2<T>(x * scalar, y * scalar);
-		}
+    /**
+     * @brief 静态点积计算
+     * @param A 第一个向量
+     * @param B 第二个向量
+     * @return 点积结果
+     */
+    static T DotProduct(const TVector2<T>& A, const TVector2<T>& B)
+    {
+        return A.x * B.x + A.y * B.y;
+    }
 
-		// 标量除法
-		TVector2<T> operator/(T scalar) const
-		{
-			return TVector2<T>(x / scalar, y / scalar);
-		}
+    /**
+     * @brief 标量乘法运算符
+     * @param scalar 标量值
+     * @return 向量与标量的乘积
+     */
+    TVector2<T> operator*(T scalar) const
+    {
+        return TVector2<T>(x * scalar, y * scalar);
+    }
 
-		// 复合赋值运算符
-		TVector2<T>& operator+=(const TVector2<T>& V)
-		{
-			x += V.x;
-			y += V.y;
-			return *this;
-		}
+    /**
+     * @brief 标量除法运算符
+     * @param scalar 标量值
+     * @return 向量与标量的商
+     */
+    TVector2<T> operator/(T scalar) const
+    {
+        return TVector2<T>(x / scalar, y / scalar);
+    }
 
-		TVector2<T>& operator-=(const TVector2<T>& V)
-		{
-			x -= V.x;
-			y -= V.y;
-			return *this;
-		}
+    /**
+     * @brief 向量加法复合赋值运算符
+     * @param V 另一个向量
+     * @return 引用到当前向量
+     */
+    TVector2<T>& operator+=(const TVector2<T>& V)
+    {
+        x += V.x;
+        y += V.y;
+        return *this;
+    }
 
-		TVector2<T>& operator*=(T scalar)
-		{
-			x *= scalar;
-			y *= scalar;
-			return *this;
-		}
+    /**
+     * @brief 向量减法复合赋值运算符
+     * @param V 另一个向量
+     * @return 引用到当前向量
+     */
+    TVector2<T>& operator-=(const TVector2<T>& V)
+    {
+        x -= V.x;
+        y -= V.y;
+        return *this;
+    }
 
-		TVector2<T>& operator/=(T scalar)
-		{
-			x /= scalar;
-			y /= scalar;
-			return *this;
-		}
+    /**
+     * @brief 标量乘法复合赋值运算符
+     * @param scalar 标量值
+     * @return 引用到当前向量
+     */
+    TVector2<T>& operator*=(T scalar)
+    {
+        x *= scalar;
+        y *= scalar;
+        return *this;
+    }
 
-		// 长度计算
-		T Length() const
-		{
-			return std::sqrt(x * x + y * y);
-		}
+    /**
+     * @brief 标量除法复合赋值运算符
+     * @param scalar 标量值
+     * @return 引用到当前向量
+     */
+    TVector2<T>& operator/=(T scalar)
+    {
+        x /= scalar;
+        y /= scalar;
+        return *this;
+    }
 
-		T LengthSquared() const
-		{
-			return x * x + y * y;
-		}
+    /**
+     * @brief 计算向量长度
+     * @return 向量的长度
+     */
+    T Length() const
+    {
+        return std::sqrt(x * x + y * y);
+    }
 
-		// 归一化
-		TVector2<T> Normalize() const
-		{
-			T len = Length();
-			if (len > T(0))
-			{
-				return *this / len;
-			}
-			return TVector2<T>(T(0), T(0));
-		}
+    /**
+     * @brief 计算向量长度的平方
+     * @return 向量长度的平方
+     */
+    T LengthSquared() const
+    {
+        return x * x + y * y;
+    }
 
-		// 线性插值
-		static TVector2<T> Lerp(const TVector2<T>& A, const TVector2<T>& B, T t)
-		{
-			return TVector2<T>(
-				A.x + (B.x - A.x) * t,
-				A.y + (B.y - A.y) * t
-			);
-		}
-	};
+    /**
+     * @brief 归一化向量
+     * @return 归一化后的单位向量
+     */
+    TVector2<T> Normalize() const
+    {
+        T len = Length();
+        if (len > T(0))
+        {
+            return *this / len;
+        }
+        return TVector2<T>(T(0), T(0));
+    }
 
-	template<typename T>
-	struct TVector3
-	{
-		static_assert(std::is_floating_point_v<T>, "T must be floating point");
+    /**
+     * @brief 线性插值
+     * @param A 起始向量
+     * @param B 结束向量
+     * @param t 插值参数，范围[0,1]
+     * @return 插值结果
+     */
+    static TVector2<T> Lerp(const TVector2<T>& A, const TVector2<T>& B, T t)
+    {
+        return TVector2<T>(
+            A.x + (B.x - A.x) * t,
+            A.y + (B.y - A.y) * t
+        );
+    }
+};
 
-	public:
-		T x;
-		T y;
-		T z;
+/**
+ * @brief 三维向量模板类
+ * @tparam T 浮点类型，如float、double
+ */
+template<typename T>
+struct TVector3
+{
+    static_assert(std::is_floating_point_v<T>, "T must be floating point");
 
-	public:
-		TVector3() = default;
-		TVector3(T InX, T InY, T InZ)
-			:x(InX)
-			,y(InY)
-			,z(InZ)
-		{
+public:
+    T x; ///< x分量
+    T y; ///< y分量
+    T z; ///< z分量
 
-		}
+public:
+    /**
+     * @brief 默认构造函数
+     */
+    TVector3() = default;
 
-		TVector3<T> operator+(const TVector3<T>& V) const
-		{
-			return TVector3<T>(x + V.x, y + V.y, z + V.z);
-		}
+    /**
+     * @brief 带参数的构造函数
+     * @param InX x分量值
+     * @param InY y分量值
+     * @param InZ z分量值
+     */
+    TVector3(T InX, T InY, T InZ)
+        :x(InX)
+        ,y(InY)
+        ,z(InZ)
+    {
 
-		TVector3<T> operator-(const TVector3<T>& V) const
-		{
-			return TVector3<T>(x - V.x, y - V.y, z - V.z);
-		}
+    }
 
-		T Dot(const TVector3<T>& V) const
-		{
-			return x * V.x + y * V.y + z * V.z;
-		}
+    /**
+     * @brief 向量加法运算符
+     * @param V 另一个向量
+     * @return 两个向量的和
+     */
+    TVector3<T> operator+(const TVector3<T>& V) const
+    {
+        return TVector3<T>(x + V.x, y + V.y, z + V.z);
+    }
 
-		static T DotProduct(const TVector3<T>& A, const TVector3<T>& B)
-		{
-			return A.x * B.x + A.y * B.y + A.z * B.z;
-		}
+    /**
+     * @brief 向量减法运算符
+     * @param V 另一个向量
+     * @return 两个向量的差
+     */
+    TVector3<T> operator-(const TVector3<T>& V) const
+    {
+        return TVector3<T>(x - V.x, y - V.y, z - V.z);
+    }
 
-		TVector3<T> Cross(const TVector3<T>& V) const
-		{
-			return TVector3<T>(
-				y * V.z - z * V.y,
-				z * V.x - x * V.z,
-				x * V.y - y * V.x
-			);
-		}
+    /**
+     * @brief 向量点积
+     * @param V 另一个向量
+     * @return 点积结果
+     */
+    T Dot(const TVector3<T>& V) const
+    {
+        return x * V.x + y * V.y + z * V.z;
+    }
 
-		static TVector3<T> CrossProduct(const TVector3<T>& A, const TVector3<T>& B)
-		{
-			return TVector3<T>(
-				A.y * B.z - A.z * B.y,
-				A.z * B.x - A.x * B.z,
-				A.x * B.y - A.y * B.x
-			);
-		}
+    /**
+     * @brief 静态点积计算
+     * @param A 第一个向量
+     * @param B 第二个向量
+     * @return 点积结果
+     */
+    static T DotProduct(const TVector3<T>& A, const TVector3<T>& B)
+    {
+        return A.x * B.x + A.y * B.y + A.z * B.z;
+    }
 
-		// 标量乘法
-		TVector3<T> operator*(T scalar) const
-		{
-			return TVector3<T>(x * scalar, y * scalar, z * scalar);
-		}
+    /**
+     * @brief 向量叉积
+     * @param V 另一个向量
+     * @return 叉积结果
+     */
+    TVector3<T> Cross(const TVector3<T>& V) const
+    {
+        return TVector3<T>(
+            y * V.z - z * V.y,
+            z * V.x - x * V.z,
+            x * V.y - y * V.x
+        );
+    }
 
-		// 标量除法
-		TVector3<T> operator/(T scalar) const
-		{
-			return TVector3<T>(x / scalar, y / scalar, z / scalar);
-		}
+    /**
+     * @brief 静态叉积计算
+     * @param A 第一个向量
+     * @param B 第二个向量
+     * @return 叉积结果
+     */
+    static TVector3<T> CrossProduct(const TVector3<T>& A, const TVector3<T>& B)
+    {
+        return TVector3<T>(
+            A.y * B.z - A.z * B.y,
+            A.z * B.x - A.x * B.z,
+            A.x * B.y - A.y * B.x
+        );
+    }
 
-		// 复合赋值运算符
-		TVector3<T>& operator+=(const TVector3<T>& V)
-		{
-			x += V.x;
-			y += V.y;
-			z += V.z;
-			return *this;
-		}
+    /**
+     * @brief 标量乘法运算符
+     * @param scalar 标量值
+     * @return 向量与标量的乘积
+     */
+    TVector3<T> operator*(T scalar) const
+    {
+        return TVector3<T>(x * scalar, y * scalar, z * scalar);
+    }
 
-		TVector3<T>& operator-=(const TVector3<T>& V)
-		{
-			x -= V.x;
-			y -= V.y;
-			z -= V.z;
-			return *this;
-		}
+    /**
+     * @brief 标量除法运算符
+     * @param scalar 标量值
+     * @return 向量与标量的商
+     */
+    TVector3<T> operator/(T scalar) const
+    {
+        return TVector3<T>(x / scalar, y / scalar, z / scalar);
+    }
 
-		TVector3<T>& operator*=(T scalar)
-		{
-			x *= scalar;
-			y *= scalar;
-			z *= scalar;
-			return *this;
-		}
+    /**
+     * @brief 向量加法复合赋值运算符
+     * @param V 另一个向量
+     * @return 引用到当前向量
+     */
+    TVector3<T>& operator+=(const TVector3<T>& V)
+    {
+        x += V.x;
+        y += V.y;
+        z += V.z;
+        return *this;
+    }
 
-		TVector3<T>& operator/=(T scalar)
-		{
-			x /= scalar;
-			y /= scalar;
-			z /= scalar;
-			return *this;
-		}
+    /**
+     * @brief 向量减法复合赋值运算符
+     * @param V 另一个向量
+     * @return 引用到当前向量
+     */
+    TVector3<T>& operator-=(const TVector3<T>& V)
+    {
+        x -= V.x;
+        y -= V.y;
+        z -= V.z;
+        return *this;
+    }
 
-		// 长度计算
-		T Length() const
-		{
-			return std::sqrt(x * x + y * y + z * z);
-		}
+    /**
+     * @brief 标量乘法复合赋值运算符
+     * @param scalar 标量值
+     * @return 引用到当前向量
+     */
+    TVector3<T>& operator*=(T scalar)
+    {
+        x *= scalar;
+        y *= scalar;
+        z *= scalar;
+        return *this;
+    }
 
-		T LengthSquared() const
-		{
-			return x * x + y * y + z * z;
-		}
+    /**
+     * @brief 标量除法复合赋值运算符
+     * @param scalar 标量值
+     * @return 引用到当前向量
+     */
+    TVector3<T>& operator/=(T scalar)
+    {
+        x /= scalar;
+        y /= scalar;
+        z /= scalar;
+        return *this;
+    }
 
-		// 归一化
-		TVector3<T> Normalize() const
-		{
-			T len = Length();
-			if (len > T(0))
-			{
-				return *this / len;
-			}
-			return TVector3<T>(T(0), T(0), T(0));
-		}
+    /**
+     * @brief 计算向量长度
+     * @return 向量的长度
+     */
+    T Length() const
+    {
+        return std::sqrt(x * x + y * y + z * z);
+    }
 
-		// 线性插值
-		static TVector3<T> Lerp(const TVector3<T>& A, const TVector3<T>& B, T t)
-		{
-			return TVector3<T>(
-				A.x + (B.x - A.x) * t,
-				A.y + (B.y - A.y) * t,
-				A.z + (B.z - A.z) * t
-			);
-		}
-	};
+    /**
+     * @brief 计算向量长度的平方
+     * @return 向量长度的平方
+     */
+    T LengthSquared() const
+    {
+        return x * x + y * y + z * z;
+    }
 
-	template<typename T>
-	struct TVector4
-	{
-		static_assert(std::is_floating_point_v<T>, "T must be floating point");
+    /**
+     * @brief 归一化向量
+     * @return 归一化后的单位向量
+     */
+    TVector3<T> Normalize() const
+    {
+        T len = Length();
+        if (len > T(0))
+        {
+            return *this / len;
+        }
+        return TVector3<T>(T(0), T(0), T(0));
+    }
 
-	public:
-		T x;
-		T y;
-		T z;
-		T w;
+    /**
+     * @brief 线性插值
+     * @param A 起始向量
+     * @param B 结束向量
+     * @param t 插值参数，范围[0,1]
+     * @return 插值结果
+     */
+    static TVector3<T> Lerp(const TVector3<T>& A, const TVector3<T>& B, T t)
+    {
+        return TVector3<T>(
+            A.x + (B.x - A.x) * t,
+            A.y + (B.y - A.y) * t,
+            A.z + (B.z - A.z) * t
+        );
+    }
+};
 
-	public:
-		TVector4() = default;
-		TVector4(T InX, T InY, T InZ, T InW)
-			: x(InX)
-			, y(InY)
-			, z(InZ)
-			, w(InW)
-		{
+/**
+ * @brief 四维向量模板类
+ * @tparam T 浮点类型，如float、double
+ */
+template<typename T>
+struct TVector4
+{
+    static_assert(std::is_floating_point_v<T>, "T must be floating point");
 
-		}
+public:
+    T x; ///< x分量
+    T y; ///< y分量
+    T z; ///< z分量
+    T w; ///< w分量
 
-		// 向量加法
-		TVector4<T> operator+(const TVector4<T>& V) const
-		{
-			return TVector4<T>(x + V.x, y + V.y, z + V.z, w + V.w);
-		}
+public:
+    /**
+     * @brief 默认构造函数
+     */
+    TVector4() = default;
 
-		// 向量减法
-		TVector4<T> operator-(const TVector4<T>& V) const
-		{
-			return TVector4<T>(x - V.x, y - V.y, z - V.z, w - V.w);
-		}
+    /**
+     * @brief 带参数的构造函数
+     * @param InX x分量值
+     * @param InY y分量值
+     * @param InZ z分量值
+     * @param InW w分量值
+     */
+    TVector4(T InX, T InY, T InZ, T InW)
+        : x(InX)
+        , y(InY)
+        , z(InZ)
+        , w(InW)
+    {
 
-		// 标量乘法
-		TVector4<T> operator*(T scalar) const
-		{
-			return TVector4<T>(x * scalar, y * scalar, z * scalar, w * scalar);
-		}
+    }
 
-		// 标量除法
-		TVector4<T> operator/(T scalar) const
-		{
-			return TVector4<T>(x / scalar, y / scalar, z / scalar, w / scalar);
-		}
+    /**
+     * @brief 向量加法运算符
+     * @param V 另一个向量
+     * @return 两个向量的和
+     */
+    TVector4<T> operator+(const TVector4<T>& V) const
+    {
+        return TVector4<T>(x + V.x, y + V.y, z + V.z, w + V.w);
+    }
 
-		// 复合赋值运算符
-		TVector4<T>& operator+=(const TVector4<T>& V)
-		{
-			x += V.x;
-			y += V.y;
-			z += V.z;
-			w += V.w;
-			return *this;
-		}
+    /**
+     * @brief 向量减法运算符
+     * @param V 另一个向量
+     * @return 两个向量的差
+     */
+    TVector4<T> operator-(const TVector4<T>& V) const
+    {
+        return TVector4<T>(x - V.x, y - V.y, z - V.z, w - V.w);
+    }
 
-		TVector4<T>& operator-=(const TVector4<T>& V)
-		{
-			x -= V.x;
-			y -= V.y;
-			z -= V.z;
-			w -= V.w;
-			return *this;
-		}
+    /**
+     * @brief 标量乘法运算符
+     * @param scalar 标量值
+     * @return 向量与标量的乘积
+     */
+    TVector4<T> operator*(T scalar) const
+    {
+        return TVector4<T>(x * scalar, y * scalar, z * scalar, w * scalar);
+    }
 
-		TVector4<T>& operator*=(T scalar)
-		{
-			x *= scalar;
-			y *= scalar;
-			z *= scalar;
-			w *= scalar;
-			return *this;
-		}
+    /**
+     * @brief 标量除法运算符
+     * @param scalar 标量值
+     * @return 向量与标量的商
+     */
+    TVector4<T> operator/(T scalar) const
+    {
+        return TVector4<T>(x / scalar, y / scalar, z / scalar, w / scalar);
+    }
 
-		TVector4<T>& operator/=(T scalar)
-		{
-			x /= scalar;
-			y /= scalar;
-			z /= scalar;
-			w /= scalar;
-			return *this;
-		}
+    /**
+     * @brief 向量加法复合赋值运算符
+     * @param V 另一个向量
+     * @return 引用到当前向量
+     */
+    TVector4<T>& operator+=(const TVector4<T>& V)
+    {
+        x += V.x;
+        y += V.y;
+        z += V.z;
+        w += V.w;
+        return *this;
+    }
 
-		// 点积
-		T Dot(const TVector4<T>& V) const
-		{
-			return x * V.x + y * V.y + z * V.z + w * V.w;
-		}
+    /**
+     * @brief 向量减法复合赋值运算符
+     * @param V 另一个向量
+     * @return 引用到当前向量
+     */
+    TVector4<T>& operator-=(const TVector4<T>& V)
+    {
+        x -= V.x;
+        y -= V.y;
+        z -= V.z;
+        w -= V.w;
+        return *this;
+    }
 
-		static T DotProduct(const TVector4<T>& A, const TVector4<T>& B)
-		{
-			return A.x * B.x + A.y * B.y + A.z * B.z + A.w * B.w;
-		}
+    /**
+     * @brief 标量乘法复合赋值运算符
+     * @param scalar 标量值
+     * @return 引用到当前向量
+     */
+    TVector4<T>& operator*=(T scalar)
+    {
+        x *= scalar;
+        y *= scalar;
+        z *= scalar;
+        w *= scalar;
+        return *this;
+    }
 
-		// 长度计算
-		T Length() const
-		{
-			return std::sqrt(x * x + y * y + z * z + w * w);
-		}
+    /**
+     * @brief 标量除法复合赋值运算符
+     * @param scalar 标量值
+     * @return 引用到当前向量
+     */
+    TVector4<T>& operator/=(T scalar)
+    {
+        x /= scalar;
+        y /= scalar;
+        z /= scalar;
+        w /= scalar;
+        return *this;
+    }
 
-		T LengthSquared() const
-		{
-			return x * x + y * y + z * z + w * w;
-		}
+    /**
+     * @brief 向量点积
+     * @param V 另一个向量
+     * @return 点积结果
+     */
+    T Dot(const TVector4<T>& V) const
+    {
+        return x * V.x + y * V.y + z * V.z + w * V.w;
+    }
 
-		// 归一化
-		TVector4<T> Normalize() const
-		{
-			T len = Length();
-			if (len > T(0))
-			{
-				return *this / len;
-			}
-			return TVector4<T>(T(0), T(0), T(0), T(0));
-		}
+    /**
+     * @brief 静态点积计算
+     * @param A 第一个向量
+     * @param B 第二个向量
+     * @return 点积结果
+     */
+    static T DotProduct(const TVector4<T>& A, const TVector4<T>& B)
+    {
+        return A.x * B.x + A.y * B.y + A.z * B.z + A.w * B.w;
+    }
 
-		// 线性插值
-		static TVector4<T> Lerp(const TVector4<T>& A, const TVector4<T>& B, T t)
-		{
-			return TVector4<T>(
-				A.x + (B.x - A.x) * t,
-				A.y + (B.y - A.y) * t,
-				A.z + (B.z - A.z) * t,
-				A.w + (B.w - A.w) * t
-			);
-		}
-	};
-}
+    /**
+     * @brief 计算向量长度
+     * @return 向量的长度
+     */
+    T Length() const
+    {
+        return std::sqrt(x * x + y * y + z * z + w * w);
+    }
+
+    /**
+     * @brief 计算向量长度的平方
+     * @return 向量长度的平方
+     */
+    T LengthSquared() const
+    {
+        return x * x + y * y + z * z + w * w;
+    }
+
+    /**
+     * @brief 归一化向量
+     * @return 归一化后的单位向量
+     */
+    TVector4<T> Normalize() const
+    {
+        T len = Length();
+        if (len > T(0))
+        {
+            return *this / len;
+        }
+        return TVector4<T>(T(0), T(0), T(0), T(0));
+    }
+
+    /**
+     * @brief 线性插值
+     * @param A 起始向量
+     * @param B 结束向量
+     * @param t 插值参数，范围[0,1]
+     * @return 插值结果
+     */
+    static TVector4<T> Lerp(const TVector4<T>& A, const TVector4<T>& B, T t)
+    {
+        return TVector4<T>(
+            A.x + (B.x - A.x) * t,
+            A.y + (B.y - A.y) * t,
+            A.z + (B.z - A.z) * t,
+            A.w + (B.w - A.w) * t
+        );
+    }
+};
+
+} // namespace SympConv
+
 #endif // SYMPCONV_VECTOR_H
