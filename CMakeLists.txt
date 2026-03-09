@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.16)
 project(SympConv)
 
+# 添加SYMPCONV_DOUBLE_PRECISION_ENABLED选项
+option(SYMPCONV_DOUBLE_PRECISION_ENABLED "Enable double precision floating point" OFF)
+
 # 设置C++标准
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -42,6 +45,13 @@ file(GLOB_RECURSE TEST_HEADERS "test/*.h")
 add_library(SympConv SHARED ${SRC_SOURCES} ${SRC_HEADERS} ${INCLUDE_HEADERS})
 target_include_directories(SympConv PRIVATE src)
 target_compile_definitions(SympConv PRIVATE SYMPCONV_EXPORTS)
+
+# 根据选项定义SYMPCONV_DOUBLE_PRECISION_ENABLED宏
+if(SYMPCONV_DOUBLE_PRECISION_ENABLED)
+    target_compile_definitions(SympConv PRIVATE SYMPCONV_DOUBLE_PRECISION_ENABLED)
+    target_compile_definitions(SympConvDemo PRIVATE SYMPCONV_DOUBLE_PRECISION_ENABLED)
+    target_compile_definitions(SympConvTest PRIVATE SYMPCONV_DOUBLE_PRECISION_ENABLED)
+endif()
 
 # 构建可执行文件
 add_executable(SympConvDemo ${DEMO_SOURCES} ${DEMO_HEADERS})

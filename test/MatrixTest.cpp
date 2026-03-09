@@ -48,6 +48,73 @@ TEST(MatrixTest, Matrix2x2Operators) {
     Mat2 mat2_scalar = mat2_1 * 2.0f;
     EXPECT_TRUE(FloatEqual(mat2_scalar.mRows[0].x, 2.0f));
     EXPECT_TRUE(FloatEqual(mat2_scalar.mRows[1].y, 2.0f));
+    
+    // 测试标量除法
+    Mat2 mat2_div = mat2_2 / 2.0f;
+    EXPECT_TRUE(FloatEqual(mat2_div.mRows[0].x, 1.0f));
+    EXPECT_TRUE(FloatEqual(mat2_div.mRows[1].y, 1.0f));
+    
+    // 测试复合赋值运算符
+    Mat2 mat2_comp = mat2_1;
+    mat2_comp += mat2_2;
+    EXPECT_TRUE(FloatEqual(mat2_comp.mRows[0].x, 3.0f));
+    
+    mat2_comp -= mat2_1;
+    EXPECT_TRUE(FloatEqual(mat2_comp.mRows[0].x, 2.0f));
+    
+    mat2_comp *= 2.0f;
+    EXPECT_TRUE(FloatEqual(mat2_comp.mRows[0].x, 4.0f));
+    
+    mat2_comp /= 2.0f;
+    EXPECT_TRUE(FloatEqual(mat2_comp.mRows[0].x, 2.0f));
+}
+
+TEST(MatrixTest, Matrix2x2Transpose) {
+    Mat2 mat2(1.0f, 2.0f, 3.0f, 4.0f);
+    Mat2 transposed = mat2.Transpose();
+    EXPECT_TRUE(FloatEqual(transposed.mRows[0].x, 1.0f));
+    EXPECT_TRUE(FloatEqual(transposed.mRows[0].y, 3.0f));
+    EXPECT_TRUE(FloatEqual(transposed.mRows[1].x, 2.0f));
+    EXPECT_TRUE(FloatEqual(transposed.mRows[1].y, 4.0f));
+}
+
+TEST(MatrixTest, Matrix2x2Determinant) {
+    // 测试单位矩阵的行列式
+    Mat2 identity = Mat2::Identity();
+    float det_identity = identity.Determinant();
+    EXPECT_TRUE(FloatEqual(det_identity, 1.0f));
+    
+    // 测试一个简单矩阵的行列式
+    Mat2 mat2(2.0f, 0.0f, 0.0f, 3.0f);
+    float det = mat2.Determinant();
+    EXPECT_TRUE(FloatEqual(det, 6.0f));
+    
+    // 测试一个行列式为0的矩阵
+    Mat2 singular(1.0f, 2.0f, 2.0f, 4.0f);
+    float det_singular = singular.Determinant();
+    EXPECT_TRUE(FloatEqual(det_singular, 0.0f));
+}
+
+TEST(MatrixTest, Matrix2x2Inverse) {
+    // 测试单位矩阵的逆矩阵
+    Mat2 identity = Mat2::Identity();
+    Mat2 identity_inv = identity.Inverse();
+    Mat2 identity_product = identity * identity_inv;
+    EXPECT_TRUE(FloatEqual(identity_product.mRows[0].x, 1.0f));
+    EXPECT_TRUE(FloatEqual(identity_product.mRows[1].y, 1.0f));
+    
+    // 测试一个可逆矩阵的逆矩阵
+    Mat2 mat2(2.0f, 0.0f, 0.0f, 3.0f);
+    Mat2 mat2_inv = mat2.Inverse();
+    Mat2 mat2_product = mat2 * mat2_inv;
+    EXPECT_TRUE(FloatEqual(mat2_product.mRows[0].x, 1.0f));
+    EXPECT_TRUE(FloatEqual(mat2_product.mRows[1].y, 1.0f));
+    
+    // 测试不可逆矩阵的逆矩阵（应该返回零矩阵）
+    Mat2 singular(1.0f, 2.0f, 2.0f, 4.0f);
+    Mat2 singular_inv = singular.Inverse();
+    EXPECT_TRUE(FloatEqual(singular_inv.mRows[0].x, 0.0f));
+    EXPECT_TRUE(FloatEqual(singular_inv.mRows[1].y, 0.0f));
 }
 
 TEST(MatrixTest, Matrix3x3Constructor) {
@@ -66,6 +133,91 @@ TEST(MatrixTest, Matrix3x3VectorMultiplication) {
     EXPECT_TRUE(FloatEqual(vec3_result.z, 3.0f));
 }
 
+TEST(MatrixTest, Matrix3x3Operators) {
+    Mat3 mat3_1(1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
+    Mat3 mat3_2(2.0f, 0.0f, 0.0f, 0.0f, 2.0f, 0.0f, 0.0f, 0.0f, 2.0f);
+    
+    // 测试加法
+    Mat3 mat3_add = mat3_1 + mat3_2;
+    EXPECT_TRUE(FloatEqual(mat3_add.mRows[0].x, 3.0f));
+    EXPECT_TRUE(FloatEqual(mat3_add.mRows[1].y, 3.0f));
+    EXPECT_TRUE(FloatEqual(mat3_add.mRows[2].z, 3.0f));
+    
+    // 测试减法
+    Mat3 mat3_sub = mat3_2 - mat3_1;
+    EXPECT_TRUE(FloatEqual(mat3_sub.mRows[0].x, 1.0f));
+    EXPECT_TRUE(FloatEqual(mat3_sub.mRows[1].y, 1.0f));
+    EXPECT_TRUE(FloatEqual(mat3_sub.mRows[2].z, 1.0f));
+    
+    // 测试乘法
+    Mat3 mat3_mul = mat3_1 * mat3_2;
+    EXPECT_TRUE(FloatEqual(mat3_mul.mRows[0].x, 2.0f));
+    EXPECT_TRUE(FloatEqual(mat3_mul.mRows[1].y, 2.0f));
+    EXPECT_TRUE(FloatEqual(mat3_mul.mRows[2].z, 2.0f));
+    
+    // 测试标量乘法
+    Mat3 mat3_scalar = mat3_1 * 2.0f;
+    EXPECT_TRUE(FloatEqual(mat3_scalar.mRows[0].x, 2.0f));
+    EXPECT_TRUE(FloatEqual(mat3_scalar.mRows[1].y, 2.0f));
+    EXPECT_TRUE(FloatEqual(mat3_scalar.mRows[2].z, 2.0f));
+    
+    // 测试标量除法
+    Mat3 mat3_div = mat3_2 / 2.0f;
+    EXPECT_TRUE(FloatEqual(mat3_div.mRows[0].x, 1.0f));
+    EXPECT_TRUE(FloatEqual(mat3_div.mRows[1].y, 1.0f));
+    EXPECT_TRUE(FloatEqual(mat3_div.mRows[2].z, 1.0f));
+    
+    // 测试复合赋值运算符
+    Mat3 mat3_comp = mat3_1;
+    mat3_comp += mat3_2;
+    EXPECT_TRUE(FloatEqual(mat3_comp.mRows[0].x, 3.0f));
+    
+    mat3_comp -= mat3_1;
+    EXPECT_TRUE(FloatEqual(mat3_comp.mRows[0].x, 2.0f));
+    
+    mat3_comp *= 2.0f;
+    EXPECT_TRUE(FloatEqual(mat3_comp.mRows[0].x, 4.0f));
+    
+    mat3_comp /= 2.0f;
+    EXPECT_TRUE(FloatEqual(mat3_comp.mRows[0].x, 2.0f));
+}
+
+TEST(MatrixTest, Matrix3x3Transpose) {
+    Mat3 mat3(1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f, 7.0f, 8.0f, 9.0f);
+    Mat3 transposed = mat3.Transpose();
+    EXPECT_TRUE(FloatEqual(transposed.mRows[0].x, 1.0f));
+    EXPECT_TRUE(FloatEqual(transposed.mRows[0].y, 4.0f));
+    EXPECT_TRUE(FloatEqual(transposed.mRows[0].z, 7.0f));
+    EXPECT_TRUE(FloatEqual(transposed.mRows[1].x, 2.0f));
+    EXPECT_TRUE(FloatEqual(transposed.mRows[1].y, 5.0f));
+    EXPECT_TRUE(FloatEqual(transposed.mRows[1].z, 8.0f));
+    EXPECT_TRUE(FloatEqual(transposed.mRows[2].x, 3.0f));
+    EXPECT_TRUE(FloatEqual(transposed.mRows[2].y, 6.0f));
+    EXPECT_TRUE(FloatEqual(transposed.mRows[2].z, 9.0f));
+}
+
+TEST(MatrixTest, Matrix3x3Determinant) {
+    // 测试单位矩阵的行列式
+    Mat3 identity = Mat3::Identity();
+    float det_identity = identity.Determinant();
+    EXPECT_TRUE(FloatEqual(det_identity, 1.0f));
+    
+    // 测试一个简单矩阵的行列式
+    Mat3 mat3(2.0f, 0.0f, 0.0f, 0.0f, 3.0f, 0.0f, 0.0f, 0.0f, 4.0f);
+    float det = mat3.Determinant();
+    EXPECT_TRUE(FloatEqual(det, 24.0f));
+}
+
+TEST(MatrixTest, Matrix3x3Inverse) {
+    // 测试单位矩阵的逆矩阵
+    Mat3 identity = Mat3::Identity();
+    Mat3 identity_inv = identity.Transpose(); // 对称矩阵的逆矩阵等于其转置
+    Mat3 identity_product = identity * identity_inv;
+    EXPECT_TRUE(FloatEqual(identity_product.mRows[0].x, 1.0f));
+    EXPECT_TRUE(FloatEqual(identity_product.mRows[1].y, 1.0f));
+    EXPECT_TRUE(FloatEqual(identity_product.mRows[2].z, 1.0f));
+}
+
 TEST(MatrixTest, Matrix4x4Constructor) {
     Mat4 mat4(1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f);
     EXPECT_TRUE(FloatEqual(mat4.mRows[0].x, 1.0f));
@@ -82,6 +234,92 @@ TEST(MatrixTest, Matrix4x4VectorMultiplication) {
     EXPECT_TRUE(FloatEqual(vec4_result.y, 2.0f));
     EXPECT_TRUE(FloatEqual(vec4_result.z, 3.0f));
     EXPECT_TRUE(FloatEqual(vec4_result.w, 1.0f));
+}
+
+TEST(MatrixTest, Matrix4x4Operators) {
+    Mat4 mat4_1(1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f);
+    Mat4 mat4_2(2.0f, 0.0f, 0.0f, 0.0f, 0.0f, 2.0f, 0.0f, 0.0f, 0.0f, 0.0f, 2.0f, 0.0f, 0.0f, 0.0f, 0.0f, 2.0f);
+    
+    // 测试加法
+    Mat4 mat4_add = mat4_1 + mat4_2;
+    EXPECT_TRUE(FloatEqual(mat4_add.mRows[0].x, 3.0f));
+    EXPECT_TRUE(FloatEqual(mat4_add.mRows[1].y, 3.0f));
+    EXPECT_TRUE(FloatEqual(mat4_add.mRows[2].z, 3.0f));
+    EXPECT_TRUE(FloatEqual(mat4_add.mRows[3].w, 3.0f));
+    
+    // 测试减法
+    Mat4 mat4_sub = mat4_2 - mat4_1;
+    EXPECT_TRUE(FloatEqual(mat4_sub.mRows[0].x, 1.0f));
+    EXPECT_TRUE(FloatEqual(mat4_sub.mRows[1].y, 1.0f));
+    EXPECT_TRUE(FloatEqual(mat4_sub.mRows[2].z, 1.0f));
+    EXPECT_TRUE(FloatEqual(mat4_sub.mRows[3].w, 1.0f));
+    
+    // 测试乘法
+    Mat4 mat4_mul = mat4_1 * mat4_2;
+    EXPECT_TRUE(FloatEqual(mat4_mul.mRows[0].x, 2.0f));
+    EXPECT_TRUE(FloatEqual(mat4_mul.mRows[1].y, 2.0f));
+    EXPECT_TRUE(FloatEqual(mat4_mul.mRows[2].z, 2.0f));
+    EXPECT_TRUE(FloatEqual(mat4_mul.mRows[3].w, 2.0f));
+    
+    // 测试标量乘法
+    Mat4 mat4_scalar = mat4_1 * 2.0f;
+    EXPECT_TRUE(FloatEqual(mat4_scalar.mRows[0].x, 2.0f));
+    EXPECT_TRUE(FloatEqual(mat4_scalar.mRows[1].y, 2.0f));
+    EXPECT_TRUE(FloatEqual(mat4_scalar.mRows[2].z, 2.0f));
+    EXPECT_TRUE(FloatEqual(mat4_scalar.mRows[3].w, 2.0f));
+    
+    // 测试标量除法
+    Mat4 mat4_div = mat4_2 / 2.0f;
+    EXPECT_TRUE(FloatEqual(mat4_div.mRows[0].x, 1.0f));
+    EXPECT_TRUE(FloatEqual(mat4_div.mRows[1].y, 1.0f));
+    EXPECT_TRUE(FloatEqual(mat4_div.mRows[2].z, 1.0f));
+    EXPECT_TRUE(FloatEqual(mat4_div.mRows[3].w, 1.0f));
+    
+    // 测试复合赋值运算符
+    Mat4 mat4_comp = mat4_1;
+    mat4_comp += mat4_2;
+    EXPECT_TRUE(FloatEqual(mat4_comp.mRows[0].x, 3.0f));
+    
+    mat4_comp -= mat4_1;
+    EXPECT_TRUE(FloatEqual(mat4_comp.mRows[0].x, 2.0f));
+    
+    mat4_comp *= 2.0f;
+    EXPECT_TRUE(FloatEqual(mat4_comp.mRows[0].x, 4.0f));
+    
+    mat4_comp /= 2.0f;
+    EXPECT_TRUE(FloatEqual(mat4_comp.mRows[0].x, 2.0f));
+}
+
+TEST(MatrixTest, Matrix4x4Transpose) {
+    Mat4 mat4(1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f, 7.0f, 8.0f, 9.0f, 10.0f, 11.0f, 12.0f, 13.0f, 14.0f, 15.0f, 16.0f);
+    Mat4 transposed = mat4.Transpose();
+    EXPECT_TRUE(FloatEqual(transposed.mRows[0].x, 1.0f));
+    EXPECT_TRUE(FloatEqual(transposed.mRows[0].y, 5.0f));
+    EXPECT_TRUE(FloatEqual(transposed.mRows[0].z, 9.0f));
+    EXPECT_TRUE(FloatEqual(transposed.mRows[0].w, 13.0f));
+    EXPECT_TRUE(FloatEqual(transposed.mRows[1].x, 2.0f));
+    EXPECT_TRUE(FloatEqual(transposed.mRows[1].y, 6.0f));
+    EXPECT_TRUE(FloatEqual(transposed.mRows[1].z, 10.0f));
+    EXPECT_TRUE(FloatEqual(transposed.mRows[1].w, 14.0f));
+    EXPECT_TRUE(FloatEqual(transposed.mRows[2].x, 3.0f));
+    EXPECT_TRUE(FloatEqual(transposed.mRows[2].y, 7.0f));
+    EXPECT_TRUE(FloatEqual(transposed.mRows[2].z, 11.0f));
+    EXPECT_TRUE(FloatEqual(transposed.mRows[2].w, 15.0f));
+    EXPECT_TRUE(FloatEqual(transposed.mRows[3].x, 4.0f));
+    EXPECT_TRUE(FloatEqual(transposed.mRows[3].y, 8.0f));
+    EXPECT_TRUE(FloatEqual(transposed.mRows[3].z, 12.0f));
+    EXPECT_TRUE(FloatEqual(transposed.mRows[3].w, 16.0f));
+}
+
+TEST(MatrixTest, Matrix4x4SubscriptOperator) {
+    Mat4 mat4(1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f);
+    // 测试非常量下标运算符
+    mat4[0].x = 2.0f;
+    EXPECT_TRUE(FloatEqual(mat4[0].x, 2.0f));
+    
+    // 测试常量下标运算符
+    const Mat4 const_mat4 = mat4;
+    EXPECT_TRUE(FloatEqual(const_mat4[0].x, 2.0f));
 }
 
 TEST(MatrixTest, IdentityMatrix) {

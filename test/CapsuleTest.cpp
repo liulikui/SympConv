@@ -1,21 +1,12 @@
 #include <gtest/gtest.h>
 #include "SympConv/Capsule.h"
 #include "SympConv/Vector.h"
-#include "SympConv/Ray.h"
-#include "SympConv/Plane.h"
-#include "SympConv/Box.h"
-#include "SympConv/Sphere.h"
-#include "SympConv/CollisionDetection.h"
 #include "TestUtils.h"
 
 namespace SympConvTest {
 
 using Capsule = SympConv::Capsule;
 using Vec3 = SympConv::Vector3;
-using Ray = SympConv::Ray;
-using Plane = SympConv::Plane;
-using Box = SympConv::Box;
-using Sphere = SympConv::Sphere;
 
 TEST(CapsuleTest, DefaultConstructor) {
     Capsule capsule;
