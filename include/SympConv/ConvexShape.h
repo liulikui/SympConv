@@ -12,6 +12,7 @@ enum class EConvexShapeType : uint8_t
 	Sphere,
 	Cylinder,
 	Capsule,
+	Cone,
 	ConvexHull,
 };
 

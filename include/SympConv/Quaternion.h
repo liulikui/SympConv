@@ -558,38 +558,38 @@ public:
         T cosZ = std::cos(halfZ);
 
         return TQuaternion<T>(
-            sinY * cosX * cosZ + cosY * sinX * sinZ,
-            cosY * sinX * cosZ - sinY * cosX * sinZ,
-            cosY * cosX * sinZ - sinY * sinX * cosZ,
-            cosY * cosX * cosZ + sinY * sinX * sinZ
+            sinX * cosY * cosZ - cosX * sinY * sinZ,
+            cosX * sinY * cosZ + sinX * cosY * sinZ,
+            cosX * cosY * sinZ - sinX * sinY * cosZ,
+            cosX * cosY * cosZ + sinX * sinY * sinZ
         );
     }
 
     /**
      * @brief 转换为欧拉角（ZYX顺序）
-     * @param x 输出绕X轴旋转角度（弧度）
-     * @param y 输出绕Y轴旋转角度（弧度）
-     * @param z 输出绕Z轴旋转角度（弧度）
+     * @param outX 输出绕X轴旋转角度（弧度）
+     * @param outY 输出绕Y轴旋转角度（弧度）
+     * @param outZ 输出绕Z轴旋转角度（弧度）
      */
-    void ToEulerAngles(T& x, T& y, T& z) const
+    void ToEulerAngles(T& outX, T& outY, T& outZ) const
     {
         T sinrCosp = T(2) * (w * x + y * z);
         T cosrCosp = T(1) - T(2) * (x * x + y * y);
-        z = std::atan2(sinrCosp, cosrCosp);
+        outZ = std::atan2(sinrCosp, cosrCosp);
 
         T sinp = T(2) * (w * y - z * x);
         if (std::abs(sinp) >= T(1))
         {
-            y = std::copysign(T(3.14159265358979323846) / T(2), sinp);
+            outY = std::copysign(T(3.14159265358979323846) / T(2), sinp);
         }
         else
         {
-            y = std::asin(sinp);
+            outY = std::asin(sinp);
         }
 
         T sinyCosp = T(2) * (w * z + x * y);
         T cosyCosp = T(1) - T(2) * (y * y + z * z);
-        x = std::atan2(sinyCosp, cosyCosp);
+        outX = std::atan2(sinyCosp, cosyCosp);
     }
 
     /**

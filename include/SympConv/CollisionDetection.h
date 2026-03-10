@@ -9,6 +9,7 @@
 #include "Sphere.h"
 #include "Capsule.h"
 #include "Cylinder.h"
+#include "Cone.h"
 #include "Segment.h"
 #include <type_traits>
 #include <limits>
@@ -1369,6 +1370,184 @@ bool CylinderIntersectsCylinder(const TCylinder<T>& cylinder1, const TCylinder<T
     T radiusSum = cylinder1.mRadius + cylinder2.mRadius;
     
     return distanceSquared <= radiusSum * radiusSum;
+}
+
+/**
+ * @brief 计算射线与圆锥体的相交
+ * @tparam T 浮点类型，如float、double
+ * @param ray 射线
+ * @param cone 圆锥体
+ * @param t 相交参数
+ * @return 是否相交
+ */
+template<typename T>
+bool RayIntersectsCone(const TRay<T>& ray, const TCone<T>& cone, T& t)
+{
+    static_assert(std::is_floating_point_v<T>, "T must be floating point");
+    
+    TVector3<T> vertex = cone.mVertex;
+    TVector3<T> baseCenter = cone.mBaseCenter;
+    T radius = cone.mRadius;
+    
+    // 计算圆锥体的轴线向量和高度
+    TVector3<T> axis = baseCenter - vertex;
+    T height = axis.Length();
+    if (height < T(1e-6)) {
+        return false;
+    }
+    
+    // 归一化轴线向量
+    TVector3<T> axisNormalized = axis / height;
+    
+    // 计算半顶角的余弦值
+    T cosTheta = radius / std::sqrt(radius * radius + height * height);
+    T sinTheta = height / std::sqrt(radius * radius + height * height);
+    
+    TVector3<T> ro = ray.mOrigin - vertex;
+    TVector3<T> rd = ray.mDirection;
+    
+    // 计算圆锥体方程的系数
+    T a = rd.Dot(rd) - std::pow(rd.Dot(axisNormalized), 2) * (1 - std::pow(cosTheta, 2)) - std::pow(rd.Dot(axisNormalized), 2) * std::pow(cosTheta, 2);
+    T b = 2 * (ro.Dot(rd) - (ro.Dot(axisNormalized) * rd.Dot(axisNormalized) * (1 - std::pow(cosTheta, 2)) + ro.Dot(axisNormalized) * rd.Dot(axisNormalized) * std::pow(cosTheta, 2)));
+    T c = ro.Dot(ro) - std::pow(ro.Dot(axisNormalized), 2) * (1 - std::pow(cosTheta, 2)) - std::pow(ro.Dot(axisNormalized), 2) * std::pow(cosTheta, 2);
+    
+    // 求解二次方程
+    T discriminant = b * b - 4 * a * c;
+    if (discriminant < 0) {
+        return false;
+    }
+    
+    T sqrtDiscriminant = std::sqrt(discriminant);
+    T t1 = (-b - sqrtDiscriminant) / (2 * a);
+    T t2 = (-b + sqrtDiscriminant) / (2 * a);
+    
+    // 确保t1 <= t2
+    if (t1 > t2) {
+        std::swap(t1, t2);
+    }
+    
+    // 检查是否有交点在射线方向上
+    if (t2 < 0) {
+        return false;
+    }
+    
+    // 找到最小的非负t值
+    T tMin = t1;
+    if (tMin < 0) {
+        tMin = t2;
+    }
+    
+    // 检查交点是否在圆锥体内
+    TVector3<T> point = ray.mOrigin + rd * tMin;
+    TVector3<T> pointToVertex = point - vertex;
+    T tAxis = pointToVertex.Dot(axisNormalized);
+    
+    if (tAxis < 0 || tAxis > height) {
+        return false;
+    }
+    
+    // 检查交点是否在圆锥体的侧面内
+    T distanceToAxis = (pointToVertex - axisNormalized * tAxis).Length();
+    T radiusAtHeight = (radius / height) * (height - tAxis);
+    
+    if (distanceToAxis > radiusAtHeight) {
+        return false;
+    }
+    
+    t = tMin;
+    return true;
+}
+
+/**
+ * @brief 计算射线与圆锥体的相交
+ * @tparam T 浮点类型，如float、double
+ * @param ray 射线
+ * @param cone 圆锥体
+ * @return 是否相交
+ */
+template<typename T>
+bool RayIntersectsCone(const TRay<T>& ray, const TCone<T>& cone)
+{
+    static_assert(std::is_floating_point_v<T>, "T must be floating point");
+    
+    T t;
+    return RayIntersectsCone(ray, cone, t);
+}
+
+/**
+ * @brief 计算线段与圆锥体的相交
+ * @tparam T 浮点类型，如float、double
+ * @param segment 线段
+ * @param cone 圆锥体
+ * @param t 相交参数
+ * @return 是否相交
+ */
+template<typename T>
+bool SegmentIntersectsCone(const TSegment<T>& segment, const TCone<T>& cone, T& t)
+{
+    static_assert(std::is_floating_point_v<T>, "T must be floating point");
+    
+    // 将线段转换为射线
+    TRay<T> ray(segment.mStart, segment.mEnd - segment.mStart);
+    T segmentLength = (segment.mEnd - segment.mStart).Length();
+    
+    if (!RayIntersectsCone(ray, cone, t)) {
+        return false;
+    }
+    
+    // 检查交点是否在线段范围内
+    return t >= 0 && t <= segmentLength;
+}
+
+/**
+ * @brief 计算线段与圆锥体的相交
+ * @tparam T 浮点类型，如float、double
+ * @param segment 线段
+ * @param cone 圆锥体
+ * @return 是否相交
+ */
+template<typename T>
+bool SegmentIntersectsCone(const TSegment<T>& segment, const TCone<T>& cone)
+{
+    static_assert(std::is_floating_point_v<T>, "T must be floating point");
+    
+    T t;
+    return SegmentIntersectsCone(segment, cone, t);
+}
+
+/**
+ * @brief 计算线段与圆锥体的相交
+ * @tparam T 浮点类型，如float、double
+ * @param start 线段起点
+ * @param end 线段终点
+ * @param cone 圆锥体
+ * @param t 相交参数
+ * @return 是否相交
+ */
+template<typename T>
+bool SegmentIntersectsCone(const TVector3<T>& start, const TVector3<T>& end, const TCone<T>& cone, T& t)
+{
+    static_assert(std::is_floating_point_v<T>, "T must be floating point");
+    
+    TSegment<T> segment(start, end);
+    return SegmentIntersectsCone(segment, cone, t);
+}
+
+/**
+ * @brief 计算线段与圆锥体的相交
+ * @tparam T 浮点类型，如float、double
+ * @param start 线段起点
+ * @param end 线段终点
+ * @param cone 圆锥体
+ * @return 是否相交
+ */
+template<typename T>
+bool SegmentIntersectsCone(const TVector3<T>& start, const TVector3<T>& end, const TCone<T>& cone)
+{
+    static_assert(std::is_floating_point_v<T>, "T must be floating point");
+    
+    T t;
+    return SegmentIntersectsCone(start, end, cone, t);
 }
 
 } // namespace SympConv

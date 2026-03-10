@@ -18,35 +18,22 @@ public:
         TVector3<T> extents = mBox.mHalfExtents;
         TVector3<T> local_support(0, 0, 0);
         
+        // 将方向向量转换到局部坐标系
+        TVector3<T> world_direction(direction.x, direction.y, direction.z);
+        TVector3<T> local_direction = mBox.mTransform.InverseTransformDirection(world_direction);
+        
         // 计算局部坐标系中的支持点
-        if (direction.x > 0) {
-            local_support.x = extents.x;
-        } else if (direction.x < 0) {
-            local_support.x = -extents.x;
-        } else {
-            local_support.x = 0;
-        }
+        local_support.x = extents.x * (local_direction.x > 0 ? 1 : (local_direction.x < 0 ? -1 : 0));
+        local_support.y = extents.y * (local_direction.y > 0 ? 1 : (local_direction.y < 0 ? -1 : 0));
+        local_support.z = extents.z * (local_direction.z > 0 ? 1 : (local_direction.z < 0 ? -1 : 0));
         
-        if (direction.y > 0) {
-            local_support.y = extents.y;
-        } else if (direction.y < 0) {
-            local_support.y = -extents.y;
-        } else {
-            local_support.y = 0;
-        }
+        // 应用变换（旋转和缩放）
+        TVector3<T> world_support = mBox.mTransform.TransformVector(local_support);
         
-        if (direction.z > 0) {
-            local_support.z = extents.z;
-        } else if (direction.z < 0) {
-            local_support.z = -extents.z;
-        } else {
-            local_support.z = 0;
-        }
+        // 添加中心
+        world_support += mBox.mCenter;
         
-        // 应用变换并添加中心
-        TVector3<T> support = mBox.mTransform.TransformPoint(local_support) + mBox.mCenter;
-        
-        return Vector3(support.x, support.y, support.z);
+        return Vector3(world_support.x, world_support.y, world_support.z);
     }
 
     const TBox<T>& GetBox() const { return mBox; }
