@@ -270,6 +270,103 @@ TEST(VectorTest, Vector4Operators) {
     EXPECT_TRUE(FloatEqual(vec4_sub.y, 4.0f));
     EXPECT_TRUE(FloatEqual(vec4_sub.z, 4.0f));
     EXPECT_TRUE(FloatEqual(vec4_sub.w, 4.0f));
+    
+    // 测试标量乘法
+    Vec4 vec4_scalar = vec4_1 * 2.0f;
+    EXPECT_TRUE(FloatEqual(vec4_scalar.x, 2.0f));
+    EXPECT_TRUE(FloatEqual(vec4_scalar.y, 4.0f));
+    EXPECT_TRUE(FloatEqual(vec4_scalar.z, 6.0f));
+    EXPECT_TRUE(FloatEqual(vec4_scalar.w, 8.0f));
+    
+    // 测试标量除法
+    Vec4 vec4_div = vec4_1 / 2.0f;
+    EXPECT_TRUE(FloatEqual(vec4_div.x, 0.5f));
+    EXPECT_TRUE(FloatEqual(vec4_div.y, 1.0f));
+    EXPECT_TRUE(FloatEqual(vec4_div.z, 1.5f));
+    EXPECT_TRUE(FloatEqual(vec4_div.w, 2.0f));
+}
+
+TEST(VectorTest, Vector4CompoundOperators) {
+    Vec4 vec4_1(1.0f, 2.0f, 3.0f, 4.0f);
+    Vec4 vec4_2(5.0f, 6.0f, 7.0f, 8.0f);
+    
+    // 测试复合加法
+    Vec4 vec4_3 = vec4_1;
+    vec4_3 += vec4_2;
+    EXPECT_TRUE(FloatEqual(vec4_3.x, 6.0f));
+    EXPECT_TRUE(FloatEqual(vec4_3.y, 8.0f));
+    EXPECT_TRUE(FloatEqual(vec4_3.z, 10.0f));
+    EXPECT_TRUE(FloatEqual(vec4_3.w, 12.0f));
+    
+    // 测试复合减法
+    Vec4 vec4_4 = vec4_2;
+    vec4_4 -= vec4_1;
+    EXPECT_TRUE(FloatEqual(vec4_4.x, 4.0f));
+    EXPECT_TRUE(FloatEqual(vec4_4.y, 4.0f));
+    EXPECT_TRUE(FloatEqual(vec4_4.z, 4.0f));
+    EXPECT_TRUE(FloatEqual(vec4_4.w, 4.0f));
+    
+    // 测试复合乘法
+    Vec4 vec4_5 = vec4_1;
+    vec4_5 *= 2.0f;
+    EXPECT_TRUE(FloatEqual(vec4_5.x, 2.0f));
+    EXPECT_TRUE(FloatEqual(vec4_5.y, 4.0f));
+    EXPECT_TRUE(FloatEqual(vec4_5.z, 6.0f));
+    EXPECT_TRUE(FloatEqual(vec4_5.w, 8.0f));
+    
+    // 测试复合除法
+    Vec4 vec4_6 = vec4_1;
+    vec4_6 /= 2.0f;
+    EXPECT_TRUE(FloatEqual(vec4_6.x, 0.5f));
+    EXPECT_TRUE(FloatEqual(vec4_6.y, 1.0f));
+    EXPECT_TRUE(FloatEqual(vec4_6.z, 1.5f));
+    EXPECT_TRUE(FloatEqual(vec4_6.w, 2.0f));
+}
+
+TEST(VectorTest, Vector4UnaryMinus) {
+    Vec4 vec4_1(1.0f, 2.0f, 3.0f, 4.0f);
+    Vec4 vec4_neg = -vec4_1;
+    EXPECT_TRUE(FloatEqual(vec4_neg.x, -1.0f));
+    EXPECT_TRUE(FloatEqual(vec4_neg.y, -2.0f));
+    EXPECT_TRUE(FloatEqual(vec4_neg.z, -3.0f));
+    EXPECT_TRUE(FloatEqual(vec4_neg.w, -4.0f));
+}
+
+TEST(VectorTest, Vector4DotProduct) {
+    Vec4 vec4_1(1.0f, 2.0f, 3.0f, 4.0f);
+    Vec4 vec4_2(5.0f, 6.0f, 7.0f, 8.0f);
+    
+    float dot = vec4_1.Dot(vec4_2);
+    EXPECT_TRUE(FloatEqual(dot, 1.0f * 5.0f + 2.0f * 6.0f + 3.0f * 7.0f + 4.0f * 8.0f));
+    
+    float dotProduct = Vec4::DotProduct(vec4_1, vec4_2);
+    EXPECT_TRUE(FloatEqual(dotProduct, 1.0f * 5.0f + 2.0f * 6.0f + 3.0f * 7.0f + 4.0f * 8.0f));
+}
+
+TEST(VectorTest, Vector4Length) {
+    Vec4 vec4_1(1.0f, 2.0f, 3.0f, 4.0f);
+    
+    float lengthSquared = vec4_1.LengthSquared();
+    EXPECT_TRUE(FloatEqual(lengthSquared, 1.0f * 1.0f + 2.0f * 2.0f + 3.0f * 3.0f + 4.0f * 4.0f));
+    
+    float length = vec4_1.Length();
+    EXPECT_TRUE(FloatEqual(length, std::sqrt(30.0f)));
+}
+
+TEST(VectorTest, Vector4Normalize) {
+    Vec4 vec4_1(1.0f, 2.0f, 3.0f, 4.0f);
+    Vec4 normalized = vec4_1.Normalize();
+    EXPECT_TRUE(FloatEqual(normalized.Length(), 1.0f));
+}
+
+TEST(VectorTest, Vector4Lerp) {
+    Vec4 vec4_1(1.0f, 2.0f, 3.0f, 4.0f);
+    Vec4 vec4_2(5.0f, 6.0f, 7.0f, 8.0f);
+    Vec4 lerp = Vec4::Lerp(vec4_1, vec4_2, 0.5f);
+    EXPECT_TRUE(FloatEqual(lerp.x, 3.0f));
+    EXPECT_TRUE(FloatEqual(lerp.y, 4.0f));
+    EXPECT_TRUE(FloatEqual(lerp.z, 5.0f));
+    EXPECT_TRUE(FloatEqual(lerp.w, 6.0f));
 }
 
 } // namespace SympConvTest
