@@ -302,33 +302,105 @@ bool RayIntersectsSegment(const TRay<T>& ray, const TVector3<T>& start, const TV
     TVector3<T> dir = end - start;
     TVector3<T> q = ray.mOrigin - start;
     TVector3<T> cross = ray.mDirection.Cross(dir);
-    T dot = q.Dot(cross);
-
-    if (std::abs(dot) > T(1e-6)) {
-        return false;
+    
+    // 检查射线与线段是否平行
+    T crossLengthSquared = cross.LengthSquared();
+    if (crossLengthSquared > T(1e-6)) {
+        // 不平行，计算参数
+        T a = dir.Dot(dir);
+        if (a < T(1e-6)) {
+            // 线段退化为点
+            TVector3<T> v = start - ray.mOrigin;
+            t = v.Dot(ray.mDirection);
+            if (t < 0) {
+                return false;
+            }
+            TVector3<T> point = ray.mOrigin + ray.mDirection * t;
+            if ((point - start).LengthSquared() < T(1e-6)) {
+                s = 0;
+                return true;
+            }
+            return false;
+        }
+        
+        T b = dir.Dot(q);
+        s = b / a;
+        
+        if (s < 0 || s > 1) {
+            return false;
+        }
+        
+        TVector3<T> closest = start + dir * s;
+        TVector3<T> v = closest - ray.mOrigin;
+        t = v.Dot(ray.mDirection);
+        
+        if (t < 0) {
+            return false;
+        }
+        
+        return true;
+    } else {
+        // 平行，检查是否共线
+        TVector3<T> cross2 = q.Cross(ray.mDirection);
+        if (cross2.LengthSquared() > T(1e-6)) {
+            // 不共线，不相交
+            return false;
+        }
+        
+        // 共线，计算线段参数范围
+        T t0 = q.Dot(ray.mDirection);
+        T t1 = t0 + dir.Dot(ray.mDirection);
+        
+        // 检查射线方向与线段方向是否相同
+        T dotDir = ray.mDirection.Dot(dir);
+        if (dotDir > 0) {
+            // 同方向，射线从线段起点出发，不会与线段相交
+            if (t0 < 0 && t1 > 0) {
+                // 射线原点在线段内部
+                t = 0;
+                s = -t0 / (t1 - t0);
+                return true;
+            } else if (t0 >= 0) {
+                // 射线原点在线段前方，不相交
+                return false;
+            } else {
+                // 射线原点在线段后方，相交
+                t = -t0;
+                s = 0;
+                return true;
+            }
+        } else if (dotDir < 0) {
+            // 反方向，射线向线段方向延伸
+            if (t0 > 0 && t1 < 0) {
+                // 射线原点在线段内部
+                t = 0;
+                s = t0 / (t0 - t1);
+                return true;
+            } else if (t0 <= 0) {
+                // 射线原点在线段后方，不相交
+                return false;
+            } else {
+                // 射线原点在线段前方，相交
+                t = t0;
+                s = 0;
+                return true;
+            }
+        } else {
+            // 方向为零，检查射线原点是否在线段上
+            TVector3<T> originToStart = ray.mOrigin - start;
+            TVector3<T> originToEnd = ray.mOrigin - end;
+            T dotStart = originToStart.Dot(dir);
+            T dotEnd = originToEnd.Dot(dir);
+            
+            if (dotStart * dotEnd <= 0) {
+                // 原点在线段上
+                t = 0;
+                s = (dotStart < 0) ? 0 : 1;
+                return true;
+            }
+            return false;
+        }
     }
-
-    T a = dir.Dot(dir);
-    if (a < T(1e-6)) {
-        return false;
-    }
-
-    T b = dir.Dot(q);
-    s = b / a;
-
-    if (s < 0 || s > 1) {
-        return false;
-    }
-
-    TVector3<T> closest = start + dir * s;
-    TVector3<T> v = closest - ray.mOrigin;
-    t = v.Dot(ray.mDirection);
-
-    if (t < 0) {
-        return false;
-    }
-
-    return true;
 }
 
 /**
@@ -673,19 +745,23 @@ bool RayIntersectsCapsule(const TRay<T>& ray, const TCapsule<T>& capsule, T& t)
     
     if (std::abs(A) < T(1e-6)) {
         // 射线与胶囊体轴线平行
-        T t0 = -e / f;
-        if (t0 < 0) {
-            return false;
-        }
-        TVector3<T> point = ray.mOrigin + dir * t0;
-        TVector3<T> ap = point - capsule.mStart;
-        T tCapsule = ap.Dot(ab) / a;
-        tCapsule = std::max(T(0), std::min(T(1), tCapsule));
-        TVector3<T> closest = capsule.mStart + ab * tCapsule;
-        T distanceSquared = (point - closest).LengthSquared();
+        // 计算射线与两个端点球体的相交
+        TSphere<T> sphere1(capsule.mStart, capsule.mRadius);
+        TSphere<T> sphere2(capsule.mEnd, capsule.mRadius);
         
-        if (distanceSquared <= capsule.mRadius * capsule.mRadius) {
-            t = t0;
+        T tSphere1_1, tSphere1_2, tSphere2_1, tSphere2_2;
+        bool intersectSphere1 = RayIntersectsSphere(ray, sphere1.mCenter, sphere1.mRadius, tSphere1_1, tSphere1_2);
+        bool intersectSphere2 = RayIntersectsSphere(ray, sphere2.mCenter, sphere2.mRadius, tSphere2_1, tSphere2_2);
+        
+        if (intersectSphere1 || intersectSphere2) {
+            T minT = std::numeric_limits<T>::max();
+            if (intersectSphere1) {
+                minT = std::min(minT, tSphere1_1);
+            }
+            if (intersectSphere2) {
+                minT = std::min(minT, tSphere2_1);
+            }
+            t = minT;
             return true;
         }
         return false;

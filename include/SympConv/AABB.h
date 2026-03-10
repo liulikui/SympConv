@@ -210,9 +210,9 @@ public:
      */
     bool Intersects(const TAABB<T>& other) const
     {
-        return !(mMin.x >= other.mMax.x || mMax.x <= other.mMin.x ||
-                 mMin.y >= other.mMax.y || mMax.y <= other.mMin.y ||
-                 mMin.z >= other.mMax.z || mMax.z <= other.mMin.z);
+        return !(mMin.x > other.mMax.x || mMax.x < other.mMin.x ||
+                 mMin.y > other.mMax.y || mMax.y < other.mMin.y ||
+                 mMin.z > other.mMax.z || mMax.z < other.mMin.z);
     }
 
     /**
