@@ -221,9 +221,15 @@ public:
         scale.z = TVector3<T>(rotScaleMat.mRows[2].x, rotScaleMat.mRows[2].y, rotScaleMat.mRows[2].z).Length();
         
         // 确保缩放因子不为零
-        if (scale.x < T(1e-6)) scale.x = T(1);
-        if (scale.y < T(1e-6)) scale.y = T(1);
-        if (scale.z < T(1e-6)) scale.z = T(1);
+        if (scale.x < T(1e-6)) {
+            scale.x = T(1);
+        }
+        if (scale.y < T(1e-6)) {
+            scale.y = T(1);
+        }
+        if (scale.z < T(1e-6)) {
+            scale.z = T(1);
+        }
         
         transform.mScale = scale;
         

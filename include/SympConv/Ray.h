@@ -144,8 +144,11 @@ public:
             t = (a * d - c * b) / det;
         }
 
-        if (s < 0) s = 0;
-        else if (s > 1) s = 1;
+        if (s < 0) {
+            s = 0;
+        } else if (s > 1) {
+            s = 1;
+        }
 
         if (t < 0) {
             TVector3<T> closestPoint = start + dir * s;
