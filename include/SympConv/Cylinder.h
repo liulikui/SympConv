@@ -100,8 +100,15 @@ public:
     bool Contains(const TVector3<T>& point) const
     {
         TVector3<T> ab = mEnd - mStart;
+        T abDotAb = ab.Dot(ab);
+        
+        // 处理长度为0的圆柱体（退化为球体）
+        if (abDotAb < std::numeric_limits<T>::epsilon()) {
+            return (point - mStart).LengthSquared() <= mRadius * mRadius;
+        }
+        
         TVector3<T> ap = point - mStart;
-        T t = ap.Dot(ab) / ab.Dot(ab);
+        T t = ap.Dot(ab) / abDotAb;
         
         // 检查点是否在圆柱体的轴线方向范围内
         if (t < 0 || t > 1) {
