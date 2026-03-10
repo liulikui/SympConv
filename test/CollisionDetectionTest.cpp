@@ -6,6 +6,7 @@
 #include "SympConv/Plane.h"
 #include "SympConv/Box.h"
 #include "SympConv/Sphere.h"
+#include "SympConv/Cylinder.h"
 #include "SympConv/Quaternion.h"
 #include "TestUtils.h"
 
@@ -18,6 +19,7 @@ using Plane = SympConv::Plane;
 using Box = SympConv::Box;
 using Sphere = SympConv::Sphere;
 using Capsule = SympConv::Capsule;
+using Cylinder = SympConv::Cylinder;
 using Segment = SympConv::Segment;
 using Quaternion = SympConv::Quaternion;
 
@@ -910,6 +912,220 @@ TEST(CollisionDetectionTest, CapsuleIntersectsCapsule) {
     Capsule capsule13(start13, end13, radius13);
     
     EXPECT_TRUE(SympConv::CapsuleIntersectsCapsule(capsule12, capsule13));
+}
+
+TEST(CollisionDetectionTest, RayIntersectsCylinder) {
+    Vec3 start(0.0f, 0.0f, 0.0f);
+    Vec3 end(0.0f, 0.0f, 2.0f);
+    float radius = 1.0f;
+    Cylinder cylinder(start, end, radius);
+    
+    // 从圆柱体前面发射的射线
+    Ray ray1(Vec3(0.0f, 0.0f, -2.0f), Vec3(0.0f, 0.0f, 1.0f));
+    float t1;
+    EXPECT_TRUE(SympConv::RayIntersectsCylinder(ray1, cylinder, t1));
+    EXPECT_TRUE(FloatEqual(t1, 1.0f)); // 射线从z=-2到圆柱体表面z=-1，距离为1
+    
+    // 从圆柱体后面发射的射线
+    Ray ray2(Vec3(0.0f, 0.0f, 4.0f), Vec3(0.0f, 0.0f, -1.0f));
+    float t2;
+    EXPECT_TRUE(SympConv::RayIntersectsCylinder(ray2, cylinder, t2));
+    EXPECT_TRUE(FloatEqual(t2, 1.0f)); // 射线从z=4到圆柱体表面z=3，距离为1
+    
+    // 不相交的射线
+    Ray ray3(Vec3(2.0f, 2.0f, 2.0f), Vec3(1.0f, 1.0f, 1.0f));
+    float t3;
+    EXPECT_FALSE(SympConv::RayIntersectsCylinder(ray3, cylinder, t3));
+    
+    // 非AliasAxis情况：射线与倾斜的圆柱体相交
+    Vec3 start4(0.0f, 0.0f, 0.0f);
+    Vec3 end4(2.0f, 2.0f, 2.0f);
+    float radius4 = 0.2f; // 减小半径，使圆柱体更细
+    Cylinder cylinder4(start4, end4, radius4);
+    
+    Ray ray4(Vec3(1.0f, 0.0f, 1.0f), Vec3(0.0f, 1.0f, 0.0f));
+    float t4;
+    EXPECT_TRUE(SympConv::RayIntersectsCylinder(ray4, cylinder4, t4));
+    EXPECT_TRUE(t4 >= 0.0f); // t值应该非负
+    
+    // 非AliasAxis情况：射线与倾斜的圆柱体不相交
+    Ray ray5(Vec3(5.0f, 5.0f, 5.0f), Vec3(1.0f, 0.0f, 0.0f)); // 方向沿着x轴正方向，远离圆柱体
+    float t5;
+    EXPECT_FALSE(SympConv::RayIntersectsCylinder(ray5, cylinder4, t5));
+    
+    // Corner case: 射线与圆柱体的端点相交
+    Ray rayCylinderEndpoint(Vec3(1.0f, 0.0f, 0.0f), Vec3(-1.0f, 0.0f, 0.0f)); // 指向圆柱体的起点
+    float tCylinderEndpoint;
+    EXPECT_TRUE(SympConv::RayIntersectsCylinder(rayCylinderEndpoint, cylinder, tCylinderEndpoint));
+    EXPECT_TRUE(FloatEqual(tCylinderEndpoint, 0.0f)); // 射线原点在圆柱体表面
+    
+    // Corner case: 射线与圆柱体的轴线相交
+    Ray rayCylinderAxis(Vec3(0.0f, 0.5f, 1.0f), Vec3(0.0f, -1.0f, 0.0f)); // 垂直于轴线
+    float tCylinderAxis;
+    EXPECT_TRUE(SympConv::RayIntersectsCylinder(rayCylinderAxis, cylinder, tCylinderAxis));
+    EXPECT_TRUE(FloatEqual(tCylinderAxis, 1.5f)); // 射线从y=0.5到圆柱体表面y=-0.5，距离为1.5
+    
+    // Corner case: 射线与圆柱体相切
+    Ray rayCylinderTangent(Vec3(1.0f, 0.0f, -1.0f), Vec3(0.0f, 0.0f, 1.0f)); // 距离刚好等于半径，从圆柱体前方发射
+    float tCylinderTangent;
+    EXPECT_TRUE(SympConv::RayIntersectsCylinder(rayCylinderTangent, cylinder, tCylinderTangent));
+    EXPECT_TRUE(tCylinderTangent >= 0.0f); // t值应该非负
+    
+    // Corner case: 射线原点在圆柱体内
+    Ray rayCylinderInside(Vec3(0.0f, 0.0f, 1.0f), Vec3(1.0f, 0.0f, 0.0f)); // 原点在圆柱体内
+    float tCylinderInside;
+    EXPECT_TRUE(SympConv::RayIntersectsCylinder(rayCylinderInside, cylinder, tCylinderInside));
+    EXPECT_TRUE(FloatEqual(tCylinderInside, 1.0f)); // 射线从圆柱体中心到表面，距离为1
+    
+    // Corner case: 射线几乎平行于圆柱体轴线
+    Ray rayCylinderAlmostParallel(Vec3(1.0f, 0.0f, -2.0f), Vec3(0.0f, 0.0f, 1.0f)); // 几乎平行
+    float tCylinderParallel;
+    EXPECT_TRUE(SympConv::RayIntersectsCylinder(rayCylinderAlmostParallel, cylinder, tCylinderParallel));
+    EXPECT_TRUE(tCylinderParallel >= 0.0f); // t值应该非负
+}
+
+TEST(CollisionDetectionTest, PlaneIntersectsCylinder) {
+    Vec3 start(0.0f, 0.0f, 0.0f);
+    Vec3 end(0.0f, 0.0f, 2.0f);
+    float radius = 1.0f;
+    Cylinder cylinder(start, end, radius);
+    
+    // 与圆柱体相交的平面
+    Plane plane1(Vec3(0.0f, 1.0f, 0.0f), Vec3(0.0f, 0.0f, 1.0f));
+    EXPECT_TRUE(SympConv::PlaneIntersectsCylinder(plane1, cylinder));
+    
+    // 与圆柱体不相交的平面
+    Plane plane2(Vec3(0.0f, 1.0f, 0.0f), Vec3(0.0f, 2.0f, 1.0f));
+    EXPECT_FALSE(SympConv::PlaneIntersectsCylinder(plane2, cylinder));
+    
+    // 非AliasAxis情况：平面与倾斜的圆柱体相交
+    Vec3 start4(0.0f, 0.0f, 0.0f);
+    Vec3 end4(2.0f, 2.0f, 2.0f);
+    float radius4 = 0.5f;
+    Cylinder cylinder4(start4, end4, radius4);
+    
+    Plane plane3(Vec3(1.0f, 1.0f, 1.0f), Vec3(1.0f, 1.0f, 1.0f));
+    EXPECT_TRUE(SympConv::PlaneIntersectsCylinder(plane3, cylinder4));
+    
+    // 非AliasAxis情况：平面与倾斜的圆柱体不相交
+    Plane plane4(Vec3(1.0f, 1.0f, 1.0f), Vec3(3.0f, 3.0f, 3.0f));
+    EXPECT_FALSE(SympConv::PlaneIntersectsCylinder(plane4, cylinder4));
+}
+
+TEST(CollisionDetectionTest, SphereIntersectsCylinder) {
+    Vec3 start(0.0f, 0.0f, 0.0f);
+    Vec3 end(0.0f, 0.0f, 2.0f);
+    float radius = 1.0f;
+    Cylinder cylinder(start, end, radius);
+    
+    // 与圆柱体相交的球体
+    Sphere sphere1(Vec3(0.0f, 0.0f, 1.0f), 0.5f);
+    EXPECT_TRUE(SympConv::SphereIntersectsCylinder(sphere1, cylinder));
+    
+    // 与圆柱体不相交的球体
+    Sphere sphere2(Vec3(2.0f, 2.0f, 1.0f), 0.5f);
+    EXPECT_FALSE(SympConv::SphereIntersectsCylinder(sphere2, cylinder));
+    
+    // 非AliasAxis情况：球体与倾斜的圆柱体相交
+    Vec3 start4(0.0f, 0.0f, 0.0f);
+    Vec3 end4(2.0f, 2.0f, 2.0f);
+    float radius4 = 0.5f;
+    Cylinder cylinder4(start4, end4, radius4);
+    
+    Sphere sphere3(Vec3(1.0f, 1.0f, 1.0f), 0.3f);
+    EXPECT_TRUE(SympConv::SphereIntersectsCylinder(sphere3, cylinder4));
+    
+    // 非AliasAxis情况：球体与倾斜的圆柱体不相交
+    Sphere sphere4(Vec3(3.0f, 3.0f, 3.0f), 0.3f);
+    EXPECT_FALSE(SympConv::SphereIntersectsCylinder(sphere4, cylinder4));
+}
+
+TEST(CollisionDetectionTest, CylinderIntersectsCylinder) {
+    // 相交的两个圆柱体
+    Vec3 start1(0.0f, 0.0f, 0.0f);
+    Vec3 end1(0.0f, 0.0f, 2.0f);
+    float radius1 = 1.0f;
+    Cylinder cylinder1(start1, end1, radius1);
+    
+    Vec3 start2(1.0f, 0.0f, 1.0f);
+    Vec3 end2(1.0f, 0.0f, 3.0f);
+    float radius2 = 1.0f;
+    Cylinder cylinder2(start2, end2, radius2);
+    
+    EXPECT_TRUE(SympConv::CylinderIntersectsCylinder(cylinder1, cylinder2));
+    
+    // 不相交的两个圆柱体
+    Vec3 start3(3.0f, 0.0f, 0.0f);
+    Vec3 end3(3.0f, 0.0f, 2.0f);
+    float radius3 = 0.5f;
+    Cylinder cylinder3(start3, end3, radius3);
+    
+    EXPECT_FALSE(SympConv::CylinderIntersectsCylinder(cylinder1, cylinder3));
+    
+    // 非AliasAxis情况：两个圆柱体在x-y平面内相交
+    Vec3 start4(0.0f, 0.0f, 0.0f);
+    Vec3 end4(2.0f, 2.0f, 0.0f);
+    float radius4 = 0.5f;
+    Cylinder cylinder4(start4, end4, radius4);
+    
+    Vec3 start5(2.0f, 0.0f, 0.0f);
+    Vec3 end5(0.0f, 2.0f, 0.0f);
+    float radius5 = 0.5f;
+    Cylinder cylinder5(start5, end5, radius5);
+    
+    EXPECT_TRUE(SympConv::CylinderIntersectsCylinder(cylinder4, cylinder5));
+    
+    // 非AliasAxis情况：两个圆柱体在空间中交叉
+    Vec3 start6(0.0f, 0.0f, 0.0f);
+    Vec3 end6(2.0f, 2.0f, 2.0f);
+    float radius6 = 0.5f;
+    Cylinder cylinder6(start6, end6, radius6);
+    
+    Vec3 start7(2.0f, 0.0f, 0.0f);
+    Vec3 end7(0.0f, 2.0f, 2.0f);
+    float radius7 = 0.5f;
+    Cylinder cylinder7(start7, end7, radius7);
+    
+    EXPECT_TRUE(SympConv::CylinderIntersectsCylinder(cylinder6, cylinder7));
+    
+    // 非AliasAxis情况：两个圆柱体倾斜不相交
+    Vec3 start8(0.0f, 0.0f, 0.0f);
+    Vec3 end8(1.0f, 1.0f, 1.0f);
+    float radius8 = 0.3f;
+    Cylinder cylinder8(start8, end8, radius8);
+    
+    Vec3 start9(2.0f, 2.0f, 2.0f);
+    Vec3 end9(3.0f, 3.0f, 3.0f);
+    float radius9 = 0.3f;
+    Cylinder cylinder9(start9, end9, radius9);
+    
+    EXPECT_FALSE(SympConv::CylinderIntersectsCylinder(cylinder8, cylinder9));
+    
+    // Corner case: 两个圆柱体相切
+    Vec3 start10(0.0f, 0.0f, 0.0f);
+    Vec3 end10(0.0f, 0.0f, 2.0f);
+    float radius10 = 1.0f;
+    Cylinder cylinder10(start10, end10, radius10);
+    
+    Vec3 start11(2.0f, 0.0f, 1.0f);
+    Vec3 end11(2.0f, 0.0f, 3.0f);
+    float radius11 = 1.0f;
+    Cylinder cylinder11(start11, end11, radius11);
+    
+    EXPECT_TRUE(SympConv::CylinderIntersectsCylinder(cylinder10, cylinder11));
+    
+    // Corner case: 两个圆柱体端点接触
+    Vec3 start12(0.0f, 0.0f, 0.0f);
+    Vec3 end12(0.0f, 0.0f, 2.0f);
+    float radius12 = 1.0f;
+    Cylinder cylinder12(start12, end12, radius12);
+    
+    Vec3 start13(0.0f, 0.0f, 2.0f);
+    Vec3 end13(0.0f, 0.0f, 4.0f);
+    float radius13 = 1.0f;
+    Cylinder cylinder13(start13, end13, radius13);
+    
+    EXPECT_TRUE(SympConv::CylinderIntersectsCylinder(cylinder12, cylinder13));
 }
 
 } // namespace SympConvTest

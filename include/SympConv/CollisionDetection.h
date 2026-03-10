@@ -8,6 +8,7 @@
 #include "Box.h"
 #include "Sphere.h"
 #include "Capsule.h"
+#include "Cylinder.h"
 #include "Segment.h"
 #include <type_traits>
 #include <limits>
@@ -1026,6 +1027,346 @@ bool CapsuleIntersectsCapsule(const TCapsule<T>& capsule1, const TCapsule<T>& ca
     TVector3<T> closest2 = q1 + d2 * t;
     T distanceSquared = (closest1 - closest2).LengthSquared();
     T radiusSum = capsule1.mRadius + capsule2.mRadius;
+    
+    return distanceSquared <= radiusSum * radiusSum;
+}
+
+/**
+ * @brief 计算射线与圆柱体的相交
+ * @tparam T 浮点类型，如float、double
+ * @param ray 射线
+ * @param cylinder 圆柱体
+ * @param t 相交参数
+ * @return 是否相交
+ */
+template<typename T>
+bool RayIntersectsCylinder(const TRay<T>& ray, const TCylinder<T>& cylinder, T& t)
+{
+    static_assert(std::is_floating_point_v<T>, "T must be floating point");
+    
+    TVector3<T> ab = cylinder.mEnd - cylinder.mStart;
+    TVector3<T> ao = ray.mOrigin - cylinder.mStart;
+    TVector3<T> dir = ray.mDirection;
+    
+    T a = ab.Dot(ab);
+    T b = ao.Dot(ab);
+    T c = ao.Dot(ao) - cylinder.mRadius * cylinder.mRadius;
+    T d = dir.Dot(ab);
+    T e = dir.Dot(ao);
+    T f = dir.Dot(dir);
+    
+    // 二次方程系数
+    T A = a * f - d * d;
+    T B = 2 * (a * e - b * d);
+    T C = a * c - b * b;
+    
+    if (std::abs(A) < T(1e-6)) {
+        // 射线与圆柱体轴线平行
+        // 计算射线到轴线的距离
+        TVector3<T> cross = ao.Cross(ab);
+        T distance = cross.Length() / ab.Length();
+        
+        // 如果距离大于半径，不相交
+        if (distance > cylinder.mRadius) {
+            return false;
+        }
+        
+        // 检查射线是否与圆柱体的端点球体相交
+        TVector3<T> center1 = cylinder.mStart;
+        TVector3<T> center2 = cylinder.mEnd;
+        T radius = cylinder.mRadius;
+        
+        T tSphere1_1, tSphere1_2, tSphere2_1, tSphere2_2;
+        bool intersectSphere1 = RayIntersectsSphere(ray, center1, radius, tSphere1_1, tSphere1_2);
+        bool intersectSphere2 = RayIntersectsSphere(ray, center2, radius, tSphere2_1, tSphere2_2);
+        
+        if (intersectSphere1 || intersectSphere2) {
+            T minT = std::numeric_limits<T>::max();
+            if (intersectSphere1 && tSphere1_1 >= 0) {
+                minT = std::min(minT, tSphere1_1);
+            }
+            if (intersectSphere2 && tSphere2_1 >= 0) {
+                minT = std::min(minT, tSphere2_1);
+            }
+            if (minT != std::numeric_limits<T>::max()) {
+                t = minT;
+                return true;
+            }
+        }
+        
+        // 检查射线是否在圆柱体内
+        TVector3<T> point = ray.mOrigin;
+        TVector3<T> ap = point - cylinder.mStart;
+        T tCylinder = ap.Dot(ab) / a;
+        
+        if (tCylinder >= 0 && tCylinder <= 1) {
+            t = 0;
+            return true;
+        }
+        
+        return false;
+    }
+    
+    T discriminant = B * B - 4 * A * C;
+    if (discriminant < 0) {
+        return false;
+    }
+    
+    T sqrtDiscriminant = std::sqrt(discriminant);
+    T t1 = (-B - sqrtDiscriminant) / (2 * A);
+    T t2 = (-B + sqrtDiscriminant) / (2 * A);
+    
+    if (t1 > t2) {
+        std::swap(t1, t2);
+    }
+    
+    if (t2 < 0) {
+        return false;
+    }
+    
+    // 找到最小的非负t值
+    T tMin = t1;
+    if (tMin < 0) {
+        tMin = t2;
+    }
+    
+    // 检查交点是否在圆柱体的线段上
+    TVector3<T> point = ray.mOrigin + dir * tMin;
+    TVector3<T> ap = point - cylinder.mStart;
+    T tCylinder = ap.Dot(ab) / a;
+    
+    if (tCylinder >= 0 && tCylinder <= 1) {
+        t = tMin;
+        return true;
+    }
+    
+    // 检查是否与圆柱体的端点相交
+    // 计算射线与两个端点球体的相交
+    TVector3<T> center1 = cylinder.mStart;
+    TVector3<T> center2 = cylinder.mEnd;
+    T radius = cylinder.mRadius;
+    
+    T tSphere1_1, tSphere1_2, tSphere2_1, tSphere2_2;
+    bool intersectSphere1 = RayIntersectsSphere(ray, center1, radius, tSphere1_1, tSphere1_2);
+    bool intersectSphere2 = RayIntersectsSphere(ray, center2, radius, tSphere2_1, tSphere2_2);
+    
+    if (intersectSphere1 || intersectSphere2) {
+        T minT = std::numeric_limits<T>::max();
+        if (intersectSphere1 && tSphere1_1 >= 0) {
+            minT = std::min(minT, tSphere1_1);
+        }
+        if (intersectSphere2 && tSphere2_1 >= 0) {
+            minT = std::min(minT, tSphere2_1);
+        }
+        if (minT != std::numeric_limits<T>::max()) {
+            t = minT;
+            return true;
+        }
+    }
+    
+    // 特殊处理沿着圆柱体轴线方向的射线
+    // 检查射线是否与圆柱体的端点相交
+    if (std::abs(dir.Dot(ab.Normalize())) > 0.999f) {
+        // 射线与圆柱体轴线几乎重合
+        // 检查射线原点是否在圆柱体内
+        TVector3<T> point = ray.mOrigin;
+        TVector3<T> ap = point - cylinder.mStart;
+        T tCylinder = ap.Dot(ab) / a;
+        
+        if (tCylinder >= 0 && tCylinder <= 1) {
+            t = 0;
+            return true;
+        }
+        
+        // 计算射线与圆柱体端点的距离
+        T distanceToStart = (ray.mOrigin - cylinder.mStart).Length();
+        T distanceToEnd = (ray.mOrigin - cylinder.mEnd).Length();
+        
+        if (distanceToStart <= cylinder.mRadius) {
+            // 射线原点在起始端点球体内
+            t = 0;
+            return true;
+        }
+        
+        if (distanceToEnd <= cylinder.mRadius) {
+            // 射线原点在结束端点球体内
+            t = 0;
+            return true;
+        }
+        
+        // 计算射线是否会进入圆柱体
+        TVector3<T> dirNormalized = dir.Normalize();
+        TVector3<T> abNormalized = ab.Normalize();
+        
+        if (dirNormalized.Dot(abNormalized) > 0) {
+            // 射线沿着圆柱体轴线正方向
+            // 计算射线到起始端点的距离
+            T tStart = (cylinder.mStart - ray.mOrigin).Dot(dirNormalized);
+            if (tStart >= 0) {
+                t = tStart;
+                return true;
+            }
+        } else {
+            // 射线沿着圆柱体轴线负方向
+            // 计算射线到结束端点的距离
+            T tEnd = (cylinder.mEnd - ray.mOrigin).Dot(dirNormalized);
+            if (tEnd >= 0) {
+                t = tEnd;
+                return true;
+            }
+        }
+    }
+    
+    return false;
+}
+
+/**
+ * @brief 计算射线与圆柱体的相交
+ * @tparam T 浮点类型，如float、double
+ * @param ray 射线
+ * @param cylinder 圆柱体
+ * @return 是否相交
+ */
+template<typename T>
+bool RayIntersectsCylinder(const TRay<T>& ray, const TCylinder<T>& cylinder)
+{
+    static_assert(std::is_floating_point_v<T>, "T must be floating point");
+    
+    T t;
+    return RayIntersectsCylinder(ray, cylinder, t);
+}
+
+/**
+ * @brief 计算平面与圆柱体的相交
+ * @tparam T 浮点类型，如float、double
+ * @param plane 平面
+ * @param cylinder 圆柱体
+ * @return 是否相交
+ */
+template<typename T>
+bool PlaneIntersectsCylinder(const TPlane<T>& plane, const TCylinder<T>& cylinder)
+{
+    static_assert(std::is_floating_point_v<T>, "T must be floating point");
+    
+    // 计算圆柱体两个端点到平面的距离
+    T distanceStart = plane.DistanceTo(cylinder.mStart);
+    T distanceEnd = plane.DistanceTo(cylinder.mEnd);
+    
+    // 如果两个端点都在平面的同一侧，且距离大于半径，则不相交
+    if (distanceStart > cylinder.mRadius && distanceEnd > cylinder.mRadius) {
+        return false;
+    }
+    if (distanceStart < -cylinder.mRadius && distanceEnd < -cylinder.mRadius) {
+        return false;
+    }
+    
+    // 否则相交
+    return true;
+}
+
+/**
+ * @brief 计算球体与圆柱体的相交
+ * @tparam T 浮点类型，如float、double
+ * @param sphere 球体
+ * @param cylinder 圆柱体
+ * @return 是否相交
+ */
+template<typename T>
+bool SphereIntersectsCylinder(const TSphere<T>& sphere, const TCylinder<T>& cylinder)
+{
+    static_assert(std::is_floating_point_v<T>, "T must be floating point");
+    
+    // 计算球体中心到圆柱体线段的最短距离
+    TVector3<T> ab = cylinder.mEnd - cylinder.mStart;
+    TVector3<T> ao = sphere.mCenter - cylinder.mStart;
+    T t = ao.Dot(ab) / ab.Dot(ab);
+    t = std::max(T(0), std::min(T(1), t));
+    TVector3<T> closest = cylinder.mStart + ab * t;
+    
+    // 计算距离的平方
+    T distanceSquared = (sphere.mCenter - closest).LengthSquared();
+    
+    // 检查距离是否小于等于球体和圆柱体半径之和的平方
+    T radiusSum = sphere.mRadius + cylinder.mRadius;
+    return distanceSquared <= radiusSum * radiusSum;
+}
+
+/**
+ * @brief 计算圆柱体与圆柱体的相交
+ * @tparam T 浮点类型，如float、double
+ * @param cylinder1 第一个圆柱体
+ * @param cylinder2 第二个圆柱体
+ * @return 是否相交
+ */
+template<typename T>
+bool CylinderIntersectsCylinder(const TCylinder<T>& cylinder1, const TCylinder<T>& cylinder2)
+{
+    static_assert(std::is_floating_point_v<T>, "T must be floating point");
+    
+    // 计算两个线段之间的最短距离
+    TVector3<T> p1 = cylinder1.mStart;
+    TVector3<T> p2 = cylinder1.mEnd;
+    TVector3<T> q1 = cylinder2.mStart;
+    TVector3<T> q2 = cylinder2.mEnd;
+    
+    TVector3<T> d1 = p2 - p1;
+    TVector3<T> d2 = q2 - q1;
+    TVector3<T> r = p1 - q1;
+    
+    T a = d1.Dot(d1);
+    T e = d2.Dot(d2);
+    T f = d2.Dot(r);
+    
+    T s, t;
+    
+    if (a <= T(1e-6) && e <= T(1e-6)) {
+        // 两个圆柱体都是圆形
+        TVector3<T> delta = p1 - q1;
+        T distanceSquared = delta.LengthSquared();
+        T radiusSum = cylinder1.mRadius + cylinder2.mRadius;
+        return distanceSquared <= radiusSum * radiusSum;
+    }
+    
+    if (a <= T(1e-6)) {
+        // 第一个圆柱体是圆形
+        s = 0;
+        t = f / e;
+        t = std::max(T(0), std::min(T(1), t));
+    } else if (e <= T(1e-6)) {
+        // 第二个圆柱体是圆形
+        t = 0;
+        s = -(d1.Dot(r)) / a;
+        s = std::max(T(0), std::min(T(1), s));
+    } else {
+        T c = d1.Dot(r);
+        T b = d1.Dot(d2);
+        T denom = a * e - b * b;
+        
+        if (denom != 0) {
+            s = (b * f - c * e) / denom;
+            s = std::max(T(0), std::min(T(1), s));
+        } else {
+            s = 0;
+        }
+        
+        t = (b * s + f) / e;
+        t = std::max(T(0), std::min(T(1), t));
+        
+        // 调整s以确保t在范围内
+        T s_prev = s;
+        s = (b * t - c) / a;
+        s = std::max(T(0), std::min(T(1), s));
+        
+        if (s != s_prev) {
+            t = (b * s + f) / e;
+            t = std::max(T(0), std::min(T(1), t));
+        }
+    }
+    
+    TVector3<T> closest1 = p1 + d1 * s;
+    TVector3<T> closest2 = q1 + d2 * t;
+    T distanceSquared = (closest1 - closest2).LengthSquared();
+    T radiusSum = cylinder1.mRadius + cylinder2.mRadius;
     
     return distanceSquared <= radiusSum * radiusSum;
 }
