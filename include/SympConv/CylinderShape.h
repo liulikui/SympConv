@@ -6,13 +6,27 @@
 
 namespace SympConv {
 
+/**
+ * @brief 圆柱体形状模板类
+ * @details 实现了圆柱体的凸形状接口，用于碰撞检测等场景
+ * @tparam T 浮点类型，如float、double
+ */
 template<typename T>
 class TCylinderShape : public TConvexShape<T>
 {
 public:
+    /**
+     * @brief 构造函数
+     * @param cylinder 圆柱体对象
+     */
     TCylinderShape(const TCylinder<T>& cylinder) :
         TConvexShape<T>(EConvexShapeType::Cylinder), mCylinder(cylinder) {}
 
+    /**
+     * @brief 获取在指定方向上的支持点
+     * @param direction 方向向量
+     * @return 支持点
+     */
     Vector3 GetSupport(const Vector3& direction) const override
     {
         TVector3<T> start = mCylinder.mStart;
@@ -52,16 +66,20 @@ public:
         return Vector3(support.x, support.y, support.z);
     }
 
+    /**
+     * @brief 获取圆柱体对象
+     * @return 圆柱体对象的常量引用
+     */
     const TCylinder<T>& GetCylinder() const { return mCylinder; }
 
 private:
-    TCylinder<T> mCylinder;
+    TCylinder<T> mCylinder; ///< 圆柱体对象
 };
 
 // 类型别名
-typedef TCylinderShape<float> CylinderShapef;
-typedef TCylinderShape<double> CylinderShaped;
-typedef TCylinderShape<fpnumber> CylinderShape;
+typedef TCylinderShape<float> CylinderShapef;  ///< 单精度圆柱体形状
+typedef TCylinderShape<double> CylinderShaped; ///< 双精度圆柱体形状
+typedef TCylinderShape<fpnumber> CylinderShape; ///< 根据配置的精度圆柱体形状
 
 } // namespace SympConv
 

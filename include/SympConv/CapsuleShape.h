@@ -6,13 +6,27 @@
 
 namespace SympConv {
 
+/**
+ * @brief 胶囊体形状模板类
+ * @details 实现了胶囊体的凸形状接口，用于碰撞检测等场景
+ * @tparam T 浮点类型，如float、double
+ */
 template<typename T>
 class TCapsuleShape : public TConvexShape<T>
 {
 public:
+    /**
+     * @brief 构造函数
+     * @param capsule 胶囊体对象
+     */
     TCapsuleShape(const TCapsule<T>& capsule) :
         TConvexShape<T>(EConvexShapeType::Capsule), mCapsule(capsule) {}
 
+    /**
+     * @brief 获取在指定方向上的支持点
+     * @param direction 方向向量
+     * @return 支持点
+     */
     Vector3 GetSupport(const Vector3& direction) const override
     {
         TVector3<T> start = mCapsule.mStart;
@@ -53,16 +67,20 @@ public:
         return Vector3(support.x, support.y, support.z);
     }
 
+    /**
+     * @brief 获取胶囊体对象
+     * @return 胶囊体对象的常量引用
+     */
     const TCapsule<T>& GetCapsule() const { return mCapsule; }
 
 private:
-    TCapsule<T> mCapsule;
+    TCapsule<T> mCapsule; ///< 胶囊体对象
 };
 
 // 类型别名
-typedef TCapsuleShape<float> CapsuleShapef;
-typedef TCapsuleShape<double> CapsuleShaped;
-typedef TCapsuleShape<fpnumber> CapsuleShape;
+typedef TCapsuleShape<float> CapsuleShapef;  ///< 单精度胶囊体形状
+typedef TCapsuleShape<double> CapsuleShaped; ///< 双精度胶囊体形状
+typedef TCapsuleShape<fpnumber> CapsuleShape; ///< 根据配置的精度胶囊体形状
 
 } // namespace SympConv
 

@@ -6,13 +6,27 @@
 
 namespace SympConv {
 
+/**
+ * @brief 圆锥体形状模板类
+ * @details 实现了圆锥体的凸形状接口，用于碰撞检测等场景
+ * @tparam T 浮点类型，如float、double
+ */
 template<typename T>
 class TConeShape : public TConvexShape<T>
 {
 public:
+    /**
+     * @brief 构造函数
+     * @param cone 圆锥体对象
+     */
     TConeShape(const TCone<T>& cone) :
         TConvexShape<T>(EConvexShapeType::Cone), mCone(cone) {}
 
+    /**
+     * @brief 获取在指定方向上的支持点
+     * @param direction 方向向量
+     * @return 支持点
+     */
     Vector3 GetSupport(const Vector3& direction) const override
     {
         TVector3<T> vertex = mCone.mVertex;
@@ -56,16 +70,20 @@ public:
         return Vector3(support.x, support.y, support.z);
     }
 
+    /**
+     * @brief 获取圆锥体对象
+     * @return 圆锥体对象的常量引用
+     */
     const TCone<T>& GetCone() const { return mCone; }
 
 private:
-    TCone<T> mCone;
+    TCone<T> mCone; ///< 圆锥体对象
 };
 
 // 类型别名
-typedef TConeShape<float> ConeShapef;
-typedef TConeShape<double> ConeShaped;
-typedef TConeShape<fpnumber> ConeShape;
+typedef TConeShape<float> ConeShapef;  ///< 单精度圆锥体形状
+typedef TConeShape<double> ConeShaped; ///< 双精度圆锥体形状
+typedef TConeShape<fpnumber> ConeShape; ///< 根据配置的精度圆锥体形状
 
 } // namespace SympConv
 
