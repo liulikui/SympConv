@@ -674,6 +674,9 @@ bool RayIntersectsCapsule(const TRay<T>& ray, const TCapsule<T>& capsule, T& t)
     if (std::abs(A) < T(1e-6)) {
         // 射线与胶囊体轴线平行
         T t0 = -e / f;
+        if (t0 < 0) {
+            return false;
+        }
         TVector3<T> point = ray.mOrigin + dir * t0;
         TVector3<T> ap = point - capsule.mStart;
         T tCapsule = ap.Dot(ab) / a;
