@@ -116,23 +116,6 @@ TEST(PlaneTest, IntersectsRay) {
     EXPECT_FALSE(SympConv::RayIntersectsPlane(ray3, plane, t3));
 }
 
-TEST(PlaneTest, IntersectPlanes) {
-    // 两个相交的平面
-    Plane plane1(1.0f, 0.0f, 0.0f, -1.0f); // x=1平面
-    Plane plane2(0.0f, 1.0f, 0.0f, -1.0f); // y=1平面
-    
-    Vec3 lineOrigin, lineDirection;
-    EXPECT_TRUE(plane1.Intersect(plane2, lineOrigin, lineDirection));
-    
-    // 交线应该是x=1, y=1, z任意
-    EXPECT_TRUE(FloatEqual(lineOrigin.x, 1.0f));
-    EXPECT_TRUE(FloatEqual(lineOrigin.y, 1.0f));
-    EXPECT_TRUE(FloatEqual(lineOrigin.z, 0.0f));
-    
-    // 交线方向应该是z轴方向
-    EXPECT_TRUE(FloatEqual(lineDirection.x, 0.0f));
-    EXPECT_TRUE(FloatEqual(lineDirection.y, 0.0f));
-    EXPECT_TRUE(FloatEqual(lineDirection.z, 1.0f));
-}
+
 
 } // namespace SympConvTest

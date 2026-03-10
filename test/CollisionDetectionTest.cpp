@@ -1128,4 +1128,34 @@ TEST(CollisionDetectionTest, CylinderIntersectsCylinder) {
     EXPECT_TRUE(SympConv::CylinderIntersectsCylinder(cylinder12, cylinder13));
 }
 
+TEST(CollisionDetectionTest, PlaneIntersectsPlane) {
+    // 两个相交的平面
+    Plane plane1(1.0f, 0.0f, 0.0f, -1.0f); // x=1平面
+    Plane plane2(0.0f, 1.0f, 0.0f, -1.0f); // y=1平面
+    
+    Vec3 lineOrigin, lineDirection;
+    EXPECT_TRUE(SympConv::PlaneIntersectsPlane(plane1, plane2, lineOrigin, lineDirection));
+    
+    // 交线应该是x=1, y=1, z任意
+    EXPECT_TRUE(FloatEqual(lineOrigin.x, 1.0f));
+    EXPECT_TRUE(FloatEqual(lineOrigin.y, 1.0f));
+    EXPECT_TRUE(FloatEqual(lineOrigin.z, 0.0f));
+    
+    // 交线方向应该是z轴方向
+    EXPECT_TRUE(FloatEqual(lineDirection.x, 0.0f));
+    EXPECT_TRUE(FloatEqual(lineDirection.y, 0.0f));
+    EXPECT_TRUE(FloatEqual(lineDirection.z, 1.0f));
+    
+    // 测试两个平行的平面
+    Plane plane3(1.0f, 0.0f, 0.0f, -1.0f); // x=1平面
+    Plane plane4(1.0f, 0.0f, 0.0f, -2.0f); // x=2平面
+    
+    Vec3 lineOrigin2, lineDirection2;
+    EXPECT_FALSE(SympConv::PlaneIntersectsPlane(plane3, plane4, lineOrigin2, lineDirection2));
+    
+    // 测试PlaneIntersectsPlane的重载版本
+    EXPECT_TRUE(SympConv::PlaneIntersectsPlane(plane1, plane2));
+    EXPECT_FALSE(SympConv::PlaneIntersectsPlane(plane3, plane4));
+}
+
 } // namespace SympConvTest

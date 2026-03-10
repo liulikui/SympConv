@@ -126,61 +126,7 @@ public:
         return *this;
     }
 
-    /**
-     * @brief 计算平面与平面的交线
-     * @param other 另一个平面
-     * @param lineOrigin 交线的原点
-     * @param lineDirection 交线的方向
-     * @return 如果两个平面相交返回true，否则返回false
-     */
-    bool Intersect(const TPlane<T>& other, TVector3<T>& lineOrigin, TVector3<T>& lineDirection) const
-    {
-        TVector3<T> n1 = GetNormal();
-        TVector3<T> n2 = other.GetNormal();
-        
-        lineDirection = n1.Cross(n2);
-        T lengthSquared = lineDirection.LengthSquared();
-        
-        if (lengthSquared < T(1e-12))
-        {
-            return false; // 平面平行
-        }
-        
-        // 计算交线的一个点
-        T det = n1.x * n2.y - n1.y * n2.x;
-        if (std::abs(det) > T(1e-6))
-        {
-            T x = (n2.x * w - n1.x * other.w) / det;
-            T y = (n1.y * other.w - n2.y * w) / det;
-            lineOrigin = TVector3<T>(x, y, T(0));
-        }
-        else
-        {
-            det = n1.x * n2.z - n1.z * n2.x;
-            if (std::abs(det) > T(1e-6))
-            {
-                T x = (n2.x * w - n1.x * other.w) / det;
-                T z = (n1.z * other.w - n2.z * w) / det;
-                lineOrigin = TVector3<T>(x, T(0), z);
-            }
-            else
-            {
-                det = n1.y * n2.z - n1.z * n2.y;
-                if (std::abs(det) > T(1e-6))
-                {
-                    T y = (n2.y * w - n1.y * other.w) / det;
-                    T z = (n1.z * other.w - n2.z * w) / det;
-                    lineOrigin = TVector3<T>(T(0), y, z);
-                }
-                else
-                {
-                    return false; // 平面重合
-                }
-            }
-        }
-        
-        return true;
-    }
+
 };
 
 // 类型别名

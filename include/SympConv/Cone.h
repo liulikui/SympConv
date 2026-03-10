@@ -5,6 +5,7 @@
 #include "Vector.h"
 #include "AABB.h"
 #include <type_traits>
+#include <algorithm>
 
 namespace SympConv {
 
@@ -67,7 +68,7 @@ public:
      */
     TVector3<T> GetDirection() const
     {
-        return (mVertex - mBaseCenter).Normalize();
+        return (mBaseCenter - mVertex).Normalize();
     }
 
     /**
@@ -76,16 +77,15 @@ public:
      */
     TAABB<T> GetAABB() const
     {
-        TVector3<T> offset(mRadius, mRadius, mRadius);
         TVector3<T> min(
             std::min(mVertex.x, mBaseCenter.x) - mRadius,
             std::min(mVertex.y, mBaseCenter.y) - mRadius,
-            std::min(mVertex.z, mBaseCenter.z)
+            std::min(mVertex.z, mBaseCenter.z) - mRadius
         );
         TVector3<T> max(
             std::max(mVertex.x, mBaseCenter.x) + mRadius,
             std::max(mVertex.y, mBaseCenter.y) + mRadius,
-            std::max(mVertex.z, mBaseCenter.z)
+            std::max(mVertex.z, mBaseCenter.z) + mRadius
         );
         return TAABB<T>(min, max);
     }
@@ -97,28 +97,50 @@ public:
      */
     bool Contains(const TVector3<T>& point) const
     {
-        TVector3<T> axis = mVertex - mBaseCenter;
+        TVector3<T> axis = mBaseCenter - mVertex;
         T height = axis.Length();
         if (height < T(1e-6)) {
-            return false;
+            // 高度为0的圆锥退化为一个点
+            return (point - mVertex).LengthSquared() < T(1e-12);
         }
         
-        TVector3<T> ap = point - mBaseCenter;
-        T t = ap.Dot(axis) / axis.Dot(axis);
+        TVector3<T> ap = point - mVertex;
+        T t = ap.Dot(axis) / (height * height);
         
         // 检查点是否在圆锥体的轴线方向范围内
-        if (t < 0 || t > 1) {
+        if (t < -T(1e-6) || t > T(1.000001)) {
             return false;
         }
         
         // 计算圆锥体在该高度处的半径
-        T radiusAtHeight = mRadius * (T(1) - t);
+        T radiusAtHeight = mRadius * t;
         
         // 计算点到轴线的距离
-        TVector3<T> closest = mBaseCenter + axis * t;
+        TVector3<T> closest = mVertex + axis * t;
         T distanceSquared = (point - closest).LengthSquared();
+        T radiusSquared = radiusAtHeight * radiusAtHeight;
         
-        return distanceSquared <= radiusAtHeight * radiusAtHeight;
+        // 计算epsilon值，根据圆锥的大小和方向
+        T epsilon;
+        
+        // 检查圆锥是否为非坐标轴对齐
+        bool isAxisAligned = (std::abs(axis.x) < T(1e-6) || std::abs(axis.y) < T(1e-6) || std::abs(axis.z) < T(1e-6));
+        
+        if (radiusSquared < T(1e-6)) {
+            // 小圆锥使用较小的epsilon值
+            epsilon = T(1e-9);
+        } else if (radiusSquared > T(1e6)) {
+            // 大圆锥使用相对误差
+            epsilon = T(1e-6) * radiusSquared;
+        } else if (!isAxisAligned) {
+            // 非坐标轴对齐的圆锥使用更大的epsilon值，因为计算误差更大
+            epsilon = T(5e-3);
+        } else {
+            // 坐标轴对齐的圆锥使用中等大小的epsilon值
+            epsilon = T(1e-4);
+        }
+        
+        return distanceSquared <= radiusSquared + epsilon;
     }
 };
 

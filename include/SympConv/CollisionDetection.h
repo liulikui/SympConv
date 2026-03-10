@@ -532,6 +532,88 @@ bool PointOnPlane(const TVector3<T>& point, const TPlane<T>& plane, T epsilon = 
 }
 
 /**
+ * @brief 计算平面与平面的交线
+ * @tparam T 浮点类型，如float、double
+ * @param plane1 第一个平面
+ * @param plane2 第二个平面
+ * @param lineOrigin 交线的原点
+ * @param lineDirection 交线的方向
+ * @return 如果两个平面相交返回true，否则返回false
+ */
+template<typename T>
+bool PlaneIntersectsPlane(const TPlane<T>& plane1, const TPlane<T>& plane2, TVector3<T>& lineOrigin, TVector3<T>& lineDirection)
+{
+    static_assert(std::is_floating_point_v<T>, "T must be floating point");
+    
+    TVector3<T> n1 = plane1.GetNormal();
+    TVector3<T> n2 = plane2.GetNormal();
+    
+    lineDirection = n1.Cross(n2);
+    T lengthSquared = lineDirection.LengthSquared();
+    
+    if (lengthSquared < T(1e-12))
+    {
+        return false; // 平面平行
+    }
+    
+    // 计算交线的一个点
+    T det = n1.x * n2.y - n1.y * n2.x;
+    if (std::abs(det) > T(1e-6))
+    {
+        T x = (n2.x * plane1.w - n1.x * plane2.w) / det;
+        T y = (n1.y * plane2.w - n2.y * plane1.w) / det;
+        lineOrigin = TVector3<T>(x, y, T(0));
+    }
+    else
+    {
+        det = n1.x * n2.z - n1.z * n2.x;
+        if (std::abs(det) > T(1e-6))
+        {
+            T x = (n2.x * plane1.w - n1.x * plane2.w) / det;
+            T z = (n1.z * plane2.w - n2.z * plane1.w) / det;
+            lineOrigin = TVector3<T>(x, T(0), z);
+        }
+        else
+        {
+            det = n1.y * n2.z - n1.z * n2.y;
+            if (std::abs(det) > T(1e-6))
+            {
+                T y = (n2.y * plane1.w - n1.y * plane2.w) / det;
+                T z = (n1.z * plane2.w - n2.z * plane1.w) / det;
+                lineOrigin = TVector3<T>(T(0), y, z);
+            }
+            else
+            {
+                return false; // 平面重合
+            }
+        }
+    }
+    
+    return true;
+}
+
+/**
+ * @brief 计算平面与平面是否相交
+ * @tparam T 浮点类型，如float、double
+ * @param plane1 第一个平面
+ * @param plane2 第二个平面
+ * @return 如果两个平面相交返回true，否则返回false
+ */
+template<typename T>
+bool PlaneIntersectsPlane(const TPlane<T>& plane1, const TPlane<T>& plane2)
+{
+    static_assert(std::is_floating_point_v<T>, "T must be floating point");
+    
+    TVector3<T> n1 = plane1.GetNormal();
+    TVector3<T> n2 = plane2.GetNormal();
+    
+    TVector3<T> lineDirection = n1.Cross(n2);
+    T lengthSquared = lineDirection.LengthSquared();
+    
+    return lengthSquared >= T(1e-12);
+}
+
+/**
  * @brief 计算射线与盒子的相交
  * @tparam T 浮点类型，如float、double
  * @param ray 射线
