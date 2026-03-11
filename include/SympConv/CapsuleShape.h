@@ -128,6 +128,24 @@ public:
      */
     const Capsule& GetCapsule() const { return mCapsule; }
 
+    /**
+     * @brief 获取在本地坐标系中的AABB
+     * @return AABB
+     */
+    virtual AABB GetLocalBounds() const override
+    {
+        // 胶囊体的半高和半径
+        fpnumber halfHeight = mCapsule.mHalfHeight;
+        fpnumber radius = mCapsule.mRadius;
+        
+        // 计算AABB的最小和最大点
+        Vector3 min(-radius, -halfHeight - radius, -radius);
+        Vector3 max(radius, halfHeight + radius, radius);
+        
+        // 创建并返回AABB
+        return AABB(min, max);
+    }
+
 private:
     Capsule mCapsule; ///< 胶囊体对象
 };

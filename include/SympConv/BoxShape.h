@@ -67,6 +67,23 @@ public:
      */
     const Box& GetBox() const { return mBox; }
 
+    /**
+     * @brief 获取在本地坐标系中的AABB
+     * @return AABB
+     */
+    virtual AABB GetLocalBounds() const override
+    {
+        // 盒子的半长
+        Vector3 halfExtents = mBox.mHalfExtents;
+        
+        // 计算AABB的最小和最大点
+        Vector3 min(-halfExtents.x, -halfExtents.y, -halfExtents.z);
+        Vector3 max(halfExtents.x, halfExtents.y, halfExtents.z);
+        
+        // 创建并返回AABB
+        return AABB(min, max);
+    }
+
 private:
     Box mBox; ///< 盒子对象
 };

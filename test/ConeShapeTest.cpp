@@ -2,6 +2,7 @@
 #include "SympConv/Cone.h"
 #include "SympConv/ConeShape.h"
 #include "SympConv/Vector.h"
+#include "SympConv/AABB.h"
 #include "TestUtils.h"
 
 namespace SympConvTest {
@@ -10,6 +11,7 @@ using fpnumber = SympConv::fpnumber;
 using Cone = SympConv::Cone;
 using ConeShape = SympConv::ConeShape;
 using Vec3 = SympConv::Vector3;
+using AABB = SympConv::AABB;
 
 TEST(ConeShapeTest, GetLocalSupport) {
     // 创建一个高度为2，半径为1的圆锥体
@@ -152,6 +154,66 @@ TEST(ConeShapeTest, GetLocalInertiaTensor_DifferentSize) {
     
     // 验证Iy应该小于Ix和Iz
     EXPECT_TRUE(inertia.y < inertia.x);
+}
+
+TEST(ConeShapeTest, GetLocalBounds) {
+    // 创建一个高度为2，半径为1的圆锥体
+    Cone cone(2.0f, 1.0f);
+    ConeShape shape(cone);
+    
+    // 获取本地坐标系中的AABB
+    AABB bounds = shape.GetLocalBounds();
+    
+    // 验证AABB的最小和最大点
+    EXPECT_TRUE(FloatEqual(bounds.mMin.x, -1.0f));
+    EXPECT_TRUE(FloatEqual(bounds.mMin.y, 0.0f)); // 底面
+    EXPECT_TRUE(FloatEqual(bounds.mMin.z, -1.0f));
+    
+    EXPECT_TRUE(FloatEqual(bounds.mMax.x, 1.0f));
+    EXPECT_TRUE(FloatEqual(bounds.mMax.y, 2.0f)); // 高度
+    EXPECT_TRUE(FloatEqual(bounds.mMax.z, 1.0f));
+    
+    // 验证AABB的中心
+    Vec3 center = bounds.GetCenter();
+    EXPECT_TRUE(FloatEqual(center.x, 0.0f));
+    EXPECT_TRUE(FloatEqual(center.y, 1.0f)); // 高度的一半
+    EXPECT_TRUE(FloatEqual(center.z, 0.0f));
+    
+    // 验证AABB的大小
+    Vec3 size = bounds.GetSize();
+    EXPECT_TRUE(FloatEqual(size.x, 2.0f)); // 直径
+    EXPECT_TRUE(FloatEqual(size.y, 2.0f)); // 高度
+    EXPECT_TRUE(FloatEqual(size.z, 2.0f)); // 直径
+}
+
+TEST(ConeShapeTest, GetLocalBounds_DifferentSize) {
+    // 创建一个高度为4，半径为2的圆锥体
+    Cone cone(4.0f, 2.0f);
+    ConeShape shape(cone);
+    
+    // 获取本地坐标系中的AABB
+    AABB bounds = shape.GetLocalBounds();
+    
+    // 验证AABB的最小和最大点
+    EXPECT_TRUE(FloatEqual(bounds.mMin.x, -2.0f));
+    EXPECT_TRUE(FloatEqual(bounds.mMin.y, 0.0f)); // 底面
+    EXPECT_TRUE(FloatEqual(bounds.mMin.z, -2.0f));
+    
+    EXPECT_TRUE(FloatEqual(bounds.mMax.x, 2.0f));
+    EXPECT_TRUE(FloatEqual(bounds.mMax.y, 4.0f)); // 高度
+    EXPECT_TRUE(FloatEqual(bounds.mMax.z, 2.0f));
+    
+    // 验证AABB的中心
+    Vec3 center = bounds.GetCenter();
+    EXPECT_TRUE(FloatEqual(center.x, 0.0f));
+    EXPECT_TRUE(FloatEqual(center.y, 2.0f)); // 高度的一半
+    EXPECT_TRUE(FloatEqual(center.z, 0.0f));
+    
+    // 验证AABB的大小
+    Vec3 size = bounds.GetSize();
+    EXPECT_TRUE(FloatEqual(size.x, 4.0f)); // 直径
+    EXPECT_TRUE(FloatEqual(size.y, 4.0f)); // 高度
+    EXPECT_TRUE(FloatEqual(size.z, 4.0f)); // 直径
 }
 
 } // namespace SympConvTest

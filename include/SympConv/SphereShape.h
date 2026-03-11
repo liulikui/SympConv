@@ -54,6 +54,23 @@ public:
         return Vector3(inertia, inertia, inertia);
     }
 
+    /**
+     * @brief 获取在本地坐标系中的AABB
+     * @return AABB
+     */
+    virtual AABB GetLocalBounds() const override
+    {
+        // 球体的半径
+        fpnumber radius = mRadius;
+        
+        // 计算AABB的最小和最大点
+        Vector3 min(-radius, -radius, -radius);
+        Vector3 max(radius, radius, radius);
+        
+        // 创建并返回AABB
+        return AABB(min, max);
+    }
+
 private:
     fpnumber mRadius; ///< 半径
 };

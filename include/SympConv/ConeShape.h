@@ -80,6 +80,24 @@ public:
      */
     const Cone& GetCone() const { return mCone; }
 
+    /**
+     * @brief 获取在本地坐标系中的AABB
+     * @return AABB
+     */
+    virtual AABB GetLocalBounds() const override
+    {
+        // 圆锥体的高度和半径
+        fpnumber height = mCone.mHeight;
+        fpnumber radius = mCone.mRadius;
+        
+        // 计算AABB的最小和最大点
+        Vector3 min(-radius, 0, -radius);
+        Vector3 max(radius, height, radius);
+        
+        // 创建并返回AABB
+        return AABB(min, max);
+    }
+
 private:
     Cone mCone; ///< 圆锥体对象
 };

@@ -72,6 +72,24 @@ public:
      */
     const Cylinder& GetCylinder() const { return mCylinder; }
 
+    /**
+     * @brief 获取在本地坐标系中的AABB
+     * @return AABB
+     */
+    virtual AABB GetLocalBounds() const override
+    {
+        // 圆柱体的半高和半径
+        fpnumber halfHeight = mCylinder.mHalfHeight;
+        fpnumber radius = mCylinder.mRadius;
+        
+        // 计算AABB的最小和最大点
+        Vector3 min(-radius, -halfHeight, -radius);
+        Vector3 max(radius, halfHeight, radius);
+        
+        // 创建并返回AABB
+        return AABB(min, max);
+    }
+
 private:
     Cylinder mCylinder; ///< 圆柱体对象
 };

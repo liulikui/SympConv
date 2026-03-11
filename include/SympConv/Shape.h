@@ -4,6 +4,7 @@
 #include "Config.h"
 #include "Vector.h"
 #include "ShapeType.h"
+#include "AABB.h"
 
 namespace SympConv {
 
@@ -52,6 +53,12 @@ public:
 	 * @return 惯性张量
 	 */
 	virtual Vector3 GetLocalInertiaTensor(fpnumber mass) const = 0;
+
+	/**
+	 * @brief 获取在本地坐标系中的AABB
+	 * @return AABB
+	 */
+	virtual AABB GetLocalBounds() const = 0;
 
 protected:
 	ShapeGroupType mShapeGroupType; ///< 形状组类型
