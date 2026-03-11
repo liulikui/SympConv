@@ -11,14 +11,14 @@ using Vec3 = SympConv::Vector3;
 
 TEST(ConeTest, DefaultConstructor) {
     Cone cone;
-    EXPECT_TRUE(FloatEqual(cone.mHeight, 1.0f));
-    EXPECT_TRUE(FloatEqual(cone.mRadius, 0.5f));
+    EXPECT_TRUE(FloatEqual(cone.mHeight, Real(1.0)));
+    EXPECT_TRUE(FloatEqual(cone.mRadius, Real(0.5)));
 }
 
 TEST(ConeTest, ParameterizedConstructor) {
-    Cone cone(2.0f, 1.0f);
-    EXPECT_TRUE(FloatEqual(cone.mHeight, 2.0f));
-    EXPECT_TRUE(FloatEqual(cone.mRadius, 1.0f));
+    Cone cone(Real(2.0), Real(1.0));
+    EXPECT_TRUE(FloatEqual(cone.mHeight, Real(2.0)));
+    EXPECT_TRUE(FloatEqual(cone.mRadius, Real(1.0)));
 }
 
 } // namespace SympConvTest

@@ -11,14 +11,14 @@ using Vec3 = SympConv::Vector3;
 
 TEST(CylinderTest, DefaultConstructor) {
     Cylinder cylinder;
-    EXPECT_TRUE(FloatEqual(cylinder.mHalfHeight, 0.5f));
-    EXPECT_TRUE(FloatEqual(cylinder.mRadius, 0.5f));
+    EXPECT_TRUE(FloatEqual(cylinder.mHalfHeight, Real(0.5)));
+    EXPECT_TRUE(FloatEqual(cylinder.mRadius, Real(0.5)));
 }
 
 TEST(CylinderTest, ParameterizedConstructor) {
-    Cylinder cylinder(2.0f, 1.0f);
-    EXPECT_TRUE(FloatEqual(cylinder.mHalfHeight, 1.0f));
-    EXPECT_TRUE(FloatEqual(cylinder.mRadius, 1.0f));
+    Cylinder cylinder(Real(2.0), Real(1.0));
+    EXPECT_TRUE(FloatEqual(cylinder.mHalfHeight, Real(1.0)));
+    EXPECT_TRUE(FloatEqual(cylinder.mRadius, Real(1.0)));
 }
 
 } // namespace SympConvTest

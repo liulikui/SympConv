@@ -15,94 +15,94 @@ using AABB = SympConv::AABB;
 
 TEST(SphereShapeTest, GetLocalSupport) {
     // 创建一个半径为2的球体形状
-    SphereShape shape(2.0f);
+    SphereShape shape(Real(2.0));
     
     // 测试正X方向
-    Vec3 dir_x_pos(1, 0, 0);
+    Vec3 dir_x_pos(Real(1), Real(0), Real(0));
     Vec3 support_x_pos = shape.GetLocalSupport(dir_x_pos);
-    EXPECT_TRUE(FloatEqual(support_x_pos.x, 2.0f));
-    EXPECT_TRUE(FloatEqual(support_x_pos.y, 0.0f));
-    EXPECT_TRUE(FloatEqual(support_x_pos.z, 0.0f));
+    EXPECT_TRUE(FloatEqual(support_x_pos.x, Real(2.0)));
+    EXPECT_TRUE(FloatEqual(support_x_pos.y, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(support_x_pos.z, Real(0.0)));
     
     // 测试负X方向
-    Vec3 dir_x_neg(-1, 0, 0);
+    Vec3 dir_x_neg(Real(-1), Real(0), Real(0));
     Vec3 support_x_neg = shape.GetLocalSupport(dir_x_neg);
-    EXPECT_TRUE(FloatEqual(support_x_neg.x, -2.0f));
-    EXPECT_TRUE(FloatEqual(support_x_neg.y, 0.0f));
-    EXPECT_TRUE(FloatEqual(support_x_neg.z, 0.0f));
+    EXPECT_TRUE(FloatEqual(support_x_neg.x, -Real(2.0)));
+    EXPECT_TRUE(FloatEqual(support_x_neg.y, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(support_x_neg.z, Real(0.0)));
     
     // 测试正Y方向
-    Vec3 dir_y_pos(0, 1, 0);
+    Vec3 dir_y_pos(Real(0), Real(1), Real(0));
     Vec3 support_y_pos = shape.GetLocalSupport(dir_y_pos);
-    EXPECT_TRUE(FloatEqual(support_y_pos.x, 0.0f));
-    EXPECT_TRUE(FloatEqual(support_y_pos.y, 2.0f));
-    EXPECT_TRUE(FloatEqual(support_y_pos.z, 0.0f));
+    EXPECT_TRUE(FloatEqual(support_y_pos.x, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(support_y_pos.y, Real(2.0)));
+    EXPECT_TRUE(FloatEqual(support_y_pos.z, Real(0.0)));
     
     // 测试负Y方向
-    Vec3 dir_y_neg(0, -1, 0);
+    Vec3 dir_y_neg(Real(0), Real(-1), Real(0));
     Vec3 support_y_neg = shape.GetLocalSupport(dir_y_neg);
-    EXPECT_TRUE(FloatEqual(support_y_neg.x, 0.0f));
-    EXPECT_TRUE(FloatEqual(support_y_neg.y, -2.0f));
-    EXPECT_TRUE(FloatEqual(support_y_neg.z, 0.0f));
+    EXPECT_TRUE(FloatEqual(support_y_neg.x, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(support_y_neg.y, -Real(2.0)));
+    EXPECT_TRUE(FloatEqual(support_y_neg.z, Real(0.0)));
     
     // 测试正Z方向
-    Vec3 dir_z_pos(0, 0, 1);
+    Vec3 dir_z_pos(Real(0), Real(0), Real(1));
     Vec3 support_z_pos = shape.GetLocalSupport(dir_z_pos);
-    EXPECT_TRUE(FloatEqual(support_z_pos.x, 0.0f));
-    EXPECT_TRUE(FloatEqual(support_z_pos.y, 0.0f));
-    EXPECT_TRUE(FloatEqual(support_z_pos.z, 2.0f));
+    EXPECT_TRUE(FloatEqual(support_z_pos.x, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(support_z_pos.y, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(support_z_pos.z, Real(2.0)));
     
     // 测试负Z方向
-    Vec3 dir_z_neg(0, 0, -1);
+    Vec3 dir_z_neg(Real(0), Real(0), Real(-1));
     Vec3 support_z_neg = shape.GetLocalSupport(dir_z_neg);
-    EXPECT_TRUE(FloatEqual(support_z_neg.x, 0.0f));
-    EXPECT_TRUE(FloatEqual(support_z_neg.y, 0.0f));
-    EXPECT_TRUE(FloatEqual(support_z_neg.z, -2.0f));
+    EXPECT_TRUE(FloatEqual(support_z_neg.x, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(support_z_neg.y, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(support_z_neg.z, -Real(2.0)));
     
     // 测试斜向方向
-    Vec3 dir_diagonal(1, 1, 1);
+    Vec3 dir_diagonal(Real(1), Real(1), Real(1));
     Vec3 support_diagonal = shape.GetLocalSupport(dir_diagonal);
-    Real expected_length = 2.0f;
+    Real expected_length = Real(2.0);
     Real actual_length = support_diagonal.Length();
     EXPECT_TRUE(FloatEqual(actual_length, expected_length));
     
     // 测试负斜向方向
-    Vec3 dir_neg_diagonal(-1, -1, -1);
+    Vec3 dir_neg_diagonal(Real(-1), Real(-1), Real(-1));
     Vec3 support_neg_diagonal = shape.GetLocalSupport(dir_neg_diagonal);
     actual_length = support_neg_diagonal.Length();
     EXPECT_TRUE(FloatEqual(actual_length, expected_length));
     
     // 测试零方向向量
-    Vec3 dir_zero(0, 0, 0);
+    Vec3 dir_zero(Real(0), Real(0), Real(0));
     Vec3 support_zero = shape.GetLocalSupport(dir_zero);
-    EXPECT_TRUE(FloatEqual(support_zero.x, 0.0f));
-    EXPECT_TRUE(FloatEqual(support_zero.y, 0.0f));
-    EXPECT_TRUE(FloatEqual(support_zero.z, 0.0f));
+    EXPECT_TRUE(FloatEqual(support_zero.x, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(support_zero.y, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(support_zero.z, Real(0.0)));
 }
 
 TEST(SphereShapeTest, GetLocalSupport_DifferentRadius) {
     // 创建一个半径为3.5的球体形状
-    SphereShape shape(3.5f);
+    SphereShape shape(Real(3.5));
     
     // 测试正X方向
-    Vec3 dir_x_pos(1, 0, 0);
+    Vec3 dir_x_pos(Real(1), Real(0), Real(0));
     Vec3 support_x_pos = shape.GetLocalSupport(dir_x_pos);
-    EXPECT_TRUE(FloatEqual(support_x_pos.x, 3.5f));
+    EXPECT_TRUE(FloatEqual(support_x_pos.x, Real(3.5)));
     
     // 测试斜向方向
-    Vec3 dir_diagonal(1, 2, 2);
+    Vec3 dir_diagonal(Real(1), Real(2), Real(2));
     Vec3 support_diagonal = shape.GetLocalSupport(dir_diagonal);
-    Real expected_length = 3.5f;
+    Real expected_length = Real(3.5);
     Real actual_length = support_diagonal.Length();
     EXPECT_TRUE(FloatEqual(actual_length, expected_length));
 }
 
 TEST(SphereShapeTest, GetLocalInertiaTensor) {
     // 创建一个半径为1的球体形状
-    SphereShape shape(1.0f);
+    SphereShape shape(Real(1.0));
     
     // 测试质量为1的情况
-    Real mass = 1.0f;
+    Real mass = Real(1.0);
     Vec3 inertia = shape.GetLocalInertiaTensor(mass);
     
     // 验证惯性张量的各个分量都大于0
@@ -115,16 +115,16 @@ TEST(SphereShapeTest, GetLocalInertiaTensor) {
     EXPECT_TRUE(FloatEqual(inertia.y, inertia.z));
     
     // 验证理论值：(2/5) * 1 * 1² = 0.4
-    Real expected = 0.4f;
+    Real expected = Real(0.4);
     EXPECT_TRUE(FloatEqual(inertia.x, expected));
 }
 
 TEST(SphereShapeTest, GetLocalInertiaTensor_DifferentSize) {
     // 创建一个半径为2的球体形状
-    SphereShape shape(2.0f);
+    SphereShape shape(Real(2.0));
     
     // 测试质量为2的情况
-    Real mass = 2.0f;
+    Real mass = Real(2.0);
     Vec3 inertia = shape.GetLocalInertiaTensor(mass);
     
     // 验证惯性张量的各个分量都大于0
@@ -137,66 +137,66 @@ TEST(SphereShapeTest, GetLocalInertiaTensor_DifferentSize) {
     EXPECT_TRUE(FloatEqual(inertia.y, inertia.z));
     
     // 验证理论值：(2/5) * 2 * 2² = 3.2
-    Real expected = 3.2f;
+    Real expected = Real(3.2);
     EXPECT_TRUE(FloatEqual(inertia.x, expected));
 }
 
 TEST(SphereShapeTest, GetLocalBounds) {
     // 创建一个半径为1的球体形状
-    SphereShape shape(1.0f);
+    SphereShape shape(Real(1.0));
     
     // 获取本地坐标系中的AABB
     AABB bounds = shape.GetLocalBounds();
     
     // 验证AABB的最小和最大点
-    EXPECT_TRUE(FloatEqual(bounds.mMin.x, -1.0f));
-    EXPECT_TRUE(FloatEqual(bounds.mMin.y, -1.0f));
-    EXPECT_TRUE(FloatEqual(bounds.mMin.z, -1.0f));
+    EXPECT_TRUE(FloatEqual(bounds.mMin.x, -Real(1.0)));
+    EXPECT_TRUE(FloatEqual(bounds.mMin.y, -Real(1.0)));
+    EXPECT_TRUE(FloatEqual(bounds.mMin.z, -Real(1.0)));
     
-    EXPECT_TRUE(FloatEqual(bounds.mMax.x, 1.0f));
-    EXPECT_TRUE(FloatEqual(bounds.mMax.y, 1.0f));
-    EXPECT_TRUE(FloatEqual(bounds.mMax.z, 1.0f));
+    EXPECT_TRUE(FloatEqual(bounds.mMax.x, Real(1.0)));
+    EXPECT_TRUE(FloatEqual(bounds.mMax.y, Real(1.0)));
+    EXPECT_TRUE(FloatEqual(bounds.mMax.z, Real(1.0)));
     
     // 验证AABB的中心
     Vec3 center = bounds.GetCenter();
-    EXPECT_TRUE(FloatEqual(center.x, 0.0f));
-    EXPECT_TRUE(FloatEqual(center.y, 0.0f));
-    EXPECT_TRUE(FloatEqual(center.z, 0.0f));
+    EXPECT_TRUE(FloatEqual(center.x, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(center.y, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(center.z, Real(0.0)));
     
     // 验证AABB的大小
     Vec3 size = bounds.GetSize();
-    EXPECT_TRUE(FloatEqual(size.x, 2.0f)); // 直径
-    EXPECT_TRUE(FloatEqual(size.y, 2.0f)); // 直径
-    EXPECT_TRUE(FloatEqual(size.z, 2.0f)); // 直径
+    EXPECT_TRUE(FloatEqual(size.x, Real(2.0))); // 直径
+    EXPECT_TRUE(FloatEqual(size.y, Real(2.0))); // 直径
+    EXPECT_TRUE(FloatEqual(size.z, Real(2.0))); // 直径
 }
 
 TEST(SphereShapeTest, GetLocalBounds_DifferentSize) {
     // 创建一个半径为2的球体形状
-    SphereShape shape(2.0f);
+    SphereShape shape(Real(2.0));
     
     // 获取本地坐标系中的AABB
     AABB bounds = shape.GetLocalBounds();
     
     // 验证AABB的最小和最大点
-    EXPECT_TRUE(FloatEqual(bounds.mMin.x, -2.0f));
-    EXPECT_TRUE(FloatEqual(bounds.mMin.y, -2.0f));
-    EXPECT_TRUE(FloatEqual(bounds.mMin.z, -2.0f));
+    EXPECT_TRUE(FloatEqual(bounds.mMin.x, -Real(2.0)));
+    EXPECT_TRUE(FloatEqual(bounds.mMin.y, -Real(2.0)));
+    EXPECT_TRUE(FloatEqual(bounds.mMin.z, -Real(2.0)));
     
-    EXPECT_TRUE(FloatEqual(bounds.mMax.x, 2.0f));
-    EXPECT_TRUE(FloatEqual(bounds.mMax.y, 2.0f));
-    EXPECT_TRUE(FloatEqual(bounds.mMax.z, 2.0f));
+    EXPECT_TRUE(FloatEqual(bounds.mMax.x, Real(2.0)));
+    EXPECT_TRUE(FloatEqual(bounds.mMax.y, Real(2.0)));
+    EXPECT_TRUE(FloatEqual(bounds.mMax.z, Real(2.0)));
     
     // 验证AABB的中心
     Vec3 center = bounds.GetCenter();
-    EXPECT_TRUE(FloatEqual(center.x, 0.0f));
-    EXPECT_TRUE(FloatEqual(center.y, 0.0f));
-    EXPECT_TRUE(FloatEqual(center.z, 0.0f));
+    EXPECT_TRUE(FloatEqual(center.x, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(center.y, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(center.z, Real(0.0)));
     
     // 验证AABB的大小
     Vec3 size = bounds.GetSize();
-    EXPECT_TRUE(FloatEqual(size.x, 4.0f)); // 直径
-    EXPECT_TRUE(FloatEqual(size.y, 4.0f)); // 直径
-    EXPECT_TRUE(FloatEqual(size.z, 4.0f)); // 直径
+    EXPECT_TRUE(FloatEqual(size.x, Real(4.0))); // 直径
+    EXPECT_TRUE(FloatEqual(size.y, Real(4.0))); // 直径
+    EXPECT_TRUE(FloatEqual(size.z, Real(4.0))); // 直径
 }
 
 } // namespace SympConvTest
