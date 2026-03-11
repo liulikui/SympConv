@@ -46,13 +46,6 @@ add_library(SympConv SHARED ${SRC_SOURCES} ${SRC_HEADERS} ${INCLUDE_HEADERS})
 target_include_directories(SympConv PRIVATE src)
 target_compile_definitions(SympConv PRIVATE SYMPCONV_EXPORTS)
 
-# 根据选项定义SYMPCONV_DOUBLE_PRECISION_ENABLED宏
-if(SYMPCONV_DOUBLE_PRECISION_ENABLED)
-    target_compile_definitions(SympConv PRIVATE SYMPCONV_DOUBLE_PRECISION_ENABLED)
-    target_compile_definitions(SympConvDemo PRIVATE SYMPCONV_DOUBLE_PRECISION_ENABLED)
-    target_compile_definitions(SympConvTest PRIVATE SYMPCONV_DOUBLE_PRECISION_ENABLED)
-endif()
-
 # 构建可执行文件
 add_executable(SympConvDemo ${DEMO_SOURCES} ${DEMO_HEADERS})
 target_include_directories(SympConvDemo PRIVATE demo)
@@ -95,6 +88,15 @@ FetchContent_MakeAvailable(googletest)
 add_executable(SympConvTest ${TEST_SOURCES} ${TEST_HEADERS})
 target_include_directories(SympConvTest PRIVATE test)
 target_link_libraries(SympConvTest PRIVATE SympConv gtest gtest_main)
+
+# 根据选项定义SYMPCONV_DOUBLE_PRECISION_ENABLED宏
+if(SYMPCONV_DOUBLE_PRECISION_ENABLED)
+    target_compile_definitions(SympConv PRIVATE SYMPCONV_DOUBLE_PRECISION_ENABLED)
+    if(TARGET SympConvDemo)
+        target_compile_definitions(SympConvDemo PRIVATE SYMPCONV_DOUBLE_PRECISION_ENABLED)
+    endif()
+    target_compile_definitions(SympConvTest PRIVATE SYMPCONV_DOUBLE_PRECISION_ENABLED)
+endif()
 
 # 为所有构建类型添加调试信息
 if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
