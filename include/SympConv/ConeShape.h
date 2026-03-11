@@ -1,7 +1,7 @@
 #ifndef SYMPCONV_CONE_SHAPE_H
 #define SYMPCONV_CONE_SHAPE_H
 
-#include "ConvexShape.h"
+#include "Shape.h"
 #include "Cone.h"
 
 namespace SympConv {
@@ -9,81 +9,72 @@ namespace SympConv {
 /**
  * @brief 圆锥体形状模板类
  * @details 实现了圆锥体的凸形状接口，用于碰撞检测等场景
- * @tparam T 浮点类型，如float、double
  */
-template<typename T>
-class TConeShape : public TConvexShape<T>
+class ConeShape : public Shape
 {
 public:
     /**
      * @brief 构造函数
      * @param cone 圆锥体对象
      */
-    TConeShape(const TCone<T>& cone) :
-        TConvexShape<T>(EConvexShapeType::Cone), mCone(cone) {}
+    ConeShape(const Cone& cone) :
+        Shape(ShapeGroupType::Convex, ShapeType::Cone), mCone(cone) {}
 
     /**
-     * @brief 获取在指定方向上的支持点
-     * @param direction 方向向量
+     * @brief 在本地坐标系中获取支持点
+     * @param dir_local 本地坐标系中的方向向量
      * @return 支持点
      */
-    Vector3 GetSupport(const Vector3& direction) const override
+    Vector3 GetLocalSupport(const Vector3& dir_local) const override
     {
-        TVector3<T> vertex = mCone.mVertex;
-        TVector3<T> baseCenter = mCone.mBaseCenter;
-        T radius = mCone.mRadius;
+        // 圆锥体的底面在y=0平面，顶点在(0, height, 0)（左手系，y轴朝上）
+        Vector3 support;
         
-        // 计算圆锥体的轴线向量和高度
-        TVector3<T> axis = (vertex - baseCenter).Normalize();
-        T height = (vertex - baseCenter).Length();
+        // 计算方向向量在xz平面上的分量
+        Vector3 dir_xz(dir_local.x, 0, dir_local.z);
+        fpnumber length_xz = dir_xz.Length();
         
-        // 计算方向向量在圆锥体轴方向上的投影
-        TVector3<T> dir = TVector3<T>(direction.x, direction.y, direction.z);
-        T proj = dir.Dot(axis);
-        
-        // 计算方向向量在垂直于圆锥体轴方向上的分量
-        TVector3<T> perp_dir = dir - axis * proj;
-        T perp_len = perp_dir.Length();
-        
-        TVector3<T> support;
-        
-        if (perp_len > T(0)) {
-            // 计算垂直方向的单位向量
-            TVector3<T> perp_unit = perp_dir / perp_len;
-            
-            // 计算圆锥体表面上的支持点
-            // 对于圆锥体，支持点位于圆锥体的侧面或底面边缘
-            if (proj > T(0)) {
-                // 方向指向圆锥体顶点方向，支持点可能在顶点
-                support = vertex;
-            } else {
-                // 方向指向圆锥体底面方向，支持点在底面边缘
-                TVector3<T> baseEdge = baseCenter + perp_unit * radius;
-                support = baseEdge;
-            }
-        } else {
-            // 方向与轴平行，支持点在顶点或底面中心
-            support = (proj > T(0)) ? vertex : baseCenter;
+        if (dir_local.y > 0)
+        {
+            // 方向向上，支持点是圆锥的顶点
+            support = Vector3(0, mCone.mHeight, 0);
+        }
+        else if (length_xz > 1e-10)
+        {
+            // 方向向下且在xz平面上有分量，支持点在底面上
+            Vector3 dir_xz_normalized = dir_xz / length_xz;
+            support.x = dir_xz_normalized.x * mCone.mRadius;
+            support.y = 0;
+            support.z = dir_xz_normalized.z * mCone.mRadius;
+        }
+        else
+        {
+            // 方向直接向下，支持点是底面中心
+            support = Vector3(0, 0, 0);
         }
         
-        // 直接返回支持点，因为Cone类没有变换
-        return Vector3(support.x, support.y, support.z);
+        return support;
+    }
+
+    /**
+     * @brief 获取在本地坐标系中的惯性张量
+     * @param mass 质量
+     * @return 惯性张量
+     */
+    virtual Vector3 GetLocalInertiaTensor(fpnumber mass) const override
+    {
+        return Vector3(fpnumber(0.0), fpnumber(0.0), fpnumber(0.0));
     }
 
     /**
      * @brief 获取圆锥体对象
      * @return 圆锥体对象的常量引用
      */
-    const TCone<T>& GetCone() const { return mCone; }
+    const Cone& GetCone() const { return mCone; }
 
 private:
-    TCone<T> mCone; ///< 圆锥体对象
+    Cone mCone; ///< 圆锥体对象
 };
-
-// 类型别名
-typedef TConeShape<float> ConeShapef;  ///< 单精度圆锥体形状
-typedef TConeShape<double> ConeShaped; ///< 双精度圆锥体形状
-typedef TConeShape<fpnumber> ConeShape; ///< 根据配置的精度圆锥体形状
 
 } // namespace SympConv
 

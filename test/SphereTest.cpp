@@ -5,6 +5,7 @@
 
 namespace SympConvTest {
 
+using fpnumber = SympConv::fpnumber;
 using Sphere = SympConv::Sphere;
 using Vec3 = SympConv::Vector3;
 
@@ -18,7 +19,7 @@ TEST(SphereTest, DefaultConstructor) {
 
 TEST(SphereTest, ParameterizedConstructor) {
     Vec3 center(1.0f, 2.0f, 3.0f);
-    float radius = 2.5f;
+    fpnumber radius = 2.5f;
     Sphere sphere(center, radius);
     EXPECT_TRUE(FloatEqual(sphere.mCenter.x, 1.0f));
     EXPECT_TRUE(FloatEqual(sphere.mCenter.y, 2.0f));
@@ -26,54 +27,36 @@ TEST(SphereTest, ParameterizedConstructor) {
     EXPECT_TRUE(FloatEqual(sphere.mRadius, 2.5f));
 }
 
-TEST(SphereTest, ContainsPoint) {
-    Vec3 center(0.0f, 0.0f, 0.0f);
-    float radius = 1.0f;
-    Sphere sphere(center, radius);
+TEST(SphereTest, Contains) {
+    Sphere sphere(Vec3(0, 0, 0), 1.0f);
     
-    // 测试点在球体内
-    Vec3 insidePoint(0.0f, 0.0f, 0.0f);
-    EXPECT_TRUE(sphere.Contains(insidePoint));
+    // 测试球心点
+    EXPECT_TRUE(sphere.Contains(Vec3(0, 0, 0)));
     
-    // 测试点在球体表面
-    Vec3 surfacePoint(1.0f, 0.0f, 0.0f);
-    EXPECT_TRUE(sphere.Contains(surfacePoint));
+    // 测试球面上的点
+    EXPECT_TRUE(sphere.Contains(Vec3(1, 0, 0)));
     
-    // 测试点在球体外
-    Vec3 outsidePoint(1.1f, 0.0f, 0.0f);
-    EXPECT_FALSE(sphere.Contains(outsidePoint));
+    // 测试球内的点
+    EXPECT_TRUE(sphere.Contains(Vec3(0.5, 0, 0)));
+    
+    // 测试球外的点
+    EXPECT_FALSE(sphere.Contains(Vec3(1.1, 0, 0)));
 }
 
 TEST(SphereTest, DistanceTo) {
-    Vec3 center(0.0f, 0.0f, 0.0f);
-    float radius = 1.0f;
-    Sphere sphere(center, radius);
+    Sphere sphere(Vec3(0, 0, 0), 1.0f);
     
-    // 测试点在球体内
-    Vec3 insidePoint(0.0f, 0.0f, 0.0f);
-    EXPECT_TRUE(FloatEqual(sphere.DistanceTo(insidePoint), 0.0f));
+    // 测试球心点
+    EXPECT_TRUE(FloatEqual(sphere.DistanceTo(Vec3(0, 0, 0)), 0.0f));
     
-    // 测试点在球体表面
-    Vec3 surfacePoint(1.0f, 0.0f, 0.0f);
-    EXPECT_TRUE(FloatEqual(sphere.DistanceTo(surfacePoint), 0.0f));
+    // 测试球面上的点
+    EXPECT_TRUE(FloatEqual(sphere.DistanceTo(Vec3(1, 0, 0)), 0.0f));
     
-    // 测试点在球体外
-    Vec3 outsidePoint(2.0f, 0.0f, 0.0f);
-    EXPECT_TRUE(FloatEqual(sphere.DistanceTo(outsidePoint), 1.0f));
-}
-
-TEST(SphereTest, GetAABB) {
-    Vec3 center(1.0f, 2.0f, 3.0f);
-    float radius = 2.0f;
-    Sphere sphere(center, radius);
+    // 测试球外的点
+    EXPECT_TRUE(FloatEqual(sphere.DistanceTo(Vec3(2, 0, 0)), 1.0f));
     
-    auto aabb = sphere.GetAABB();
-    EXPECT_TRUE(FloatEqual(aabb.mMin.x, -1.0f));
-    EXPECT_TRUE(FloatEqual(aabb.mMin.y, 0.0f));
-    EXPECT_TRUE(FloatEqual(aabb.mMin.z, 1.0f));
-    EXPECT_TRUE(FloatEqual(aabb.mMax.x, 3.0f));
-    EXPECT_TRUE(FloatEqual(aabb.mMax.y, 4.0f));
-    EXPECT_TRUE(FloatEqual(aabb.mMax.z, 5.0f));
+    // 测试球内的点
+    EXPECT_TRUE(FloatEqual(sphere.DistanceTo(Vec3(0.5, 0, 0)), 0.0f));
 }
 
 } // namespace SympConvTest

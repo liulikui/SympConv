@@ -1,86 +1,136 @@
 #ifndef SYMPCONV_CAPSULE_SHAPE_H
 #define SYMPCONV_CAPSULE_SHAPE_H
 
+#include <cmath>
 #include "ConvexShape.h"
 #include "Capsule.h"
+
+// 定义M_PI如果未定义
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
 
 namespace SympConv {
 
 /**
  * @brief 胶囊体形状模板类
  * @details 实现了胶囊体的凸形状接口，用于碰撞检测等场景
- * @tparam T 浮点类型，如float、double
  */
-template<typename T>
-class TCapsuleShape : public TConvexShape<T>
+class CapsuleShape : public ConvexShape
 {
 public:
     /**
      * @brief 构造函数
      * @param capsule 胶囊体对象
      */
-    TCapsuleShape(const TCapsule<T>& capsule) :
-        TConvexShape<T>(EConvexShapeType::Capsule), mCapsule(capsule) {}
+    CapsuleShape(const Capsule& capsule) :
+        ConvexShape(ShapeType::Capsule), mCapsule(capsule) {}
 
     /**
-     * @brief 获取在指定方向上的支持点
-     * @param direction 方向向量
+     * @brief 在本地坐标系中获取支持点
+     * @param dir_local 本地坐标系中的方向向量
      * @return 支持点
      */
-    Vector3 GetSupport(const Vector3& direction) const override
+    virtual Vector3 GetLocalSupport(const Vector3& dir_local) const override
     {
-        TVector3<T> start = mCapsule.mStart;
-        TVector3<T> end = mCapsule.mEnd;
-        T radius = mCapsule.mRadius;
+        // 胶囊体沿Y轴方向，中心点在原点
+        // 两个端点的位置
+        Vector3 p1(0, -mCapsule.mHalfHeight, 0);
+        Vector3 p2(0, mCapsule.mHalfHeight, 0);
         
-        // 计算胶囊体的方向向量和长度
-        TVector3<T> axis = (end - start).Normalize();
-        T length = (end - start).Length();
-        TVector3<T> center = (start + end) * T(0.5);
-        
-        // 计算方向向量在胶囊体轴方向上的投影
-        TVector3<T> dir = TVector3<T>(direction.x, direction.y, direction.z);
-        T proj = dir.Dot(axis);
-        
-        // 计算方向向量在垂直于胶囊体轴方向上的分量
-        TVector3<T> perp_dir = dir - axis * proj;
-        T perp_len = perp_dir.Length();
-        
-        TVector3<T> support;
-        
-        if (perp_len > T(0)) {
-            // 计算垂直方向的单位向量
-            TVector3<T> perp_unit = perp_dir / perp_len;
-            
-            // 计算沿轴方向的偏移量，限制在胶囊体长度范围内
-            T axial_offset = std::max(T(-0.5) * length, std::min(T(0.5) * length, proj));
-            
-            // 计算支持点
-            support = center + axis * axial_offset + perp_unit * radius;
-        } else {
-            // 方向与轴平行，支持点在胶囊体的端点（半球的顶点）
-            TVector3<T> end_point = (proj > T(0)) ? end : start;
-            support = end_point + axis * ((proj > T(0)) ? radius : -radius);
+        // 计算方向向量的长度
+        fpnumber dir_length = dir_local.Length();
+        if (dir_length < 1e-10)
+        {
+            // 零方向向量，返回上顶点加上半径
+            return Vector3(0, mCapsule.mHalfHeight + mCapsule.mRadius, 0);
         }
         
-        // 直接返回支持点，因为Capsule类没有变换
-        return Vector3(support.x, support.y, support.z);
+        // 归一化方向向量
+        Vector3 dir_normalized = dir_local / dir_length;
+        
+        // 计算方向向量在Y轴上的投影长度
+        fpnumber proj_y = dir_normalized.y;
+        
+        // 计算胶囊体轴线上的点
+        Vector3 axis_point;
+        if (proj_y >= 0)
+        {
+            // 方向向上或在XZ平面上，使用上顶点
+            axis_point = p2;
+        }
+        else
+        {
+            // 方向向下，使用下顶点
+            axis_point = p1;
+        }
+        
+        // 计算垂直于Y轴的方向向量
+        Vector3 dir_perp = dir_normalized - Vector3(0, proj_y, 0);
+        fpnumber perp_length = dir_perp.Length();
+        
+        if (perp_length < 1e-10)
+        {
+            // 方向向量沿着Y轴，直接返回顶点加上半径
+            return axis_point + dir_normalized * mCapsule.mRadius;
+        }
+        
+        // 归一化垂直方向向量
+        dir_perp = dir_perp / perp_length;
+        
+        // 计算支持点：顶点加上垂直方向的半径
+        Vector3 support = axis_point + dir_perp * mCapsule.mRadius;
+        
+        return support;
+    }
+
+    /**
+     * @brief 获取在本地坐标系中的惯性张量
+     * @param mass 质量
+     * @return 惯性张量
+     */
+    virtual Vector3 GetLocalInertiaTensor(fpnumber mass) const override
+    {
+        // 胶囊体沿Y轴方向
+        fpnumber radius = mCapsule.mRadius;
+        fpnumber height = mCapsule.mHalfHeight * 2; // 总高度
+        
+        // 计算体积
+        fpnumber volume_cylinder = M_PI * radius * radius * height;
+        fpnumber volume_hemispheres = (4.0f / 3.0f) * M_PI * radius * radius * radius;
+        fpnumber volume_total = volume_cylinder + volume_hemispheres;
+        
+        // 计算各部分质量
+        fpnumber mass_cylinder = mass * volume_cylinder / volume_total;
+        fpnumber mass_hemisphere = mass * (volume_hemispheres / 2.0f) / volume_total;
+        
+        // 计算圆柱体的惯性张量
+        fpnumber ix_cylinder = (1.0f / 12.0f) * mass_cylinder * (3.0f * radius * radius + height * height);
+        fpnumber iz_cylinder = ix_cylinder;
+        fpnumber iy_cylinder = (1.0f / 2.0f) * mass_cylinder * radius * radius;
+        
+        // 计算一个半球体的惯性张量
+        fpnumber ix_hemisphere = (2.0f / 5.0f) * mass_hemisphere * radius * radius + mass_hemisphere * (height / 2.0f) * (height / 2.0f);
+        fpnumber iz_hemisphere = ix_hemisphere;
+        fpnumber iy_hemisphere = (2.0f / 5.0f) * mass_hemisphere * radius * radius;
+        
+        // 总惯性张量（两个半球体）
+        fpnumber ix_total = ix_cylinder + 2.0f * ix_hemisphere;
+        fpnumber iy_total = iy_cylinder + 2.0f * iy_hemisphere;
+        fpnumber iz_total = iz_cylinder + 2.0f * iz_hemisphere;
+        
+        return Vector3(ix_total, iy_total, iz_total);
     }
 
     /**
      * @brief 获取胶囊体对象
      * @return 胶囊体对象的常量引用
      */
-    const TCapsule<T>& GetCapsule() const { return mCapsule; }
+    const Capsule& GetCapsule() const { return mCapsule; }
 
 private:
-    TCapsule<T> mCapsule; ///< 胶囊体对象
+    Capsule mCapsule; ///< 胶囊体对象
 };
-
-// 类型别名
-typedef TCapsuleShape<float> CapsuleShapef;  ///< 单精度胶囊体形状
-typedef TCapsuleShape<double> CapsuleShaped; ///< 双精度胶囊体形状
-typedef TCapsuleShape<fpnumber> CapsuleShape; ///< 根据配置的精度胶囊体形状
 
 } // namespace SympConv
 

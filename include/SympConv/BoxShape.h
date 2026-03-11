@@ -1,7 +1,7 @@
 #ifndef SYMPCONV_BOX_SHAPE_H
 #define SYMPCONV_BOX_SHAPE_H
 
-#include "ConvexShape.h"
+#include "Shape.h"
 #include "Box.h"
 
 namespace SympConv {
@@ -9,61 +9,67 @@ namespace SympConv {
 /**
  * @brief 盒子形状模板类
  * @details 实现了盒子的凸形状接口，用于碰撞检测等场景
- * @tparam T 浮点类型，如float、double
  */
-template<typename T>
-class TBoxShape : public TConvexShape<T>
+class BoxShape : public Shape
 {
 public:
     /**
      * @brief 构造函数
      * @param box 盒子对象
      */
-    TBoxShape(const TBox<T>& box) :
-        TConvexShape<T>(EConvexShapeType::Box), mBox(box) {}
+    BoxShape(const Box& box) :
+        Shape(ShapeGroupType::Convex, ShapeType::Box), mBox(box) {}
 
     /**
-     * @brief 获取在指定方向上的支持点
-     * @param direction 方向向量
+     * @brief 在本地坐标系中获取支持点
+     * @param dir_local 本地坐标系中的方向向量
      * @return 支持点
      */
-    Vector3 GetSupport(const Vector3& direction) const override
+    Vector3 GetLocalSupport(const Vector3& dir_local) const override
     {
-        TVector3<T> extents = mBox.mHalfExtents;
-        TVector3<T> local_support(0, 0, 0);
-        
-        // 将方向向量转换到局部坐标系
-        TVector3<T> world_direction(direction.x, direction.y, direction.z);
-        TVector3<T> local_direction = mBox.mTransform.InverseTransformDirection(world_direction);
+        Vector3 extents = mBox.mHalfExtents;
+        Vector3 local_support(0, 0, 0);
         
         // 计算局部坐标系中的支持点
-        local_support.x = extents.x * (local_direction.x > 0 ? 1 : (local_direction.x < 0 ? -1 : 0));
-        local_support.y = extents.y * (local_direction.y > 0 ? 1 : (local_direction.y < 0 ? -1 : 0));
-        local_support.z = extents.z * (local_direction.z > 0 ? 1 : (local_direction.z < 0 ? -1 : 0));
+        local_support.x = extents.x * (dir_local.x > 0 ? 1 : (dir_local.x < 0 ? -1 : 0));
+        local_support.y = extents.y * (dir_local.y > 0 ? 1 : (dir_local.y < 0 ? -1 : 0));
+        local_support.z = extents.z * (dir_local.z > 0 ? 1 : (dir_local.z < 0 ? -1 : 0));
         
-        // 应用变换（旋转和缩放）
-        TVector3<T> world_support = mBox.mTransform.TransformVector(local_support);
+        return local_support;
+    }
+
+    /**
+     * @brief 获取在本地坐标系中的惯性张量
+     * @param mass 质量
+     * @return 惯性张量
+     */
+    virtual Vector3 GetLocalInertiaTensor(fpnumber mass) const override
+    {
+        // 计算盒子的全长（半长乘以2）
+        fpnumber width = mBox.mHalfExtents.x * 2;
+        fpnumber height = mBox.mHalfExtents.y * 2;
+        fpnumber depth = mBox.mHalfExtents.z * 2;
         
-        // 添加中心
-        world_support += mBox.mCenter;
+        // 计算惯性张量分量
+        // Ix = (1/12) * m * (height² + depth²)
+        // Iy = (1/12) * m * (width² + depth²)
+        // Iz = (1/12) * m * (width² + height²)
+        fpnumber ix = (mass / 12.0f) * (height * height + depth * depth);
+        fpnumber iy = (mass / 12.0f) * (width * width + depth * depth);
+        fpnumber iz = (mass / 12.0f) * (width * width + height * height);
         
-        return Vector3(world_support.x, world_support.y, world_support.z);
+        return Vector3(ix, iy, iz);
     }
 
     /**
      * @brief 获取盒子对象
      * @return 盒子对象的常量引用
      */
-    const TBox<T>& GetBox() const { return mBox; }
+    const Box& GetBox() const { return mBox; }
 
 private:
-    TBox<T> mBox; ///< 盒子对象
+    Box mBox; ///< 盒子对象
 };
-
-// 类型别名
-typedef TBoxShape<float> BoxShapef;  ///< 单精度盒子形状
-typedef TBoxShape<double> BoxShaped; ///< 双精度盒子形状
-typedef TBoxShape<fpnumber> BoxShape; ///< 根据配置的精度盒子形状
 
 } // namespace SympConv
 

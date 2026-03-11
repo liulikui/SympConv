@@ -1,99 +1,115 @@
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
+#include "SympConv/Cone.h"
 #include "SympConv/ConeShape.h"
+#include "SympConv/Vector.h"
 #include "TestUtils.h"
 
-using namespace SympConv;
-using namespace SympConvTest;
+namespace SympConvTest {
 
-TEST(ConeShapeTest, GetSupport)
-{
-    // 创建一个圆锥体，顶点在(0, 0, 1)，底面中心在(0, 0, 0)，半径为1
-    Cone cone(Vector3(0, 0, 1), Vector3(0, 0, 0), 1.0f);
+using fpnumber = SympConv::fpnumber;
+using Cone = SympConv::Cone;
+using ConeShape = SympConv::ConeShape;
+using Vec3 = SympConv::Vector3;
+
+TEST(ConeShapeTest, GetLocalSupport) {
+    // 创建一个高度为2，半径为1的圆锥体
+    Cone cone(2.0f, 1.0f);
     ConeShape shape(cone);
     
-    // 测试不同方向的支持点
+    // 测试正Y方向（顶点方向）
+    Vec3 dir_y_pos(0, 1, 0);
+    Vec3 support_y_pos = shape.GetLocalSupport(dir_y_pos);
+    EXPECT_TRUE(FloatEqual(support_y_pos.x, 0.0f));
+    EXPECT_TRUE(FloatEqual(support_y_pos.y, 2.0f)); // 顶点
+    EXPECT_TRUE(FloatEqual(support_y_pos.z, 0.0f));
     
-    // 方向向上（指向顶点）
-    Vector3 support = shape.GetSupport(Vector3(0, 0, 1));
-    EXPECT_TRUE(FloatEqual(support.x, 0) && FloatEqual(support.y, 0) && FloatEqual(support.z, 1));
+    // 测试负Y方向（底面方向）
+    Vec3 dir_y_neg(0, -1, 0);
+    Vec3 support_y_neg = shape.GetLocalSupport(dir_y_neg);
+    EXPECT_TRUE(FloatEqual(support_y_neg.x, 0.0f));
+    EXPECT_TRUE(FloatEqual(support_y_neg.y, 0.0f)); // 底面中心
+    EXPECT_TRUE(FloatEqual(support_y_neg.z, 0.0f));
     
-    // 方向向下（指向底面）
-    support = shape.GetSupport(Vector3(0, 0, -1));
-    EXPECT_TRUE(FloatEqual(support.x, 0) && FloatEqual(support.y, 0) && FloatEqual(support.z, 0));
+    // 测试正X方向
+    Vec3 dir_x_pos(1, 0, 0);
+    Vec3 support_x_pos = shape.GetLocalSupport(dir_x_pos);
+    EXPECT_TRUE(FloatEqual(support_x_pos.x, 1.0f)); // 底面边缘
+    EXPECT_TRUE(FloatEqual(support_x_pos.y, 0.0f));
+    EXPECT_TRUE(FloatEqual(support_x_pos.z, 0.0f));
     
-    // 方向沿x轴正方向
-    support = shape.GetSupport(Vector3(1, 0, 0));
-    EXPECT_TRUE(FloatEqual(support.x, 1) && FloatEqual(support.y, 0) && FloatEqual(support.z, 0));
+    // 测试正Z方向
+    Vec3 dir_z_pos(0, 0, 1);
+    Vec3 support_z_pos = shape.GetLocalSupport(dir_z_pos);
+    EXPECT_TRUE(FloatEqual(support_z_pos.x, 0.0f));
+    EXPECT_TRUE(FloatEqual(support_z_pos.y, 0.0f));
+    EXPECT_TRUE(FloatEqual(support_z_pos.z, 1.0f)); // 底面边缘
     
-    // 方向沿y轴正方向
-    support = shape.GetSupport(Vector3(0, 1, 0));
-    EXPECT_TRUE(FloatEqual(support.x, 0) && FloatEqual(support.y, 1) && FloatEqual(support.z, 0));
+    // 测试负X方向
+    Vec3 dir_x_neg(-1, 0, 0);
+    Vec3 support_x_neg = shape.GetLocalSupport(dir_x_neg);
+    EXPECT_TRUE(FloatEqual(support_x_neg.x, -1.0f)); // 底面边缘
+    EXPECT_TRUE(FloatEqual(support_x_neg.y, 0.0f));
+    EXPECT_TRUE(FloatEqual(support_x_neg.z, 0.0f));
     
-    // 方向沿x轴负方向
-    support = shape.GetSupport(Vector3(-1, 0, 0));
-    EXPECT_TRUE(FloatEqual(support.x, -1) && FloatEqual(support.y, 0) && FloatEqual(support.z, 0));
+    // 测试负Z方向
+    Vec3 dir_z_neg(0, 0, -1);
+    Vec3 support_z_neg = shape.GetLocalSupport(dir_z_neg);
+    EXPECT_TRUE(FloatEqual(support_z_neg.x, 0.0f));
+    EXPECT_TRUE(FloatEqual(support_z_neg.y, 0.0f));
+    EXPECT_TRUE(FloatEqual(support_z_neg.z, -1.0f)); // 底面边缘
     
-    // 方向沿y轴负方向
-    support = shape.GetSupport(Vector3(0, -1, 0));
-    EXPECT_TRUE(FloatEqual(support.x, 0) && FloatEqual(support.y, -1) && FloatEqual(support.z, 0));
+    // 测试斜向方向（X正，Y正，Z正）
+    Vec3 dir_diagonal(1, 1, 1);
+    Vec3 support_diagonal = shape.GetLocalSupport(dir_diagonal);
+    EXPECT_TRUE(FloatEqual(support_diagonal.x, 0.0f));
+    EXPECT_TRUE(FloatEqual(support_diagonal.y, 2.0f)); // 顶点
+    EXPECT_TRUE(FloatEqual(support_diagonal.z, 0.0f));
     
-    // 方向斜向上
-    support = shape.GetSupport(Vector3(1, 0, 1));
-    // 对于斜向上的方向，支持点应该是顶点
-    EXPECT_TRUE(FloatEqual(support.x, 0) && FloatEqual(support.y, 0) && FloatEqual(support.z, 1));
+    // 测试斜向方向（X正，Y负，Z正）
+    Vec3 dir_diagonal_neg_y(1, -1, 1);
+    Vec3 support_diagonal_neg_y = shape.GetLocalSupport(dir_diagonal_neg_y);
+    // X和Z分量应该是归一化后的方向乘以半径
+    fpnumber expected_xz = 1.0f / sqrt(2.0f);
+    EXPECT_TRUE(FloatEqual(support_diagonal_neg_y.x, expected_xz));
+    EXPECT_TRUE(FloatEqual(support_diagonal_neg_y.y, 0.0f));
+    EXPECT_TRUE(FloatEqual(support_diagonal_neg_y.z, expected_xz));
     
-    // 方向斜向下
-    support = shape.GetSupport(Vector3(1, 0, -1));
-    // 对于斜向下的方向，支持点应该在底面边缘
-    EXPECT_TRUE(FloatEqual(support.x, 1) && FloatEqual(support.y, 0) && FloatEqual(support.z, 0));
+    // 测试零方向向量
+    Vec3 dir_zero(0, 0, 0);
+    Vec3 support_zero = shape.GetLocalSupport(dir_zero);
+    // 零方向向量默认返回底面中心
+    EXPECT_TRUE(FloatEqual(support_zero.x, 0.0f));
+    EXPECT_TRUE(FloatEqual(support_zero.y, 0.0f));
+    EXPECT_TRUE(FloatEqual(support_zero.z, 0.0f));
 }
 
-TEST(ConeShapeTest, GetSupport_NotAtOrigin)
-{
-    // 创建一个圆锥体，顶点在(2, 3, 5)，底面中心在(2, 3, 4)，半径为1
-    Cone cone(Vector3(2, 3, 5), Vector3(2, 3, 4), 1.0f);
+TEST(ConeShapeTest, GetLocalSupport_DifferentSize) {
+    // 创建一个高度为4，半径为2的圆锥体
+    Cone cone(4.0f, 2.0f);
     ConeShape shape(cone);
     
-    // 测试不同方向的支持点
+    // 测试正Y方向（顶点方向）
+    Vec3 dir_y_pos(0, 1, 0);
+    Vec3 support_y_pos = shape.GetLocalSupport(dir_y_pos);
+    EXPECT_TRUE(FloatEqual(support_y_pos.x, 0.0f));
+    EXPECT_TRUE(FloatEqual(support_y_pos.y, 4.0f)); // 顶点
+    EXPECT_TRUE(FloatEqual(support_y_pos.z, 0.0f));
     
-    // 方向向上（指向顶点）
-    Vector3 support = shape.GetSupport(Vector3(0, 0, 1));
-    EXPECT_TRUE(FloatEqual(support.x, 2) && FloatEqual(support.y, 3) && FloatEqual(support.z, 5));
+    // 测试正X方向
+    Vec3 dir_x_pos(1, 0, 0);
+    Vec3 support_x_pos = shape.GetLocalSupport(dir_x_pos);
+    EXPECT_TRUE(FloatEqual(support_x_pos.x, 2.0f)); // 底面边缘
+    EXPECT_TRUE(FloatEqual(support_x_pos.y, 0.0f));
+    EXPECT_TRUE(FloatEqual(support_x_pos.z, 0.0f));
     
-    // 方向向下（指向底面）
-    support = shape.GetSupport(Vector3(0, 0, -1));
-    EXPECT_TRUE(FloatEqual(support.x, 2) && FloatEqual(support.y, 3) && FloatEqual(support.z, 4));
-    
-    // 方向沿x轴正方向
-    support = shape.GetSupport(Vector3(1, 0, 0));
-    EXPECT_TRUE(FloatEqual(support.x, 3) && FloatEqual(support.y, 3) && FloatEqual(support.z, 4));
-    
-    // 方向沿y轴正方向
-    support = shape.GetSupport(Vector3(0, 1, 0));
-    EXPECT_TRUE(FloatEqual(support.x, 2) && FloatEqual(support.y, 4) && FloatEqual(support.z, 4));
+    // 测试斜向方向（X正，Y负，Z正）
+    Vec3 dir_diagonal_neg_y(1, -1, 1);
+    Vec3 support_diagonal_neg_y = shape.GetLocalSupport(dir_diagonal_neg_y);
+    // X和Z分量应该是归一化后的方向乘以半径
+    fpnumber expected_xz = 2.0f / sqrt(2.0f);
+    EXPECT_TRUE(FloatEqual(support_diagonal_neg_y.x, expected_xz));
+    EXPECT_TRUE(FloatEqual(support_diagonal_neg_y.y, 0.0f));
+    EXPECT_TRUE(FloatEqual(support_diagonal_neg_y.z, expected_xz));
 }
 
-TEST(ConeShapeTest, GetSupport_Rotated)
-{
-    // 创建一个圆锥体，顶点在(1, 0, 0)，底面中心在(0, 0, 0)，半径为1（沿x轴方向）
-    Cone cone(Vector3(1, 0, 0), Vector3(0, 0, 0), 1.0f);
-    ConeShape shape(cone);
-    
-    // 测试不同方向的支持点
-    
-    // 方向沿x轴正方向（指向顶点）
-    Vector3 support = shape.GetSupport(Vector3(1, 0, 0));
-    EXPECT_TRUE(FloatEqual(support.x, 1) && FloatEqual(support.y, 0) && FloatEqual(support.z, 0));
-    
-    // 方向沿x轴负方向（指向底面）
-    support = shape.GetSupport(Vector3(-1, 0, 0));
-    EXPECT_TRUE(FloatEqual(support.x, 0) && FloatEqual(support.y, 0) && FloatEqual(support.z, 0));
-    
-    // 方向沿y轴正方向
-    support = shape.GetSupport(Vector3(0, 1, 0));
-    EXPECT_TRUE(FloatEqual(support.x, 0) && FloatEqual(support.y, 1) && FloatEqual(support.z, 0));
-    
-    // 方向沿z轴正方向
-    support = shape.GetSupport(Vector3(0, 0, 1));
-    EXPECT_TRUE(FloatEqual(support.x, 0) && FloatEqual(support.y, 0) && FloatEqual(support.z, 1));
-}
+} // namespace SympConvTest
