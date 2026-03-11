@@ -3,7 +3,6 @@
 
 #include "Config.h"
 #include "Vector.h"
-#include "Transform.h"
 #include "ShapeType.h"
 
 namespace SympConv {
@@ -57,7 +56,6 @@ public:
 protected:
 	ShapeGroupType mShapeGroupType; ///< 形状组类型
 	ShapeType mShapeType; ///< 形状类型
-	Transform mTransform; ///< 变换
 };
 
 } // namespace SympConv
