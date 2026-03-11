@@ -48,7 +48,10 @@ public:
      */
     virtual Vector3 GetLocalInertiaTensor(fpnumber mass) const override
     {
-        return Vector3(fpnumber(0.0), fpnumber(0.0), fpnumber(0.0));
+        // 球体的转动惯量：I = (2/5) * m * r²
+        // 由于球体是对称的，绕三个轴的转动惯量都相等
+        fpnumber inertia = (2.0f / 5.0f) * mass * mRadius * mRadius;
+        return Vector3(inertia, inertia, inertia);
     }
 
 private:

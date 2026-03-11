@@ -112,4 +112,46 @@ TEST(ConeShapeTest, GetLocalSupport_DifferentSize) {
     EXPECT_TRUE(FloatEqual(support_diagonal_neg_y.z, expected_xz));
 }
 
+TEST(ConeShapeTest, GetLocalInertiaTensor) {
+    // 创建一个高度为2，半径为1的圆锥体
+    Cone cone(2.0f, 1.0f);
+    ConeShape shape(cone);
+    
+    // 测试质量为1的情况
+    fpnumber mass = 1.0f;
+    Vec3 inertia = shape.GetLocalInertiaTensor(mass);
+    
+    // 验证惯性张量的各个分量都大于0
+    EXPECT_TRUE(inertia.x > 0);
+    EXPECT_TRUE(inertia.y > 0);
+    EXPECT_TRUE(inertia.z > 0);
+    
+    // 对于沿Y轴的圆锥体，Ix和Iz应该相等
+    EXPECT_TRUE(FloatEqual(inertia.x, inertia.z));
+    
+    // 验证Iy应该小于Ix和Iz（因为圆锥体绕对称轴的转动惯量更小）
+    EXPECT_TRUE(inertia.y < inertia.x);
+}
+
+TEST(ConeShapeTest, GetLocalInertiaTensor_DifferentSize) {
+    // 创建一个高度为4，半径为2的圆锥体
+    Cone cone(4.0f, 2.0f);
+    ConeShape shape(cone);
+    
+    // 测试质量为2的情况
+    fpnumber mass = 2.0f;
+    Vec3 inertia = shape.GetLocalInertiaTensor(mass);
+    
+    // 验证惯性张量的各个分量都大于0
+    EXPECT_TRUE(inertia.x > 0);
+    EXPECT_TRUE(inertia.y > 0);
+    EXPECT_TRUE(inertia.z > 0);
+    
+    // 对于沿Y轴的圆锥体，Ix和Iz应该相等
+    EXPECT_TRUE(FloatEqual(inertia.x, inertia.z));
+    
+    // 验证Iy应该小于Ix和Iz
+    EXPECT_TRUE(inertia.y < inertia.x);
+}
+
 } // namespace SympConvTest

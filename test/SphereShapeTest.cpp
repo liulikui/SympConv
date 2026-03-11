@@ -95,4 +95,48 @@ TEST(SphereShapeTest, GetLocalSupport_DifferentRadius) {
     EXPECT_TRUE(FloatEqual(actual_length, expected_length));
 }
 
+TEST(SphereShapeTest, GetLocalInertiaTensor) {
+    // 创建一个半径为1的球体形状
+    SphereShape shape(1.0f);
+    
+    // 测试质量为1的情况
+    fpnumber mass = 1.0f;
+    Vec3 inertia = shape.GetLocalInertiaTensor(mass);
+    
+    // 验证惯性张量的各个分量都大于0
+    EXPECT_TRUE(inertia.x > 0);
+    EXPECT_TRUE(inertia.y > 0);
+    EXPECT_TRUE(inertia.z > 0);
+    
+    // 对于球体，三个分量应该相等
+    EXPECT_TRUE(FloatEqual(inertia.x, inertia.y));
+    EXPECT_TRUE(FloatEqual(inertia.y, inertia.z));
+    
+    // 验证理论值：(2/5) * 1 * 1² = 0.4
+    fpnumber expected = 0.4f;
+    EXPECT_TRUE(FloatEqual(inertia.x, expected));
+}
+
+TEST(SphereShapeTest, GetLocalInertiaTensor_DifferentSize) {
+    // 创建一个半径为2的球体形状
+    SphereShape shape(2.0f);
+    
+    // 测试质量为2的情况
+    fpnumber mass = 2.0f;
+    Vec3 inertia = shape.GetLocalInertiaTensor(mass);
+    
+    // 验证惯性张量的各个分量都大于0
+    EXPECT_TRUE(inertia.x > 0);
+    EXPECT_TRUE(inertia.y > 0);
+    EXPECT_TRUE(inertia.z > 0);
+    
+    // 对于球体，三个分量应该相等
+    EXPECT_TRUE(FloatEqual(inertia.x, inertia.y));
+    EXPECT_TRUE(FloatEqual(inertia.y, inertia.z));
+    
+    // 验证理论值：(2/5) * 2 * 2² = 3.2
+    fpnumber expected = 3.2f;
+    EXPECT_TRUE(FloatEqual(inertia.x, expected));
+}
+
 } // namespace SympConvTest

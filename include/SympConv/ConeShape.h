@@ -63,7 +63,15 @@ public:
      */
     virtual Vector3 GetLocalInertiaTensor(fpnumber mass) const override
     {
-        return Vector3(fpnumber(0.0), fpnumber(0.0), fpnumber(0.0));
+        // 圆锥体绕Y轴（对称轴）的转动惯量：Iy = (3/10) * m * r²
+        // 圆锥体绕X轴和Z轴的转动惯量：Ix = Iz = (3/20) * m * (r² + 4h²)
+        fpnumber radius = mCone.mRadius;
+        fpnumber height = mCone.mHeight;
+        
+        fpnumber iy = (3.0f / 10.0f) * mass * radius * radius;
+        fpnumber ix_iz = (3.0f / 20.0f) * mass * (radius * radius + 4.0f * height * height);
+        
+        return Vector3(ix_iz, iy, ix_iz);
     }
 
     /**

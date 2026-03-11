@@ -19,7 +19,7 @@ struct TCylinder
     static_assert(std::is_floating_point_v<T>, "T must be floating point");
 
 public:
-    T mHeight;      ///< 圆柱体的高
+    T mHalfHeight;      ///< 圆柱体的半高（沿Y轴）
     T mRadius;      ///< 圆柱体半径
 
 public:
@@ -27,17 +27,16 @@ public:
      * @brief 默认构造函数
      */
     TCylinder() : 
-        mHeight(T(1)),
+        mHalfHeight(T(0.5)),
         mRadius(T(0.5)) {}
 
     /**
      * @brief 带参数的构造函数
-     * @param start 起点
-     * @param end 终点
+     * @param height 总高度
      * @param radius 半径
      */
     TCylinder(T height, T radius) :
-        mHeight(height),
+        mHalfHeight(height / 2),
         mRadius(radius) {}
 };
 

@@ -43,15 +43,13 @@ public:
             support.z = dir_xz_normalized.z * mCylinder.mRadius;
             
             // 计算Y分量，取顶面或底面
-            fpnumber half_height = mCylinder.mHeight / 2;
-            support.y = dir_local.y >= 0 ? half_height : -half_height;
+            support.y = dir_local.y >= 0 ? mCylinder.mHalfHeight : -mCylinder.mHalfHeight;
         }
         else
         {
             // 方向向量沿Y轴方向，支持点在顶面或底面的中心
-            fpnumber half_height = mCylinder.mHeight / 2;
             support.x = 0;
-            support.y = dir_local.y >= 0 ? half_height : -half_height;
+            support.y = dir_local.y >= 0 ? mCylinder.mHalfHeight : -mCylinder.mHalfHeight;
             support.z = 0;
         }
         

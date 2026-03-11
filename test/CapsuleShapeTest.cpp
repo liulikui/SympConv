@@ -115,6 +115,27 @@ TEST(CapsuleShapeTest, GetLocalInertiaTensor) {
     
     // 对于沿Y轴的胶囊体，Ix和Iz应该相等
     EXPECT_TRUE(FloatEqual(inertia.x, inertia.z));
+    
+    // 验证Ix应该大于Iy（因为胶囊体沿Y轴，绕Y轴的转动惯量更小）
+    EXPECT_TRUE(inertia.x > inertia.y);
+}
+
+TEST(CapsuleShapeTest, GetLocalInertiaTensor_SphereCase) {
+    // 创建一个高度为0的胶囊体（近似球体）
+    Capsule capsule(0.0f, 1.0f);
+    CapsuleShape shape(capsule);
+    
+    // 测试质量为1的情况
+    fpnumber mass = 1.0f;
+    Vec3 inertia = shape.GetLocalInertiaTensor(mass);
+    
+    // 对于球体，三个分量应该相等
+    EXPECT_TRUE(FloatEqual(inertia.x, inertia.y));
+    EXPECT_TRUE(FloatEqual(inertia.y, inertia.z));
+    
+    // 球体的惯性张量理论值为 (2/5) * m * r^2 = 0.4
+    fpnumber expected = 0.4f;
+    EXPECT_TRUE(FloatEqual(inertia.x, expected));
 }
 
 TEST(CapsuleShapeTest, GetLocalInertiaTensor_DifferentSize) {
