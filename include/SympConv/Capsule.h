@@ -4,6 +4,7 @@
 #include "Config.h"
 #include "Vector.h"
 #include "AABB.h"
+#include "math.h"
 #include <type_traits>
 
 namespace SympConv {
@@ -38,6 +39,20 @@ public:
     TCapsule(T height, T radius) :
         mHalfHeight(height / 2),
         mRadius(radius) {}
+
+    /**
+     * @brief 获取体积
+     * @return 体积
+     */
+    fpnumber GetVolume() const
+    {
+        // 胶囊体的体积 = 圆柱体体积 + 两个半球体体积
+        // 圆柱体体积 = π * r² * h
+        // 两个半球体体积 = (4/3) * π * r³
+        T r = mRadius;
+        T h = mHalfHeight * 2;
+        return M_PI * r * r * h + (4.0f / 3.0f) * M_PI * r * r * r;
+    }
 };
 
 // 类型别名

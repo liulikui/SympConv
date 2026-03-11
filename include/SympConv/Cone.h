@@ -4,6 +4,7 @@
 #include "Config.h"
 #include "Vector.h"
 #include "AABB.h"
+#include "math.h"
 #include <type_traits>
 #include <algorithm>
 
@@ -39,6 +40,18 @@ public:
     TCone(T height, T radius) :
         mHeight(height),
         mRadius(radius) {}
+
+    /**
+     * @brief 获取体积
+     * @return 体积
+     */
+    fpnumber GetVolume() const
+    {
+        // 圆锥体的体积 = (1/3) * π * r² * h
+        T r = mRadius;
+        T h = mHeight;
+        return (1.0f / 3.0f) * M_PI * r * r * h;
+    }
 };
 
 // 类型别名

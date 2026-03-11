@@ -84,6 +84,15 @@ public:
         return AABB(min, max);
     }
 
+    /**
+     * @brief 获取体积
+     * @return 体积
+     */
+    virtual fpnumber GetVolume() const override
+    {
+        return mBox.GetVolume();
+    }
+
 private:
     Box mBox; ///< 盒子对象
 };

@@ -60,6 +60,12 @@ public:
 	 */
 	virtual AABB GetLocalBounds() const = 0;
 
+	/**
+	 * @brief 获取体积
+	 * @return 体积
+	 */
+	virtual fpnumber GetVolume() const = 0;
+
 protected:
 	ShapeGroupType mShapeGroupType; ///< 形状组类型
 	ShapeType mShapeType; ///< 形状类型

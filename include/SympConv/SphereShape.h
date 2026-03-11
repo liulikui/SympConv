@@ -3,6 +3,7 @@
 
 #include "ConvexShape.h"
 #include "Sphere.h"
+#include "math.h"
 
 namespace SympConv {
 
@@ -69,6 +70,16 @@ public:
         
         // 创建并返回AABB
         return AABB(min, max);
+    }
+
+    /**
+     * @brief 获取体积
+     * @return 体积
+     */
+    virtual fpnumber GetVolume() const override
+    {
+        // 球体的体积 = (4/3) * π * r³
+        return (4.0f / 3.0f) * M_PI * mRadius * mRadius * mRadius;
     }
 
 private:

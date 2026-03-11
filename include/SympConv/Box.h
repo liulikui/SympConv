@@ -35,6 +35,16 @@ public:
      */
     TBox(const TVector3<T>& halfExtents) :
         mHalfExtents(halfExtents) { }
+
+    /**
+     * @brief 获取体积
+     * @return 体积
+     */
+    fpnumber GetVolume() const
+    {
+        // 盒子的体积 = 2 * 半长x * 2 * 半长y * 2 * 半长z = 8 * 半长x * 半长y * 半长z
+        return 8.0f * mHalfExtents.x * mHalfExtents.y * mHalfExtents.z;
+    }
 };
 
 // 类型别名

@@ -22,6 +22,12 @@ public:
         Shape(ShapeGroupType::Convex, ShapeType::Cylinder), mCylinder(cylinder) {}
 
     /**
+     * @brief 获取圆柱体对象
+     * @return 圆柱体对象的常量引用
+     */
+    const Cylinder& GetCylinder() const { return mCylinder; }
+
+    /**
      * @brief 在本地坐标系中获取支持点
      * @param dir_local 本地坐标系中的方向向量
      * @return 支持点
@@ -67,12 +73,6 @@ public:
     }
 
     /**
-     * @brief 获取圆柱体对象
-     * @return 圆柱体对象的常量引用
-     */
-    const Cylinder& GetCylinder() const { return mCylinder; }
-
-    /**
      * @brief 获取在本地坐标系中的AABB
      * @return AABB
      */
@@ -88,6 +88,15 @@ public:
         
         // 创建并返回AABB
         return AABB(min, max);
+    }
+
+    /**
+     * @brief 获取体积
+     * @return 体积
+     */
+    virtual fpnumber GetVolume() const override
+    {
+        return mCylinder.GetVolume();
     }
 
 private:
