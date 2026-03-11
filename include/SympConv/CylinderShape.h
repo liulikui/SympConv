@@ -1,7 +1,7 @@
 #ifndef SYMPCONV_CYLINDER_SHAPE_H
 #define SYMPCONV_CYLINDER_SHAPE_H
 
-#include "Shape.h"
+#include "ConvexShape.h"
 #include "Cylinder.h"
 #include <algorithm>
 
@@ -11,7 +11,7 @@ namespace SympConv {
  * @brief 圆柱体形状模板类
  * @details 实现了圆柱体的凸形状接口，用于碰撞检测等场景
  */
-class CylinderShape : public Shape
+class CylinderShape : public ConvexShape
 {
 public:
     /**
@@ -19,7 +19,7 @@ public:
      * @param cylinder 圆柱体对象
      */
     CylinderShape(const Cylinder& cylinder) :
-        Shape(ShapeGroupType::Convex, ShapeType::Cylinder), mCylinder(cylinder) {}
+        ConvexShape(ShapeType::Cylinder), mCylinder(cylinder) {}
 
     /**
      * @brief 获取圆柱体对象

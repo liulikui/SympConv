@@ -41,13 +41,6 @@ public:
 	ShapeType GetShapeType() const { return mShapeType; }
 
 	/**
-	 * @brief 获取在本地坐标系中的支持点
-	 * @param dir_local 本地坐标系中的方向向量
-	 * @return 支持点
-	 */
-	virtual Vector3 GetLocalSupport(const Vector3& dir_local) const = 0;
-
-	/**
 	 * @brief 获取在本地坐标系中的惯性张量
 	 * @param mass 质量
 	 * @return 惯性张量

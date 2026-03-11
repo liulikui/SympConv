@@ -1,7 +1,7 @@
 #ifndef SYMPCONV_CONE_SHAPE_H
 #define SYMPCONV_CONE_SHAPE_H
 
-#include "Shape.h"
+#include "ConvexShape.h"
 #include "Cone.h"
 
 namespace SympConv {
@@ -10,7 +10,7 @@ namespace SympConv {
  * @brief 圆锥体形状模板类
  * @details 实现了圆锥体的凸形状接口，用于碰撞检测等场景
  */
-class ConeShape : public Shape
+class ConeShape : public ConvexShape
 {
 public:
     /**
@@ -18,7 +18,7 @@ public:
      * @param cone 圆锥体对象
      */
     ConeShape(const Cone& cone) :
-        Shape(ShapeGroupType::Convex, ShapeType::Cone), mCone(cone) {}
+        ConvexShape(ShapeType::Cone), mCone(cone) {}
 
     /**
      * @brief 获取圆锥体对象

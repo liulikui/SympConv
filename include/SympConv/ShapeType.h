@@ -12,6 +12,7 @@ namespace SympConv {
 enum class ShapeGroupType : uint8_t
 {
 	Convex,     ///< 凸形状
+
 	Mesh,       ///< 网格形状
 	HeightField,///< 高度场形状
 	SoftBody,	///< 软体

@@ -1,7 +1,7 @@
 #ifndef SYMPCONV_BOX_SHAPE_H
 #define SYMPCONV_BOX_SHAPE_H
 
-#include "Shape.h"
+#include "ConvexShape.h"
 #include "Box.h"
 
 namespace SympConv {
@@ -10,7 +10,7 @@ namespace SympConv {
  * @brief 盒子形状模板类
  * @details 实现了盒子的凸形状接口，用于碰撞检测等场景
  */
-class BoxShape : public Shape
+class BoxShape : public ConvexShape
 {
 public:
     /**
@@ -18,14 +18,20 @@ public:
      * @param box 盒子对象
      */
     BoxShape(const Box& box) :
-        Shape(ShapeGroupType::Convex, ShapeType::Box), mBox(box) {}
+        ConvexShape(ShapeType::Box), mBox(box) {}
+
+    /**
+     * @brief 获取盒子对象
+     * @return 盒子对象的常量引用
+     */
+    const Box& GetBox() const { return mBox; }
 
     /**
      * @brief 在本地坐标系中获取支持点
      * @param dir_local 本地坐标系中的方向向量
      * @return 支持点
      */
-    Vector3 GetLocalSupport(const Vector3& dir_local) const override
+    virtual Vector3 GetLocalSupport(const Vector3& dir_local) const override
     {
         Vector3 extents = mBox.mHalfExtents;
         Vector3 local_support(0, 0, 0);
@@ -60,12 +66,6 @@ public:
         
         return Vector3(ix, iy, iz);
     }
-
-    /**
-     * @brief 获取盒子对象
-     * @return 盒子对象的常量引用
-     */
-    const Box& GetBox() const { return mBox; }
 
     /**
      * @brief 获取在本地坐标系中的AABB

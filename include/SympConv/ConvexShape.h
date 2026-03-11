@@ -5,11 +5,9 @@
 
 namespace SympConv {
 
-
 /**
  * @brief 凸形状基类模板
  * @details 所有凸形状的抽象基类，定义了凸形状的基本接口
- * @tparam T 浮点类型，如float、double
  */
 class ConvexShape : public Shape
 {
