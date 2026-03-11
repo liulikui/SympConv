@@ -159,7 +159,7 @@ public:
 // 类型别名
 typedef TSegment<float> Segmentf;
 typedef TSegment<double> Segmentd;
-typedef TSegment<fpnumber> Segment;
+typedef TSegment<Real> Segment;
 
 } // namespace SympConv
 

@@ -7,7 +7,7 @@
 
 namespace SympConvTest {
 
-using fpnumber = SympConv::fpnumber;
+using Real = SympConv::Real;
 using Cylinder = SympConv::Cylinder;
 using CylinderShape = SympConv::CylinderShape;
 using Vec3 = SympConv::Vector3;
@@ -64,7 +64,7 @@ TEST(CylinderShapeTest, GetLocalSupport) {
     Vec3 dir_diagonal(1, 1, 1);
     Vec3 support_diagonal = shape.GetLocalSupport(dir_diagonal);
     // XZ平面上的分量归一化后乘以半径
-    fpnumber expected_xz = 1.0f / sqrt(2.0f);
+    Real expected_xz = 1.0f / sqrt(2.0f);
     EXPECT_TRUE(FloatEqual(support_diagonal.x, expected_xz)); // 归一化后的X分量乘以半径
     EXPECT_TRUE(FloatEqual(support_diagonal.y, 1.0f)); // 上顶面
     EXPECT_TRUE(FloatEqual(support_diagonal.z, expected_xz)); // 归一化后的Z分量乘以半径

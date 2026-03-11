@@ -883,15 +883,15 @@ public:
 // 类型别名
 typedef TMatrix2x2<float> Matrix2x2f;
 typedef TMatrix2x2<double> Matrix2x2d;
-typedef TMatrix2x2<fpnumber> Matrix2x2;
+typedef TMatrix2x2<Real> Matrix2x2;
 
 typedef TMatrix3x3<float> Matrix3x3f;
 typedef TMatrix3x3<double> Matrix3x3d;
-typedef TMatrix3x3<fpnumber> Matrix3x3;
+typedef TMatrix3x3<Real> Matrix3x3;
 
 typedef TMatrix4x4<float> Matrix4x4f;
 typedef TMatrix4x4<double> Matrix4x4d;
-typedef TMatrix4x4<fpnumber> Matrix4x4;
+typedef TMatrix4x4<Real> Matrix4x4;
 
 } // namespace SympConv
 

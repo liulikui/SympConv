@@ -1,12 +1,12 @@
-﻿#ifndef SYMPCONV_CONFIG_H
+#ifndef SYMPCONV_CONFIG_H
 #define SYMPCONV_CONFIG_H
 
 namespace SympConv {
 
 #if defined(SYMPCONV_DOUBLE_PRECISION_ENABLED)
-    using fpnumber = double;
+    using Real = double;
 #else
-    using fpnumber = float;
+    using Real = float;
 #endif
 }
 #endif // SYMPCONV_CONFIG_H

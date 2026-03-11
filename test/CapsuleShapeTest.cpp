@@ -7,7 +7,7 @@
 
 namespace SympConvTest {
 
-using fpnumber = SympConv::fpnumber;
+using Real = SympConv::Real;
 using Capsule = SympConv::Capsule;
 using CapsuleShape = SympConv::CapsuleShape;
 using Vec3 = SympConv::Vector3;
@@ -107,7 +107,7 @@ TEST(CapsuleShapeTest, GetLocalInertiaTensor) {
     CapsuleShape shape(capsule);
     
     // 测试质量为1的情况
-    fpnumber mass = 1.0f;
+    Real mass = 1.0f;
     Vec3 inertia = shape.GetLocalInertiaTensor(mass);
     
     // 验证惯性张量的各个分量都大于0
@@ -128,7 +128,7 @@ TEST(CapsuleShapeTest, GetLocalInertiaTensor_SphereCase) {
     CapsuleShape shape(capsule);
     
     // 测试质量为1的情况
-    fpnumber mass = 1.0f;
+    Real mass = 1.0f;
     Vec3 inertia = shape.GetLocalInertiaTensor(mass);
     
     // 对于球体，三个分量应该相等
@@ -136,7 +136,7 @@ TEST(CapsuleShapeTest, GetLocalInertiaTensor_SphereCase) {
     EXPECT_TRUE(FloatEqual(inertia.y, inertia.z));
     
     // 球体的惯性张量理论值为 (2/5) * m * r^2 = 0.4
-    fpnumber expected = 0.4f;
+    Real expected = 0.4f;
     EXPECT_TRUE(FloatEqual(inertia.x, expected));
 }
 
@@ -146,7 +146,7 @@ TEST(CapsuleShapeTest, GetLocalInertiaTensor_DifferentSize) {
     CapsuleShape shape(capsule);
     
     // 测试质量为2的情况
-    fpnumber mass = 2.0f;
+    Real mass = 2.0f;
     Vec3 inertia = shape.GetLocalInertiaTensor(mass);
     
     // 验证惯性张量的各个分量都大于0

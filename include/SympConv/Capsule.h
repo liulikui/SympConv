@@ -44,7 +44,7 @@ public:
      * @brief 获取体积
      * @return 体积
      */
-    fpnumber GetVolume() const
+    Real GetVolume() const
     {
         // 胶囊体的体积 = 圆柱体体积 + 两个半球体体积
         // 圆柱体体积 = π * r² * h
@@ -58,7 +58,7 @@ public:
 // 类型别名
 typedef TCapsule<float> Capsulef;
 typedef TCapsule<double> Capsuled;
-typedef TCapsule<fpnumber> Capsule;
+typedef TCapsule<Real> Capsule;
 
 } // namespace SympConv
 

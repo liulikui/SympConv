@@ -359,7 +359,7 @@ public:
 // 类型别名
 typedef TAABB<float> AABBf;
 typedef TAABB<double> AABBd;
-typedef TAABB<fpnumber> AABB;
+typedef TAABB<Real> AABB;
 
 } // namespace SympConv
 

@@ -506,7 +506,7 @@ public:
 // 类型别名
 typedef TTransform<float> Transformf;
 typedef TTransform<double> Transformd;
-typedef TTransform<fpnumber> Transform;
+typedef TTransform<Real> Transform;
 
 } // namespace SympConv
 

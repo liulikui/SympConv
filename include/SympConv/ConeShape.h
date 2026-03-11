@@ -38,7 +38,7 @@ public:
         
         // 计算方向向量在xz平面上的分量
         Vector3 dir_xz(dir_local.x, 0, dir_local.z);
-        fpnumber length_xz = dir_xz.Length();
+        Real length_xz = dir_xz.Length();
         
         if (dir_local.y > 0)
         {
@@ -67,15 +67,15 @@ public:
      * @param mass 质量
      * @return 惯性张量
      */
-    virtual Vector3 GetLocalInertiaTensor(fpnumber mass) const override
+    virtual Vector3 GetLocalInertiaTensor(Real mass) const override
     {
         // 圆锥体绕Y轴（对称轴）的转动惯量：Iy = (3/10) * m * r²
         // 圆锥体绕X轴和Z轴的转动惯量：Ix = Iz = (3/20) * m * (r² + 4h²)
-        fpnumber radius = mCone.mRadius;
-        fpnumber height = mCone.mHeight;
+        Real radius = mCone.mRadius;
+        Real height = mCone.mHeight;
         
-        fpnumber iy = (3.0f / 10.0f) * mass * radius * radius;
-        fpnumber ix_iz = (3.0f / 20.0f) * mass * (radius * radius + 4.0f * height * height);
+        Real iy = (3.0f / 10.0f) * mass * radius * radius;
+        Real ix_iz = (3.0f / 20.0f) * mass * (radius * radius + 4.0f * height * height);
         
         return Vector3(ix_iz, iy, ix_iz);
     }
@@ -87,8 +87,8 @@ public:
     virtual AABB GetLocalBounds() const override
     {
         // 圆锥体的高度和半径
-        fpnumber height = mCone.mHeight;
-        fpnumber radius = mCone.mRadius;
+        Real height = mCone.mHeight;
+        Real radius = mCone.mRadius;
         
         // 计算AABB的最小和最大点
         Vector3 min(-radius, 0, -radius);
@@ -102,7 +102,7 @@ public:
      * @brief 获取体积
      * @return 体积
      */
-    virtual fpnumber GetVolume() const override
+    virtual Real GetVolume() const override
     {
         return mCone.GetVolume();
     }

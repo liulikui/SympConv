@@ -41,7 +41,7 @@ public:
         Vector3 p2(0, mCapsule.mHalfHeight, 0);
         
         // 计算方向向量的长度
-        fpnumber dir_length = dir_local.Length();
+        Real dir_length = dir_local.Length();
         if (dir_length < 1e-10)
         {
             // 零方向向量，返回上顶点加上半径
@@ -52,7 +52,7 @@ public:
         Vector3 dir_normalized = dir_local / dir_length;
         
         // 计算方向向量在Y轴上的投影长度
-        fpnumber proj_y = dir_normalized.y;
+        Real proj_y = dir_normalized.y;
         
         // 计算胶囊体轴线上的点
         Vector3 axis_point;
@@ -69,7 +69,7 @@ public:
         
         // 计算垂直于Y轴的方向向量
         Vector3 dir_perp = dir_normalized - Vector3(0, proj_y, 0);
-        fpnumber perp_length = dir_perp.Length();
+        Real perp_length = dir_perp.Length();
         
         if (perp_length < 1e-10)
         {
@@ -91,35 +91,35 @@ public:
      * @param mass 质量
      * @return 惯性张量
      */
-    virtual Vector3 GetLocalInertiaTensor(fpnumber mass) const override
+    virtual Vector3 GetLocalInertiaTensor(Real mass) const override
     {
         // 胶囊体沿Y轴方向
-        fpnumber radius = mCapsule.mRadius;
-        fpnumber height = mCapsule.mHalfHeight * 2; // 总高度
+        Real radius = mCapsule.mRadius;
+        Real height = mCapsule.mHalfHeight * 2; // 总高度
         
         // 计算体积
-        fpnumber volume_cylinder = M_PI * radius * radius * height;
-        fpnumber volume_hemispheres = (4.0f / 3.0f) * M_PI * radius * radius * radius;
-        fpnumber volume_total = volume_cylinder + volume_hemispheres;
+        Real volume_cylinder = M_PI * radius * radius * height;
+        Real volume_hemispheres = (4.0f / 3.0f) * M_PI * radius * radius * radius;
+        Real volume_total = volume_cylinder + volume_hemispheres;
         
         // 计算各部分质量
-        fpnumber mass_cylinder = mass * volume_cylinder / volume_total;
-        fpnumber mass_hemisphere = mass * (volume_hemispheres / 2.0f) / volume_total;
+        Real mass_cylinder = mass * volume_cylinder / volume_total;
+        Real mass_hemisphere = mass * (volume_hemispheres / 2.0f) / volume_total;
         
         // 计算圆柱体的惯性张量
-        fpnumber ix_cylinder = (1.0f / 12.0f) * mass_cylinder * (3.0f * radius * radius + height * height);
-        fpnumber iz_cylinder = ix_cylinder;
-        fpnumber iy_cylinder = (1.0f / 2.0f) * mass_cylinder * radius * radius;
+        Real ix_cylinder = (1.0f / 12.0f) * mass_cylinder * (3.0f * radius * radius + height * height);
+        Real iz_cylinder = ix_cylinder;
+        Real iy_cylinder = (1.0f / 2.0f) * mass_cylinder * radius * radius;
         
         // 计算一个半球体的惯性张量
-        fpnumber ix_hemisphere = (2.0f / 5.0f) * mass_hemisphere * radius * radius + mass_hemisphere * (height / 2.0f) * (height / 2.0f);
-        fpnumber iz_hemisphere = ix_hemisphere;
-        fpnumber iy_hemisphere = (2.0f / 5.0f) * mass_hemisphere * radius * radius;
+        Real ix_hemisphere = (2.0f / 5.0f) * mass_hemisphere * radius * radius + mass_hemisphere * (height / 2.0f) * (height / 2.0f);
+        Real iz_hemisphere = ix_hemisphere;
+        Real iy_hemisphere = (2.0f / 5.0f) * mass_hemisphere * radius * radius;
         
         // 总惯性张量（两个半球体）
-        fpnumber ix_total = ix_cylinder + 2.0f * ix_hemisphere;
-        fpnumber iy_total = iy_cylinder + 2.0f * iy_hemisphere;
-        fpnumber iz_total = iz_cylinder + 2.0f * iz_hemisphere;
+        Real ix_total = ix_cylinder + 2.0f * ix_hemisphere;
+        Real iy_total = iy_cylinder + 2.0f * iy_hemisphere;
+        Real iz_total = iz_cylinder + 2.0f * iz_hemisphere;
         
         return Vector3(ix_total, iy_total, iz_total);
     }
@@ -131,8 +131,8 @@ public:
     virtual AABB GetLocalBounds() const override
     {
         // 胶囊体的半高和半径
-        fpnumber halfHeight = mCapsule.mHalfHeight;
-        fpnumber radius = mCapsule.mRadius;
+        Real halfHeight = mCapsule.mHalfHeight;
+        Real radius = mCapsule.mRadius;
         
         // 计算AABB的最小和最大点
         Vector3 min(-radius, -halfHeight - radius, -radius);
@@ -146,7 +146,7 @@ public:
      * @brief 获取体积
      * @return 体积
      */
-    virtual fpnumber GetVolume() const override
+    virtual Real GetVolume() const override
     {
         return mCapsule.GetVolume();
     }

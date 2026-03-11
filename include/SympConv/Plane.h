@@ -132,7 +132,7 @@ public:
 // 类型别名
 typedef TPlane<float> Planef;
 typedef TPlane<double> Planed;
-typedef TPlane<fpnumber> Plane;
+typedef TPlane<Real> Plane;
 
 } // namespace SympConv
 

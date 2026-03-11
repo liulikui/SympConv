@@ -45,7 +45,7 @@ public:
      * @brief 获取体积
      * @return 体积
      */
-    fpnumber GetVolume() const
+    Real GetVolume() const
     {
         // 圆锥体的体积 = (1/3) * π * r² * h
         T r = mRadius;
@@ -57,7 +57,7 @@ public:
 // 类型别名
 typedef TCone<float> Conef;
 typedef TCone<double> Coned;
-typedef TCone<fpnumber> Cone;
+typedef TCone<Real> Cone;
 
 } // namespace SympConv
 

@@ -49,20 +49,20 @@ public:
      * @param mass 质量
      * @return 惯性张量
      */
-    virtual Vector3 GetLocalInertiaTensor(fpnumber mass) const override
+    virtual Vector3 GetLocalInertiaTensor(Real mass) const override
     {
         // 计算盒子的全长（半长乘以2）
-        fpnumber width = mBox.mHalfExtents.x * 2;
-        fpnumber height = mBox.mHalfExtents.y * 2;
-        fpnumber depth = mBox.mHalfExtents.z * 2;
+        Real width = mBox.mHalfExtents.x * 2;
+        Real height = mBox.mHalfExtents.y * 2;
+        Real depth = mBox.mHalfExtents.z * 2;
         
         // 计算惯性张量分量
         // Ix = (1/12) * m * (height² + depth²)
         // Iy = (1/12) * m * (width² + depth²)
         // Iz = (1/12) * m * (width² + height²)
-        fpnumber ix = (mass / 12.0f) * (height * height + depth * depth);
-        fpnumber iy = (mass / 12.0f) * (width * width + depth * depth);
-        fpnumber iz = (mass / 12.0f) * (width * width + height * height);
+        Real ix = (mass / 12.0f) * (height * height + depth * depth);
+        Real iy = (mass / 12.0f) * (width * width + depth * depth);
+        Real iz = (mass / 12.0f) * (width * width + height * height);
         
         return Vector3(ix, iy, iz);
     }
@@ -88,7 +88,7 @@ public:
      * @brief 获取体积
      * @return 体积
      */
-    virtual fpnumber GetVolume() const override
+    virtual Real GetVolume() const override
     {
         return mBox.GetVolume();
     }

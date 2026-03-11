@@ -7,7 +7,7 @@
 
 namespace SympConvTest {
 
-using fpnumber = SympConv::fpnumber;
+using Real = SympConv::Real;
 using Cone = SympConv::Cone;
 using ConeShape = SympConv::ConeShape;
 using Vec3 = SympConv::Vector3;
@@ -71,7 +71,7 @@ TEST(ConeShapeTest, GetLocalSupport) {
     Vec3 dir_diagonal_neg_y(1, -1, 1);
     Vec3 support_diagonal_neg_y = shape.GetLocalSupport(dir_diagonal_neg_y);
     // X和Z分量应该是归一化后的方向乘以半径
-    fpnumber expected_xz = 1.0f / sqrt(2.0f);
+    Real expected_xz = 1.0f / sqrt(2.0f);
     EXPECT_TRUE(FloatEqual(support_diagonal_neg_y.x, expected_xz));
     EXPECT_TRUE(FloatEqual(support_diagonal_neg_y.y, 0.0f));
     EXPECT_TRUE(FloatEqual(support_diagonal_neg_y.z, expected_xz));
@@ -108,7 +108,7 @@ TEST(ConeShapeTest, GetLocalSupport_DifferentSize) {
     Vec3 dir_diagonal_neg_y(1, -1, 1);
     Vec3 support_diagonal_neg_y = shape.GetLocalSupport(dir_diagonal_neg_y);
     // X和Z分量应该是归一化后的方向乘以半径
-    fpnumber expected_xz = 2.0f / sqrt(2.0f);
+    Real expected_xz = 2.0f / sqrt(2.0f);
     EXPECT_TRUE(FloatEqual(support_diagonal_neg_y.x, expected_xz));
     EXPECT_TRUE(FloatEqual(support_diagonal_neg_y.y, 0.0f));
     EXPECT_TRUE(FloatEqual(support_diagonal_neg_y.z, expected_xz));
@@ -120,7 +120,7 @@ TEST(ConeShapeTest, GetLocalInertiaTensor) {
     ConeShape shape(cone);
     
     // 测试质量为1的情况
-    fpnumber mass = 1.0f;
+    Real mass = 1.0f;
     Vec3 inertia = shape.GetLocalInertiaTensor(mass);
     
     // 验证惯性张量的各个分量都大于0
@@ -141,7 +141,7 @@ TEST(ConeShapeTest, GetLocalInertiaTensor_DifferentSize) {
     ConeShape shape(cone);
     
     // 测试质量为2的情况
-    fpnumber mass = 2.0f;
+    Real mass = 2.0f;
     Vec3 inertia = shape.GetLocalInertiaTensor(mass);
     
     // 验证惯性张量的各个分量都大于0

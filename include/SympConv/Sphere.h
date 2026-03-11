@@ -74,7 +74,7 @@ public:
 // 类型别名
 typedef TSphere<float> Spheref;
 typedef TSphere<double> Sphered;
-typedef TSphere<fpnumber> Sphere;
+typedef TSphere<Real> Sphere;
 
 } // namespace SympConv
 

@@ -7,7 +7,7 @@
 
 namespace SympConvTest {
 
-using fpnumber = SympConv::fpnumber;
+using Real = SympConv::Real;
 using Sphere = SympConv::Sphere;
 using SphereShape = SympConv::SphereShape;
 using Vec3 = SympConv::Vector3;
@@ -62,8 +62,8 @@ TEST(SphereShapeTest, GetLocalSupport) {
     // 测试斜向方向
     Vec3 dir_diagonal(1, 1, 1);
     Vec3 support_diagonal = shape.GetLocalSupport(dir_diagonal);
-    fpnumber expected_length = 2.0f;
-    fpnumber actual_length = support_diagonal.Length();
+    Real expected_length = 2.0f;
+    Real actual_length = support_diagonal.Length();
     EXPECT_TRUE(FloatEqual(actual_length, expected_length));
     
     // 测试负斜向方向
@@ -92,8 +92,8 @@ TEST(SphereShapeTest, GetLocalSupport_DifferentRadius) {
     // 测试斜向方向
     Vec3 dir_diagonal(1, 2, 2);
     Vec3 support_diagonal = shape.GetLocalSupport(dir_diagonal);
-    fpnumber expected_length = 3.5f;
-    fpnumber actual_length = support_diagonal.Length();
+    Real expected_length = 3.5f;
+    Real actual_length = support_diagonal.Length();
     EXPECT_TRUE(FloatEqual(actual_length, expected_length));
 }
 
@@ -102,7 +102,7 @@ TEST(SphereShapeTest, GetLocalInertiaTensor) {
     SphereShape shape(1.0f);
     
     // 测试质量为1的情况
-    fpnumber mass = 1.0f;
+    Real mass = 1.0f;
     Vec3 inertia = shape.GetLocalInertiaTensor(mass);
     
     // 验证惯性张量的各个分量都大于0
@@ -115,7 +115,7 @@ TEST(SphereShapeTest, GetLocalInertiaTensor) {
     EXPECT_TRUE(FloatEqual(inertia.y, inertia.z));
     
     // 验证理论值：(2/5) * 1 * 1² = 0.4
-    fpnumber expected = 0.4f;
+    Real expected = 0.4f;
     EXPECT_TRUE(FloatEqual(inertia.x, expected));
 }
 
@@ -124,7 +124,7 @@ TEST(SphereShapeTest, GetLocalInertiaTensor_DifferentSize) {
     SphereShape shape(2.0f);
     
     // 测试质量为2的情况
-    fpnumber mass = 2.0f;
+    Real mass = 2.0f;
     Vec3 inertia = shape.GetLocalInertiaTensor(mass);
     
     // 验证惯性张量的各个分量都大于0
@@ -137,7 +137,7 @@ TEST(SphereShapeTest, GetLocalInertiaTensor_DifferentSize) {
     EXPECT_TRUE(FloatEqual(inertia.y, inertia.z));
     
     // 验证理论值：(2/5) * 2 * 2² = 3.2
-    fpnumber expected = 3.2f;
+    Real expected = 3.2f;
     EXPECT_TRUE(FloatEqual(inertia.x, expected));
 }
 

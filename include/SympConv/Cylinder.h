@@ -44,7 +44,7 @@ public:
      * @brief 获取体积
      * @return 体积
      */
-    fpnumber GetVolume() const
+    Real GetVolume() const
     {
         // 圆柱体的体积 = π * r² * h
         T r = mRadius;
@@ -56,7 +56,7 @@ public:
 // 类型别名
 typedef TCylinder<float> Cylinderf;
 typedef TCylinder<double> Cylinderd;
-typedef TCylinder<fpnumber> Cylinder;
+typedef TCylinder<Real> Cylinder;
 
 } // namespace SympConv
 

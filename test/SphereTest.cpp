@@ -5,7 +5,7 @@
 
 namespace SympConvTest {
 
-using fpnumber = SympConv::fpnumber;
+using Real = SympConv::Real;
 using Sphere = SympConv::Sphere;
 using Vec3 = SympConv::Vector3;
 
@@ -19,7 +19,7 @@ TEST(SphereTest, DefaultConstructor) {
 
 TEST(SphereTest, ParameterizedConstructor) {
     Vec3 center(1.0f, 2.0f, 3.0f);
-    fpnumber radius = 2.5f;
+    Real radius = 2.5f;
     Sphere sphere(center, radius);
     EXPECT_TRUE(FloatEqual(sphere.mCenter.x, 1.0f));
     EXPECT_TRUE(FloatEqual(sphere.mCenter.y, 2.0f));

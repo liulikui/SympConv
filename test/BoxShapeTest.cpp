@@ -7,7 +7,7 @@
 
 namespace SympConvTest {
 
-using fpnumber = SympConv::fpnumber;
+using Real = SympConv::Real;
 using Box = SympConv::Box;
 using BoxShape = SympConv::BoxShape;
 using Vec3 = SympConv::Vector3;
@@ -112,7 +112,7 @@ TEST(BoxShapeTest, GetLocalInertiaTensor) {
     
     // 测试质量为12的情况，此时惯性张量应该为(8, 8, 8)
     // Ix = (1/12) * 12 * (2² + 2²) = 8
-    fpnumber mass = 12.0f;
+    Real mass = 12.0f;
     Vec3 inertia = shape.GetLocalInertiaTensor(mass);
     EXPECT_TRUE(FloatEqual(inertia.x, 8.0f));
     EXPECT_TRUE(FloatEqual(inertia.y, 8.0f));
@@ -137,7 +137,7 @@ TEST(BoxShapeTest, GetLocalInertiaTensor_DifferentSize) {
     // Ix = (1/12) * m * (height² + depth²) = (1/12) * 12 * (6² + 8²) = (36 + 64) = 100
     // Iy = (1/12) * m * (width² + depth²) = (1/12) * 12 * (4² + 8²) = (16 + 64) = 80
     // Iz = (1/12) * m * (width² + height²) = (1/12) * 12 * (4² + 6²) = (16 + 36) = 52
-    fpnumber mass = 12.0f;
+    Real mass = 12.0f;
     Vec3 inertia = shape.GetLocalInertiaTensor(mass);
     EXPECT_TRUE(FloatEqual(inertia.x, 100.0f));
     EXPECT_TRUE(FloatEqual(inertia.y, 80.0f));

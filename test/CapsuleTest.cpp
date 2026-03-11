@@ -5,7 +5,7 @@
 
 namespace SympConvTest {
 
-using fpnumber = SympConv::fpnumber;
+using Real = SympConv::Real;
 using Capsule = SympConv::Capsule;
 using Vec3 = SympConv::Vector3;
 

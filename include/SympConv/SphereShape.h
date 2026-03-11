@@ -18,7 +18,7 @@ public:
      * @brief 构造函数
      * @param sphere 球体对象
      */
-    SphereShape(fpnumber radius) :
+    SphereShape(Real radius) :
         ConvexShape(ShapeType::Sphere), mRadius(radius) {}
 
     /**
@@ -29,7 +29,7 @@ public:
     virtual Vector3 GetLocalSupport(const Vector3& dir_local) const override
     {
         // 计算方向向量的长度
-        fpnumber dir_length = dir_local.Length();
+        Real dir_length = dir_local.Length();
         if (dir_length < 1e-10)
         {
             // 零方向向量，返回原点
@@ -47,11 +47,11 @@ public:
      * @param mass 质量
      * @return 惯性张量
      */
-    virtual Vector3 GetLocalInertiaTensor(fpnumber mass) const override
+    virtual Vector3 GetLocalInertiaTensor(Real mass) const override
     {
         // 球体的转动惯量：I = (2/5) * m * r²
         // 由于球体是对称的，绕三个轴的转动惯量都相等
-        fpnumber inertia = (2.0f / 5.0f) * mass * mRadius * mRadius;
+        Real inertia = (2.0f / 5.0f) * mass * mRadius * mRadius;
         return Vector3(inertia, inertia, inertia);
     }
 
@@ -62,7 +62,7 @@ public:
     virtual AABB GetLocalBounds() const override
     {
         // 球体的半径
-        fpnumber radius = mRadius;
+        Real radius = mRadius;
         
         // 计算AABB的最小和最大点
         Vector3 min(-radius, -radius, -radius);
@@ -76,14 +76,14 @@ public:
      * @brief 获取体积
      * @return 体积
      */
-    virtual fpnumber GetVolume() const override
+    virtual Real GetVolume() const override
     {
         // 球体的体积 = (4/3) * π * r³
         return (4.0f / 3.0f) * M_PI * mRadius * mRadius * mRadius;
     }
 
 private:
-    fpnumber mRadius; ///< 半径
+    Real mRadius; ///< 半径
 };
 
 } // namespace SympConv

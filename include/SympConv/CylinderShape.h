@@ -37,7 +37,7 @@ public:
         // 圆柱体沿Y轴方向，中心点在原点
         // 计算方向向量在XZ平面上的分量
         Vector3 dir_xz(dir_local.x, 0, dir_local.z);
-        fpnumber length_xz = dir_xz.Length();
+        Real length_xz = dir_xz.Length();
         
         Vector3 support;
         
@@ -67,9 +67,9 @@ public:
      * @param mass 质量
      * @return 惯性张量
      */
-    virtual Vector3 GetLocalInertiaTensor(fpnumber mass) const override
+    virtual Vector3 GetLocalInertiaTensor(Real mass) const override
     {
-        return Vector3(fpnumber(0.0), fpnumber(0.0), fpnumber(0.0));
+        return Vector3(Real(0.0), Real(0.0), Real(0.0));
     }
 
     /**
@@ -79,8 +79,8 @@ public:
     virtual AABB GetLocalBounds() const override
     {
         // 圆柱体的半高和半径
-        fpnumber halfHeight = mCylinder.mHalfHeight;
-        fpnumber radius = mCylinder.mRadius;
+        Real halfHeight = mCylinder.mHalfHeight;
+        Real radius = mCylinder.mRadius;
         
         // 计算AABB的最小和最大点
         Vector3 min(-radius, -halfHeight, -radius);
@@ -94,7 +94,7 @@ public:
      * @brief 获取体积
      * @return 体积
      */
-    virtual fpnumber GetVolume() const override
+    virtual Real GetVolume() const override
     {
         return mCylinder.GetVolume();
     }

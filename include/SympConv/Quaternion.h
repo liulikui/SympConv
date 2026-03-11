@@ -696,7 +696,7 @@ TQuaternion<T> operator*(T scalar, const TQuaternion<T>& q)
 // 类型别名
 typedef TQuaternion<float> Quaternionf;
 typedef TQuaternion<double> Quaterniond;
-typedef TQuaternion<fpnumber> Quaternion;
+typedef TQuaternion<Real> Quaternion;
 
 } // namespace SympConv
 

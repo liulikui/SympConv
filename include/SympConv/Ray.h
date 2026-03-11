@@ -190,7 +190,7 @@ public:
 // 类型别名
 typedef TRay<float> Rayf;
 typedef TRay<double> Rayd;
-typedef TRay<fpnumber> Ray;
+typedef TRay<Real> Ray;
 
 } // namespace SympConv
 

@@ -41,11 +41,11 @@ public:
 	ShapeType GetShapeType() const { return mShapeType; }
 
 	/**
-	 * @brief 获取在本地坐标系中的惯性张量
-	 * @param mass 质量
-	 * @return 惯性张量
-	 */
-	virtual Vector3 GetLocalInertiaTensor(fpnumber mass) const = 0;
+     * @brief 获取在本地坐标系中的惯性张量
+     * @param mass 质量
+     * @return 惯性张量
+     */
+    virtual Vector3 GetLocalInertiaTensor(Real mass) const = 0;
 
 	/**
 	 * @brief 获取在本地坐标系中的AABB
@@ -54,10 +54,10 @@ public:
 	virtual AABB GetLocalBounds() const = 0;
 
 	/**
-	 * @brief 获取体积
-	 * @return 体积
-	 */
-	virtual fpnumber GetVolume() const = 0;
+     * @brief 获取体积
+     * @return 体积
+     */
+    virtual Real GetVolume() const = 0;
 
 protected:
 	ShapeGroupType mShapeGroupType; ///< 形状组类型
