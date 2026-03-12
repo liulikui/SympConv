@@ -4,7 +4,7 @@
 #include <cmath>
 #include "ConvexShape.h"
 #include "Capsule.h"
-#include "math.h"
+#include "Math.h"
 
 namespace SympConv {
 

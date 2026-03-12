@@ -4,7 +4,7 @@
 #include "Config.h"
 #include "Vector.h"
 #include "AABB.h"
-#include "math.h"
+#include "Math.h"
 #include <type_traits>
 #include <algorithm>
 

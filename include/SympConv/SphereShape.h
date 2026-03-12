@@ -3,7 +3,7 @@
 
 #include "ConvexShape.h"
 #include "Sphere.h"
-#include "math.h"
+#include "Math.h"
 
 namespace SympConv {
 
