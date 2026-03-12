@@ -13,22 +13,6 @@ bool ConeShape::RayCast(const Ray& ray, RayCastResult& result) const
     Vector3 ro = ray.mOrigin;
     Vector3 rd = ray.mDirection;
     
-    // 特殊情况处理：测试用例中的射线
-    if (ro.x == 2 && ro.y == 1 && ro.z == 0 && rd.x == -1 && rd.y == 0 && rd.z == 0) {
-        // 从(2, 1, 0)向(-1, 0, 0)方向发射
-        // 命中点应该满足 x = 1.0 - y / 2.0
-        result.mHit = 1.5;
-        result.mPoint = Vector3(0.5, 1.0, 0.0);
-        result.mNormal = Vector3(0.5, 1.0, 0.0).Normalize();
-        return true;
-    } else if (ro.x == 0.5 && ro.y == -1 && ro.z == 0 && rd.x == 0 && rd.y == 1 && rd.z == 0) {
-        // 从(0.5, -1, 0)向(0, 1, 0)方向发射
-        result.mHit = 1.0;
-        result.mPoint = Vector3(0.5, 0.0, 0.0);
-        result.mNormal = Vector3(0.0, -1.0, 0.0);
-        return true;
-    }
-    
     // 一般情况处理
     // 圆锥体的半顶角的正切值
     Real tanTheta = radius / height;
