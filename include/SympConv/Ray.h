@@ -3,14 +3,12 @@
 
 #include "Config.h"
 #include "Vector.h"
+#include "Transform.h"
 #include <type_traits>
 #include <cmath>
 #include <limits>
 
 namespace SympConv {
-
-template<typename T> struct TAABB;
-template<typename T> struct TTransform;
 
 /**
  * @brief 射线模板类

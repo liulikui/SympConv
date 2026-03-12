@@ -1,10 +1,7 @@
 #ifndef SYMPCONV_BOX_H
 #define SYMPCONV_BOX_H
 
-#include "Config.h"
 #include "Vector.h"
-#include "Transform.h"
-#include "AABB.h"
 #include <type_traits>
 
 namespace SympConv {

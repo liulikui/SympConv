@@ -1,12 +1,8 @@
 #ifndef SYMPCONV_CONE_H
 #define SYMPCONV_CONE_H
 
-#include "Config.h"
 #include "Vector.h"
-#include "AABB.h"
 #include "Math.h"
-#include <type_traits>
-#include <algorithm>
 
 namespace SympConv {
 

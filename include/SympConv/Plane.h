@@ -2,7 +2,6 @@
 #define SYMPCONV_PLANE_H
 
 #include "Config.h"
-#include <type_traits>
 #include <cmath>
 #include "Vector.h"
 

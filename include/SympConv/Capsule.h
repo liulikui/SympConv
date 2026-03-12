@@ -1,11 +1,8 @@
 #ifndef SYMPCONV_CAPSULE_H
 #define SYMPCONV_CAPSULE_H
 
-#include "Config.h"
 #include "Vector.h"
-#include "AABB.h"
 #include "Math.h"
-#include <type_traits>
 
 namespace SympConv {
 

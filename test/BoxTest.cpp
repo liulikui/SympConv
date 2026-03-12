@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 #include "SympConv/Box.h"
 #include "SympConv/Vector.h"
+#include "SympConv/Transform.h"
 #include "TestUtils.h"
 
 namespace SympConvTest {
