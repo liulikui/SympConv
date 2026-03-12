@@ -1,9 +1,15 @@
 #ifndef SYMPCONV_CYLINDER_SHAPE_H
 #define SYMPCONV_CYLINDER_SHAPE_H
 
+#include "Export.h"
 #include "ConvexShape.h"
 #include "Cylinder.h"
 #include <algorithm>
+#include <cmath>
+#include "Ray.h"
+#include "RayCast.h"
+#include "Plane.h"
+#include <limits>
 
 namespace SympConv {
 
@@ -11,7 +17,7 @@ namespace SympConv {
  * @brief 圆柱体形状模板类
  * @details 实现了圆柱体的凸形状接口，用于碰撞检测等场景
  */
-class CylinderShape : public ConvexShape
+class SYMPCONV_API CylinderShape : public ConvexShape
 {
 public:
     /**
@@ -98,6 +104,14 @@ public:
     {
         return mCylinder.GetVolume();
     }
+
+    /**
+     * @brief 射线检测
+     * @param ray 本地空间射线
+     * @param result 命中结果
+     * @return 是否有命中
+     */
+    virtual bool RayCast(const Ray& ray, RayCastResult& result) const override;
 
 private:
     Cylinder mCylinder; ///< 圆柱体对象

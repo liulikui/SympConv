@@ -1,8 +1,13 @@
 #ifndef SYMPCONV_CONE_SHAPE_H
 #define SYMPCONV_CONE_SHAPE_H
 
+#include "Export.h"
 #include "ConvexShape.h"
 #include "Cone.h"
+#include "Ray.h"
+#include "RayCast.h"
+#include "Plane.h"
+#include <cmath>
 
 namespace SympConv {
 
@@ -10,7 +15,7 @@ namespace SympConv {
  * @brief 圆锥体形状模板类
  * @details 实现了圆锥体的凸形状接口，用于碰撞检测等场景
  */
-class ConeShape : public ConvexShape
+class SYMPCONV_API ConeShape : public ConvexShape
 {
 public:
     /**
@@ -106,6 +111,14 @@ public:
     {
         return mCone.GetVolume();
     }
+
+    /**
+     * @brief 射线检测
+     * @param ray 本地空间射线
+     * @param result 命中结果
+     * @return 是否有命中
+     */
+    virtual bool RayCast(const Ray& ray, RayCastResult& result) const override;
 
 private:
     Cone mCone; ///< 圆锥体对象

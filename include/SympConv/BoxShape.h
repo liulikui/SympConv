@@ -1,8 +1,12 @@
 #ifndef SYMPCONV_BOX_SHAPE_H
 #define SYMPCONV_BOX_SHAPE_H
 
+#include "Export.h"
 #include "ConvexShape.h"
 #include "Box.h"
+#include "Ray.h"
+#include "CollisionDetection.h"
+#include "RayCast.h"
 
 namespace SympConv {
 
@@ -10,7 +14,7 @@ namespace SympConv {
  * @brief 盒子形状模板类
  * @details 实现了盒子的凸形状接口，用于碰撞检测等场景
  */
-class BoxShape : public ConvexShape
+class SYMPCONV_API BoxShape : public ConvexShape
 {
 public:
     /**
@@ -92,6 +96,14 @@ public:
     {
         return mBox.GetVolume();
     }
+
+    /**
+     * @brief 射线检测
+     * @param ray 本地空间射线
+     * @param result 命中结果
+     * @return 是否有命中
+     */
+    virtual bool RayCast(const Ray& ray, RayCastResult& result) const override;
 
 private:
     Box mBox; ///< 盒子对象

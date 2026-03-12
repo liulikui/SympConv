@@ -27,7 +27,14 @@ include_directories($ENV{WindowsSdkDir}/Include/$ENV{WindowsSDKVersion}/winrt)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 # 收集src目录下的源文件和头文件
-file(GLOB_RECURSE SRC_SOURCES "src/*.cpp")
+set(SRC_SOURCES
+    src/PhysicWorld.cpp
+    src/BoxShape.cpp
+    src/CapsuleShape.cpp
+    src/ConeShape.cpp
+    src/CylinderShape.cpp
+    src/SphereShape.cpp
+)
 file(GLOB_RECURSE SRC_HEADERS "src/*.h")
 
 # 收集include目录下的头文件

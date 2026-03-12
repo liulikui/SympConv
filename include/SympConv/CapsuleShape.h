@@ -1,10 +1,14 @@
 #ifndef SYMPCONV_CAPSULE_SHAPE_H
 #define SYMPCONV_CAPSULE_SHAPE_H
 
+#include "Export.h"
 #include <cmath>
 #include "ConvexShape.h"
 #include "Capsule.h"
 #include "Math.h"
+#include "Ray.h"
+#include "RayCast.h"
+#include "Sphere.h"
 
 namespace SympConv {
 
@@ -12,7 +16,7 @@ namespace SympConv {
  * @brief 胶囊体形状模板类
  * @details 实现了胶囊体的凸形状接口，用于碰撞检测等场景
  */
-class CapsuleShape : public ConvexShape
+class SYMPCONV_API CapsuleShape : public ConvexShape
 {
 public:
     /**
@@ -150,6 +154,14 @@ public:
     {
         return mCapsule.GetVolume();
     }
+
+    /**
+     * @brief 射线检测
+     * @param ray 本地空间射线
+     * @param result 命中结果
+     * @return 是否有命中
+     */
+    virtual bool RayCast(const Ray& ray, RayCastResult& result) const override;
 
 private:
     Capsule mCapsule; ///< 胶囊体对象

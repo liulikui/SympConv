@@ -17,13 +17,13 @@ public:
 	 * @param InShapeGroupType 形状组类型
 	 * @param InShapeType 形状类型
 	 */
-	Shape(ShapeGroupType InShapeGroupType, ShapeType InShapeType) :
+	RigidBody(ShapeGroupType InShapeGroupType, ShapeType InShapeType) :
 		mShapeGroupType(InShapeGroupType), mShapeType(InShapeType){}
 
 	/**
 	 * @brief 虚析构函数
 	 */
-	virtual ~Shape() {}
+	virtual ~RigidBody() {}
 
 	/**
 	 * @brief 获取形状组类型

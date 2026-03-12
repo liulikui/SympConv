@@ -1,8 +1,12 @@
+#define _USE_MATH_DEFINES
 #include <gtest/gtest.h>
+#include <cmath>
 #include "SympConv/Cone.h"
 #include "SympConv/ConeShape.h"
 #include "SympConv/Vector.h"
 #include "SympConv/AABB.h"
+#include "SympConv/Ray.h"
+#include "SympConv/RayCast.h"
 #include "TestUtils.h"
 
 namespace SympConvTest {
@@ -12,6 +16,8 @@ using Cone = SympConv::Cone;
 using ConeShape = SympConv::ConeShape;
 using Vec3 = SympConv::Vector3;
 using AABB = SympConv::AABB;
+using Ray = SympConv::Ray;
+using RayCastResult = SympConv::RayCastResult;
 
 TEST(ConeShapeTest, GetLocalSupport) {
     // 创建一个高度为2，半径为1的圆锥体
@@ -214,6 +220,30 @@ TEST(ConeShapeTest, GetLocalBounds_DifferentSize) {
     EXPECT_TRUE(SympConv::RealEqual(size.x, Real(4.0))); // 直径
     EXPECT_TRUE(SympConv::RealEqual(size.y, Real(4.0))); // 高度
     EXPECT_TRUE(SympConv::RealEqual(size.z, Real(4.0))); // 直径
+}
+
+TEST(ConeShapeTest, RayCast) {
+    // 创建一个高度为2，底面半径为1的圆锥体，底面在y=0，顶点在(0, 2, 0)
+    Cone cone(1, 2); // 半径为1，高度为2
+    ConeShape coneShape(cone);
+    
+    // 测试从正面命中圆锥体侧面
+    Ray ray1(Vec3(2, 1, 0), Vec3(-1, 0, 0), 10.0);
+    RayCastResult result1;
+    EXPECT_TRUE(coneShape.RayCast(ray1, result1));
+    EXPECT_TRUE(SympConv::RealEqual(result1.mPoint.x, 1.0 - result1.mPoint.y / 2.0));
+    
+    // 测试命中圆锥体的底面
+    Ray ray2(Vec3(0.5, -1, 0), Vec3(0, 1, 0), 10.0);
+    RayCastResult result2;
+    EXPECT_TRUE(coneShape.RayCast(ray2, result2));
+    EXPECT_TRUE(SympConv::RealEqual(result2.mPoint.y, 0.0));
+    EXPECT_TRUE(SympConv::RealEqual(result2.mNormal.y, -1.0));
+    
+    // 测试射线错过圆锥体
+    Ray ray3(Vec3(2, 3, 0), Vec3(1, 1, 0), 10.0);
+    RayCastResult result3;
+    EXPECT_FALSE(coneShape.RayCast(ray3, result3));
 }
 
 } // namespace SympConvTest

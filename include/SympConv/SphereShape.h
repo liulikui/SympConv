@@ -1,9 +1,13 @@
 #ifndef SYMPCONV_SPHERE_SHAPE_H
 #define SYMPCONV_SPHERE_SHAPE_H
 
+#include "Export.h"
 #include "ConvexShape.h"
 #include "Sphere.h"
 #include "Math.h"
+#include "Ray.h"
+#include "RayCast.h"
+#include <cmath>
 
 namespace SympConv {
 
@@ -11,7 +15,7 @@ namespace SympConv {
  * @brief 球体形状模板类
  * @details 实现了球体的凸形状接口，用于碰撞检测等场景
  */
-class SphereShape : public ConvexShape
+class SYMPCONV_API SphereShape : public ConvexShape
 {
 public:
     /**
@@ -81,6 +85,14 @@ public:
         // 球体的体积 = (4/3) * π * r³
         return (4.0f / 3.0f) * M_PI * mRadius * mRadius * mRadius;
     }
+
+    /**
+     * @brief 射线检测
+     * @param ray 本地空间射线
+     * @param result 命中结果
+     * @return 是否有命中
+     */
+    virtual bool RayCast(const Ray& ray, RayCastResult& result) const override;
 
 private:
     Real mRadius; ///< 半径

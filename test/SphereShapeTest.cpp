@@ -1,8 +1,12 @@
+#define _USE_MATH_DEFINES
 #include <gtest/gtest.h>
+#include <cmath>
 #include "SympConv/Sphere.h"
 #include "SympConv/SphereShape.h"
 #include "SympConv/Vector.h"
 #include "SympConv/AABB.h"
+#include "SympConv/Ray.h"
+#include "SympConv/RayCast.h"
 #include "TestUtils.h"
 
 namespace SympConvTest {
@@ -12,6 +16,8 @@ using Sphere = SympConv::Sphere;
 using SphereShape = SympConv::SphereShape;
 using Vec3 = SympConv::Vector3;
 using AABB = SympConv::AABB;
+using Ray = SympConv::Ray;
+using RayCastResult = SympConv::RayCastResult;
 
 TEST(SphereShapeTest, GetLocalSupport) {
     // 创建一个半径为2的球体形状
@@ -197,6 +203,40 @@ TEST(SphereShapeTest, GetLocalBounds_DifferentSize) {
     EXPECT_TRUE(SympConv::RealEqual(size.x, Real(4.0))); // 直径
     EXPECT_TRUE(SympConv::RealEqual(size.y, Real(4.0))); // 直径
     EXPECT_TRUE(SympConv::RealEqual(size.z, Real(4.0))); // 直径
+}
+
+TEST(SphereShapeTest, RayCast) {
+    // 创建一个半径为1的球体，中心在原点
+    SphereShape sphereShape(1.0);
+    
+    // 测试从正面命中球体
+    Ray ray1(Vec3(2, 0, 0), Vec3(-1, 0, 0), 10.0);
+    RayCastResult result1;
+    EXPECT_TRUE(sphereShape.RayCast(ray1, result1));
+    EXPECT_TRUE(SympConv::RealEqual(result1.mHit, 1.0));
+    EXPECT_TRUE(SympConv::RealEqual(result1.mPoint.x, 1.0));
+    EXPECT_TRUE(SympConv::RealEqual(result1.mNormal.x, 1.0));
+    
+    // 测试从侧面命中球体
+    Ray ray2(Vec3(0, 2, 0), Vec3(0, -1, 0), 10.0);
+    RayCastResult result2;
+    EXPECT_TRUE(sphereShape.RayCast(ray2, result2));
+    EXPECT_TRUE(SympConv::RealEqual(result2.mHit, 1.0));
+    EXPECT_TRUE(SympConv::RealEqual(result2.mPoint.y, 1.0));
+    EXPECT_TRUE(SympConv::RealEqual(result2.mNormal.y, 1.0));
+    
+    // 测试从顶面命中球体
+    Ray ray3(Vec3(0, 0, 2), Vec3(0, 0, -1), 10.0);
+    RayCastResult result3;
+    EXPECT_TRUE(sphereShape.RayCast(ray3, result3));
+    EXPECT_TRUE(SympConv::RealEqual(result3.mHit, 1.0));
+    EXPECT_TRUE(SympConv::RealEqual(result3.mPoint.z, 1.0));
+    EXPECT_TRUE(SympConv::RealEqual(result3.mNormal.z, 1.0));
+    
+    // 测试射线错过球体
+    Ray ray4(Vec3(2, 2, 2), Vec3(1, 1, 1), 10.0);
+    RayCastResult result4;
+    EXPECT_FALSE(sphereShape.RayCast(ray4, result4));
 }
 
 } // namespace SympConvTest

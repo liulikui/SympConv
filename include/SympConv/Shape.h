@@ -5,6 +5,7 @@
 #include "Vector.h"
 #include "ShapeType.h"
 #include "AABB.h"
+#include "RayCast.h"
 
 namespace SympConv {
 
@@ -58,6 +59,14 @@ public:
      * @return 体积
      */
     virtual Real GetVolume() const = 0;
+
+	/**
+	 * @brief 射线检测
+	 * @param ray 本地空间射线
+	 * @param result 命中结果
+	 * @return 是否有命中
+	 */
+	virtual bool RayCast(const Ray& ray, RayCastResult& result) const = 0;
 
 protected:
 	ShapeGroupType mShapeGroupType; ///< 形状组类型
