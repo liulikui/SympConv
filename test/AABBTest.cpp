@@ -117,13 +117,13 @@ TEST(AABBTest, IntersectsAABB) {
 
 TEST(AABBTest, IntersectsRay) {
     AABB aabb(Vec3(Real(0.0), Real(0.0), Real(0.0)), Vec3(Real(1.0), Real(1.0), Real(1.0)));
-    Ray ray(Vec3(Real(-1.0), Real(0.5), Real(0.5)), Vec3(Real(1.0), Real(0.0), Real(0.0)), Real(0.0), Real(100.0));
+    Ray ray(Vec3(Real(-1.0), Real(0.5), Real(0.5)), Vec3(Real(1.0), Real(0.0), Real(0.0)), Real(100.0));
     EXPECT_TRUE(SympConv::RayIntersectsAABB(ray, aabb));
 }
 
 TEST(AABBTest, IntersectsRayWithParams) {
     AABB aabb(Vec3(Real(0.0), Real(0.0), Real(0.0)), Vec3(Real(1.0), Real(1.0), Real(1.0)));
-    Ray ray(Vec3(Real(-1.0), Real(0.5), Real(0.5)), Vec3(Real(1.0), Real(0.0), Real(0.0)), Real(0.0), Real(100.0));
+    Ray ray(Vec3(Real(-1.0), Real(0.5), Real(0.5)), Vec3(Real(1.0), Real(0.0), Real(0.0)), Real(100.0));
     Real tMin, tMax;
     EXPECT_TRUE(SympConv::RayIntersectsAABB(ray, aabb, tMin, tMax));
     EXPECT_TRUE(SympConv::RealEqual(tMin, Real(1.0)));

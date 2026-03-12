@@ -23,8 +23,7 @@ struct TRay
 public:
     TVector3<T> mOrigin;      ///< 射线原点
     TVector3<T> mDirection;   ///< 射线方向（应归一化）
-    T tMin;                   ///< 射线起点
-    T tMax;                   ///< 射线终点
+    T mMax;                   ///< 射线终点
 
 public:
     /**
@@ -34,17 +33,18 @@ public:
     TRay() : 
         mOrigin(T(0), T(0), T(0)), 
         mDirection(T(0), T(0), T(1)),
-        tMin(T(0)), tMax(T(1)) {}
+        mMax(T(1)) {}
 
     /**
      * @brief 带参数的构造函数
      * @param origin 射线原点
      * @param direction 射线方向
+     * @param inMax 射线方向
      */
-    TRay(const TVector3<T>& origin, const TVector3<T>& direction, T inMin, T inMax) :
+    TRay(const TVector3<T>& origin, const TVector3<T>& direction, T inMax) :
         mOrigin(origin), 
         mDirection(direction),
-        tMin(inMin), tMax(inMax){}
+        mMax(inMax){}
 
     /**
      * @brief 复制构造函数
@@ -112,11 +112,11 @@ public:
     {
         TVector3<T> v = point - mOrigin;
         T t = v.Dot(mDirection);
-        // 限制t在tMin和tMax之间
-        if (t < tMin) {
-            t = tMin;
-        } else if (t > tMax) {
-            t = tMax;
+        // 限制t在0和mMax之间
+        if (t < T(0)) {
+            t = T(0);
+        } else if (t > mMax) {
+            t = mMax;
         }
         TVector3<T> closest = GetPoint(t);
         return (point - closest).Length();
@@ -140,8 +140,8 @@ public:
         if (denominator < std::numeric_limits<T>::epsilon()) {
             // 射线平行，计算其中一条射线上的最近点到另一条射线的距离
             T t1 = -d / a;
-            if (t1 < tMin) t1 = tMin;
-            if (t1 > tMax) t1 = tMax;
+            if (t1 < T(0)) t1 = T(0);
+            if (t1 > mMax) t1 = mMax;
             TVector3<T> p1 = GetPoint(t1);
             return other.DistanceTo(p1);
         }
@@ -151,10 +151,10 @@ public:
         T s = (a * e - b * d) / denominator;
 
         // 限制t和s在各自的范围内
-        if (t < tMin) t = tMin;
-        if (t > tMax) t = tMax;
-        if (s < other.tMin) s = other.tMin;
-        if (s > other.tMax) s = other.tMax;
+        if (t < T(0)) t = T(0);
+        if (t > mMax) t = mMax;
+        if (s < T(0)) s = T(0);
+        if (s > other.mMax) s = other.mMax;
 
         // 计算两条射线上的点
         TVector3<T> p1 = GetPoint(t);

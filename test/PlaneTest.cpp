@@ -100,19 +100,19 @@ TEST(PlaneTest, IntersectsRay) {
     Plane plane(Real(0.0), Real(1.0), Real(0.0), Real(-5.0)); // y=5平面
     
     // 从下方射向平面的射线
-    Ray ray1(Vec3(Real(0.0), Real(0.0), Real(0.0)), Vec3(Real(0.0), Real(1.0), Real(0.0)), Real(0.0), Real(100.0));
+    Ray ray1(Vec3(Real(0.0), Real(0.0), Real(0.0)), Vec3(Real(0.0), Real(1.0), Real(0.0)), Real(100.0));
     Real t1;
     EXPECT_TRUE(SympConv::RayIntersectsPlane(ray1, plane, t1));
     EXPECT_TRUE(SympConv::RealEqual(t1, Real(5.0)));
     
     // 从上方射向平面的射线（反方向）
-    Ray ray2(Vec3(Real(0.0), Real(10.0), Real(0.0)), Vec3(Real(0.0), Real(-1.0), Real(0.0)), Real(0.0), Real(100.0));
+    Ray ray2(Vec3(Real(0.0), Real(10.0), Real(0.0)), Vec3(Real(0.0), Real(-1.0), Real(0.0)), Real(100.0));
     Real t2;
     EXPECT_TRUE(SympConv::RayIntersectsPlane(ray2, plane, t2));
     EXPECT_TRUE(SympConv::RealEqual(t2, Real(5.0)));
     
     // 平行于平面的射线
-    Ray ray3(Vec3(Real(0.0), Real(0.0), Real(0.0)), Vec3(Real(1.0), Real(0.0), Real(0.0)), Real(0.0), Real(100.0));
+    Ray ray3(Vec3(Real(0.0), Real(0.0), Real(0.0)), Vec3(Real(1.0), Real(0.0), Real(0.0)), Real(100.0));
     Real t3;
     EXPECT_FALSE(SympConv::RayIntersectsPlane(ray3, plane, t3));
 }
