@@ -4,6 +4,7 @@
 #include "Config.h"
 #include "Vector.h"
 #include <type_traits>
+#include <cmath>
 
 namespace SympConv {
 
@@ -84,7 +85,7 @@ public:
      */
     TRay<T>& Normalize()
     {
-        mDirection.Normalize();
+        mDirection = mDirection.Normalize();
         return *this;
     }
 
@@ -125,39 +126,63 @@ public:
      */
     T DistanceToSegment(const TVector3<T>& start, const TVector3<T>& end) const
     {
-        TVector3<T> dir = end - start;
-        TVector3<T> q = mOrigin - start;
-        T a = dir.Dot(dir);
-        T b = dir.Dot(q);
-        T c = dir.Dot(mDirection);
-        T d = q.Dot(mDirection);
-        T e = mDirection.Dot(mDirection);
+        const T EPS = T(1e-8);
 
-        T det = a * e - c * c;
-        T t, s;
+        const TVector3<T>& p = mOrigin;
+        const TVector3<T>& d = mDirection;
 
-        if (det < T(1e-6)) {
-            s = 0;
-            t = d / e;
-        } else {
-            s = (b * e - c * d) / det;
-            t = (a * d - c * b) / det;
+        TVector3<T> ab = end - start;
+        T abLenSq = ab.Dot(ab);
+
+        if (abLenSq < EPS)
+            return DistanceTo(start);
+
+        TVector3<T> w0 = p - start;
+
+        T a = d.Dot(d);
+        T b = d.Dot(ab);
+        T c = ab.Dot(ab);
+        T d0 = d.Dot(w0);
+        T e = ab.Dot(w0);
+
+        T denom = a * c - b * b;
+
+        T t, u;
+
+        if (denom > EPS)
+        {
+            t = (b * e - c * d0) / denom;
+        }
+        else
+        {
+            t = 0;
         }
 
-        if (s < 0) {
-            s = 0;
-        } else if (s > 1) {
-            s = 1;
+        if (t < 0)
+            t = 0;
+
+        u = (b * t + e) / c;
+
+        if (u < 0)
+        {
+            u = 0;
+            t = -d0 / a;
+            if (t < 0) t = 0;
+        }
+        else if (u > 1)
+        {
+            u = 1;
+            TVector3<T> w1 = p - end;
+            T d1 = d.Dot(w1);
+
+            t = -d1 / a;
+            if (t < 0) t = 0;
         }
 
-        if (t < 0) {
-            TVector3<T> closestPoint = start + dir * s;
-            return (mOrigin - closestPoint).Length();
-        }
+        TVector3<T> rayPoint = p + d * t;
+        TVector3<T> segPoint = start + ab * u;
 
-        TVector3<T> rayPoint = GetPoint(t);
-        TVector3<T> segmentPoint = start + dir * s;
-        return (rayPoint - segmentPoint).Length();
+        return (rayPoint - segPoint).Length();
     }
 
     /**
