@@ -21,9 +21,13 @@ public:
 // 模板实现
 template <typename T>
 T MathUtils::Clamp(T value, T min, T max)
-{
-	if (value < min) return min;
-	if (value > max) return max;
+{	
+	if (value < min) {
+		return min;
+	}
+	if (value > max) {
+		return max;
+	}
 	return value;
 }
 
@@ -35,10 +39,14 @@ T MathUtils::Lerp(T a, T b, T t)
 
 template <typename T>
 T MathUtils::Sign(T value)
-{
-	 if (value > 0) return 1;
-	 if (value < 0) return -1;
-	 return 0;
+{		
+	if (value > 0) {
+		return 1;
+	}
+	if (value < 0) {
+		return -1;
+	}
+	return 0;
 }
 
 } // namespace SympConv

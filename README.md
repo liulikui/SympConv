@@ -2,58 +2,6 @@
 
 这是一个基于XPBD (Extended Position-Based Dynamics) 的实时物理模拟器，使用DirectX 12作为渲染API
 
-## 项目结构
-
-```
-SympConv/
-├── .gitignore           # Git忽略文件配置
-├── CMakeLists.txt       # CMake构建脚本
-├── CodingStyle.md       # 编码规范文档
-├── README.md            # 项目说明文档
-├── LICENSE              # MIT许可证
-├── build/               # 构建输出目录
-├── demo/                # 示例代码目录
-│   ├── Main.cpp         # 主程序入口
-│   ├── Scene.cpp        # 场景实现
-│   ├── Scene.h          # 场景头文件
-│   ├── Camera.cpp       # 相机实现
-│   ├── Camera.h         # 相机头文件
-│   ├── DX12RALDevice.cpp # DirectX 12设备实现
-│   ├── DX12RALDevice.h  # DirectX 12设备头文件
-│   ├── DX12RALCommandList.cpp # DirectX 12命令列表实现
-│   ├── DX12RALCommandList.h # DirectX 12命令列表头文件
-│   ├── DX12RALResource.cpp # DirectX 12资源实现
-│   ├── DX12RALResource.h # DirectX 12资源头文件
-│   ├── IRALDevice.h     # 渲染抽象层设备接口
-│   ├── Mesh.cpp         # 网格实现
-│   ├── Mesh.h           # 网格头文件
-│   ├── Primitive.cpp    # 图元实现
-│   ├── Primitive.h      # 图元头文件
-│   ├── Sphere.cpp       # 球体实现
-│   ├── Sphere.h         # 球体头文件
-│   ├── RALCommandList.h # 渲染命令列表接口
-│   ├── RALDataFormat.h  # 数据格式定义
-│   ├── RALResource.h    # 渲染资源接口
-│   ├── TRefCountPtr.h   # 智能指针实现
-│   └── Commandline.h    # 命令行解析
-├── include/             # 库头文件目录
-│   └── SympConv/        # SympConv命名空间头文件
-│       ├── AutoMem.h        # 自动内存管理
-│       ├── CollisionDetection.h # 碰撞检测
-│       ├── Constraint.h     # 约束基类定义
-│       ├── DihedralBendingConstraint.h # 二面角弯曲约束
-│       ├── DistanceConstraint.h # 距离约束
-│       ├── Export.h         # 导出宏定义
-│       ├── LRAConstraint.h  # 低秩模态约束
-│       ├── MathUtils.h      # 数学工具
-│       ├── Particle.h       # 粒子类定义
-│       ├── PhysicScene.h    # 物理场景接口
-│       ├── PhysicWorld.h    # 物理世界定义
-│       └── SphereCollisionConstraint.h # 球体碰撞约束
-└── src/                 # 库源代码目录
-    └── PhysicWorld.cpp  # 物理世界实现
-```
-
 ## 依赖项
 
 项目使用以下库和工具：
@@ -93,7 +41,6 @@ SympConv/
   - 空格键：暂停/继续布料模拟
 - **窗口信息**：
     - 窗口尺寸：默认1280×800像素，可通过命令行参数自定义或切换至全屏模式
-    - 窗口标题会显示当前帧率、迭代次数、子迭代次数、布料分辨率、LRA约束状态、LRAMaxStretch值和粒子质量（格式："ClothSimulator [Solver::XPBD, FPS:X, Iter:Y, SubIter:Z, Res:WxH, LRA:ON/OFF, MaxStretch:Z, Mass:M]"），其中W和H分别表示布料的宽度和高度分辨率，LRA:ON表示启用LRA约束，LRA:OFF表示禁用LRA约束，Z表示LRA约束的最大拉伸量，M表示每个粒子的质量
 
 ## 命令行参数
 
@@ -117,3 +64,62 @@ SympConv/
 ## 许可证
 
 [MIT License](LICENSE)
+
+## 项目结构
+
+```
+SympConv/
+├── .gitignore           # Git忽略文件配置
+├── CMakeLists.txt       # CMake构建脚本
+├── CodingStyle.md       # 编码规范文档
+├── README.md            # 项目说明文档
+├── LICENSE              # MIT许可证
+├── build/               # 构建输出目录
+├── demo/                # 示例代码目录
+│   ├── Main.cpp         # 主程序入口
+│   ├── Scene.cpp        # 场景实现
+│   ├── Scene.h          # 场景头文件
+│   ├── Camera.cpp       # 相机实现
+│   ├── Camera.h         # 相机头文件
+│   ├── DX12RALDevice.cpp # DirectX 12设备实现
+│   ├── DX12RALDevice.h  # DirectX 12设备头文件
+│   ├── DX12RALCommandList.cpp # DirectX 12命令列表实现
+│   ├── DX12RALCommandList.h # DirectX 12命令列表头文件
+│   ├── DX12RALResource.cpp # DirectX 12资源实现
+│   ├── DX12RALResource.h # DirectX 12资源头文件
+│   ├── IRALDevice.h     # 渲染抽象层设备接口
+│   ├── Mesh.cpp         # 网格实现
+│   ├── Mesh.h           # 网格头文件
+│   ├── Primitive.cpp    # 图元实现
+│   ├── Primitive.h      # 图元头文件
+│   ├── Sphere.cpp       # 球体实现
+│   ├── Sphere.h         # 球体头文件
+│   ├── RALCommandList.h # 渲染命令列表接口
+│   ├── RALDataFormat.h  # 数据格式定义
+│   ├── RALResource.h    # 渲染资源接口
+│   ├── TRefCountPtr.h   # 智能指针实现
+│   └── Commandline.h    # 命令行解析
+├── include/             # 库头文件目录
+│   └── SympConv/        # SympConv命名空间头文件
+│       ├── AABB.h           # 轴对齐包围盒
+│       ├── AutoMem.h        # 自动内存管理
+│       ├── CollisionDetection.h # 碰撞检测
+│       ├── Config.h         # 配置定义
+│       ├── Constraint.h     # 约束基类定义
+│       ├── DihedralBendingConstraint.h # 二面角弯曲约束
+│       ├── DistanceConstraint.h # 距离约束
+│       ├── Enviroment.h     # 环境变量定义
+│       ├── Export.h         # 导出宏定义
+│       ├── LRAConstraint.h  # 低秩模态约束
+│       ├── MathUtils.h      # 数学工具
+│       ├── Matrix.h         # 矩阵数学库
+│       ├── Particle.h       # 粒子类定义
+│       ├── PhysicWorld.h    # 物理世界定义
+│       ├── Quaternion.h     # 四元数数学库
+│       ├── Ray.h            # 射线
+│       ├── SphereCollisionConstraint.h # 球体碰撞约束
+│       ├── Transform.h      # 变换数学库
+│       └── Vector.h         # 向量数学库
+└── src/                 # 库源代码目录
+    └── PhysicWorld.cpp  # 物理世界实现
+```

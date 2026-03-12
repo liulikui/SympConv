@@ -1,6 +1,8 @@
 #ifndef SYMPCONV_AUTO_MEM_H
 #define SYMPCONV_AUTO_MEM_H
 
+namespace SympConv {
+
 template<typename TYPE, size_t SIZE>
 class TAutoMem
 {
@@ -50,4 +52,6 @@ private:
 	size_t mSize;
 	TYPE mStack[SIZE];
 };
+
+}
 #endif // SYMPCONV_AUTO_MEM_H
