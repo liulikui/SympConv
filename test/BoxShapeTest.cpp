@@ -200,4 +200,84 @@ TEST(BoxShapeTest, GetLocalBounds_DifferentSize) {
     EXPECT_TRUE(FloatEqual(size.z, Real(3.0)));
 }
 
+TEST(BoxShapeTest, CustomSizeConstructor) {
+    // 测试自定义尺寸构造（width=2, height=3, depth=4）
+    Vec3 halfExtents(Real(1.0), Real(1.5), Real(2.0)); // 半长为0.5*边长
+    Box box(halfExtents);
+    BoxShape shape(box);
+    
+    // 验证盒子对象
+    const Box& retrievedBox = shape.GetBox();
+    EXPECT_TRUE(FloatEqual(retrievedBox.mHalfExtents.x, Real(1.0)));
+    EXPECT_TRUE(FloatEqual(retrievedBox.mHalfExtents.y, Real(1.5)));
+    EXPECT_TRUE(FloatEqual(retrievedBox.mHalfExtents.z, Real(2.0)));
+    
+    // 验证AABB
+    AABB bounds = shape.GetLocalBounds();
+    EXPECT_TRUE(FloatEqual(bounds.mMin.x, Real(-1.0)));
+    EXPECT_TRUE(FloatEqual(bounds.mMin.y, Real(-1.5)));
+    EXPECT_TRUE(FloatEqual(bounds.mMin.z, Real(-2.0)));
+    EXPECT_TRUE(FloatEqual(bounds.mMax.x, Real(1.0)));
+    EXPECT_TRUE(FloatEqual(bounds.mMax.y, Real(1.5)));
+    EXPECT_TRUE(FloatEqual(bounds.mMax.z, Real(2.0)));
+}
+
+TEST(BoxShapeTest, NegativeSizeConstructor) {
+    // 测试非正尺寸构造
+    // 注意：这里假设Box构造函数会处理非正尺寸的情况
+    Vec3 negativeExtents(Real(-1.0), Real(2.0), Real(3.0));
+    Box box(negativeExtents);
+    BoxShape shape(box);
+    
+    // 验证盒子对象（假设Box会将负值修正为正值）
+    const Box& retrievedBox = shape.GetBox();
+    EXPECT_TRUE(retrievedBox.mHalfExtents.x >= Real(0.0));
+    EXPECT_TRUE(retrievedBox.mHalfExtents.y >= Real(0.0));
+    EXPECT_TRUE(retrievedBox.mHalfExtents.z >= Real(0.0));
+}
+
+TEST(BoxShapeTest, VolumeTest) {
+    // 测试体积计算
+    // 半长为(1, 1, 1)的盒子，体积应该是8.0
+    Vec3 halfExtents(Real(1.0), Real(1.0), Real(1.0));
+    Box box(halfExtents);
+    BoxShape shape(box);
+    
+    Real volume = shape.GetVolume();
+    EXPECT_TRUE(FloatEqual(volume, Real(8.0)));
+    
+    // 测试不同尺寸的体积
+    Vec3 halfExtents2(Real(2.0), Real(3.0), Real(4.0));
+    Box box2(halfExtents2);
+    BoxShape shape2(box2);
+    
+    Real volume2 = shape2.GetVolume();
+    EXPECT_TRUE(FloatEqual(volume2, Real(2.0 * 2 * 3.0 * 2 * 4.0 * 2))); // 8 * 2*3*4 = 192
+}
+
+TEST(BoxShapeTest, GetterMethods) {
+    // 测试getter方法
+    Vec3 halfExtents(Real(1.5), Real(2.5), Real(3.5));
+    Box box(halfExtents);
+    BoxShape shape(box);
+    
+    // 测试GetBox()
+    const Box& retrievedBox = shape.GetBox();
+    EXPECT_TRUE(FloatEqual(retrievedBox.mHalfExtents.x, Real(1.5)));
+    EXPECT_TRUE(FloatEqual(retrievedBox.mHalfExtents.y, Real(2.5)));
+    EXPECT_TRUE(FloatEqual(retrievedBox.mHalfExtents.z, Real(3.5)));
+    
+    // 测试GetLocalBounds()（间接测试getCenter和getExtents）
+    AABB bounds = shape.GetLocalBounds();
+    Vec3 center = bounds.GetCenter();
+    EXPECT_TRUE(FloatEqual(center.x, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(center.y, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(center.z, Real(0.0)));
+    
+    Vec3 size = bounds.GetSize();
+    EXPECT_TRUE(FloatEqual(size.x, Real(3.0))); // 2 * 1.5
+    EXPECT_TRUE(FloatEqual(size.y, Real(5.0))); // 2 * 2.5
+    EXPECT_TRUE(FloatEqual(size.z, Real(7.0))); // 2 * 3.5
+}
+
 } // namespace SympConvTest

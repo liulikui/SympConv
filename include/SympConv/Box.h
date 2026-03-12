@@ -34,7 +34,11 @@ public:
      * @param halfExtents 半长
      */
     TBox(const TVector3<T>& halfExtents) :
-        mHalfExtents(halfExtents) { }
+        mHalfExtents(
+            std::max(T(0), halfExtents.x),
+            std::max(T(0), halfExtents.y),
+            std::max(T(0), halfExtents.z)
+        ) { }
 
     /**
      * @brief 获取体积
