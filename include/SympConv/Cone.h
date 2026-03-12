@@ -46,7 +46,7 @@ public:
         // 圆锥体的体积 = (1/3) * π * r² * h
         T r = mRadius;
         T h = mHeight;
-        return (1.0f / 3.0f) * M_PI * r * r * h;
+        return (Real(1.0) / Real(3.0)) * M_PI * r * r * h;
     }
 };
 

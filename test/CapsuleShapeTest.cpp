@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 #include <cmath>
+#include <iostream>
 #include "SympConv/Capsule.h"
 #include "SympConv/CapsuleShape.h"
 #include "SympConv/Vector.h"
@@ -219,35 +220,39 @@ TEST(CapsuleShapeTest, GetLocalBounds_DifferentSize) {
 
 TEST(CapsuleShapeTest, RayCast) {
     // 创建一个高度为2，半径为1的胶囊体，中心在原点
-    Capsule capsule(1, 1); // 半高为1，半径为1
+    Capsule capsule(Real(2), Real(1)); // 总高度为2，半径为1（半高为1）
     CapsuleShape capsuleShape(capsule);
     
     // 测试从正面命中胶囊体
-    Ray ray1(Vec3(2, 0, 0), Vec3(-1, 0, 0), 10.0);
+    Ray ray1(Vec3(Real(2), Real(0), Real(0)), Vec3(Real(-1), Real(0), Real(0)), Real(10.0));
     RayCastResult result1;
     EXPECT_TRUE(capsuleShape.RayCast(ray1, result1));
-    EXPECT_TRUE(SympConv::RealEqual(result1.mHit, 1.0));
-    EXPECT_TRUE(SympConv::RealEqual(result1.mPoint.x, 1.0));
-    EXPECT_TRUE(SympConv::RealEqual(result1.mNormal.x, 1.0));
+    EXPECT_TRUE(SympConv::RealEqual(result1.mHit, Real(1.0)));
+    EXPECT_TRUE(SympConv::RealEqual(result1.mPoint.x, Real(1.0)));
+    EXPECT_TRUE(SympConv::RealEqual(result1.mNormal.x, Real(1.0)));
     
     // 测试命中胶囊体的顶部半球
-    Ray ray2(Vec3(0, 3, 0), Vec3(0, -1, 0), 10.0);
+    Ray ray2(Vec3(Real(0), Real(3), Real(0)), Vec3(Real(0), Real(-1), Real(0)), Real(10.0));
     RayCastResult result2;
     EXPECT_TRUE(capsuleShape.RayCast(ray2, result2));
-    EXPECT_TRUE(SympConv::RealEqual(result2.mHit, 1.0));
-    EXPECT_TRUE(SympConv::RealEqual(result2.mPoint.y, 1.0));
-    EXPECT_TRUE(SympConv::RealEqual(result2.mNormal.y, 1.0));
+    // 添加调试信息
+    std::cout << "Ray2 result: hit=" << result2.mHit << ", point.y=" << result2.mPoint.y << ", normal.y=" << result2.mNormal.y << std::endl;
+    EXPECT_TRUE(SympConv::RealEqual(result2.mHit, Real(1.0)));
+    EXPECT_TRUE(SympConv::RealEqual(result2.mPoint.y, Real(2.0)));
+    EXPECT_TRUE(SympConv::RealEqual(result2.mNormal.y, Real(1.0)));
     
     // 测试命中胶囊体的底部半球
-    Ray ray3(Vec3(0, -3, 0), Vec3(0, 1, 0), 10.0);
+    Ray ray3(Vec3(Real(0), Real(-3), Real(0)), Vec3(Real(0), Real(1), Real(0)), Real(10.0));
     RayCastResult result3;
     EXPECT_TRUE(capsuleShape.RayCast(ray3, result3));
-    EXPECT_TRUE(SympConv::RealEqual(result3.mHit, 1.0));
-    EXPECT_TRUE(SympConv::RealEqual(result3.mPoint.y, -1.0));
-    EXPECT_TRUE(SympConv::RealEqual(result3.mNormal.y, -1.0));
+    // 添加调试信息
+    std::cout << "Ray3 result: hit=" << result3.mHit << ", point.y=" << result3.mPoint.y << ", normal.y=" << result3.mNormal.y << std::endl;
+    EXPECT_TRUE(SympConv::RealEqual(result3.mHit, Real(1.0)));
+    EXPECT_TRUE(SympConv::RealEqual(result3.mPoint.y, Real(-2.0)));
+    EXPECT_TRUE(SympConv::RealEqual(result3.mNormal.y, Real(-1.0)));
     
     // 测试射线错过胶囊体
-    Ray ray4(Vec3(3, 3, 3), Vec3(1, 1, 1), 10.0);
+    Ray ray4(Vec3(Real(3), Real(3), Real(3)), Vec3(Real(1), Real(1), Real(1)), Real(10.0));
     RayCastResult result4;
     EXPECT_FALSE(capsuleShape.RayCast(ray4, result4));
 }
