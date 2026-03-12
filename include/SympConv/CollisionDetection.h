@@ -10,7 +10,6 @@
 #include "Capsule.h"
 #include "Cylinder.h"
 #include "Cone.h"
-#include "Segment.h"
 #include <type_traits>
 #include <limits>
 
@@ -403,56 +402,6 @@ bool RayIntersectsSegment(const TRay<T>& ray, const TVector3<T>& start, const TV
             return false;
         }
     }
-}
-
-/**
- * @brief 计算射线与线段的相交
- * @tparam T 浮点类型，如float、double
- * @param ray 射线
- * @param segment 线段
- * @param t 相交参数
- * @param s 线段参数 [0, 1]
- * @return 是否相交
- */
-template<typename T>
-bool RayIntersectsSegment(const TRay<T>& ray, const TSegment<T>& segment, T& t, T& s)
-{
-    static_assert(std::is_floating_point_v<T>, "T must be floating point");
-    
-    return RayIntersectsSegment(ray, segment.mStart, segment.mEnd, t, s);
-}
-
-/**
- * @brief 计算射线与线段的相交
- * @tparam T 浮点类型，如float、double
- * @param ray 射线
- * @param start 线段起点
- * @param end 线段终点
- * @return 是否相交
- */
-template<typename T>
-bool RayIntersectsSegment(const TRay<T>& ray, const TVector3<T>& start, const TVector3<T>& end)
-{
-    static_assert(std::is_floating_point_v<T>, "T must be floating point");
-    
-    T t, s;
-    return RayIntersectsSegment(ray, start, end, t, s);
-}
-
-/**
- * @brief 计算射线与线段的相交
- * @tparam T 浮点类型，如float、double
- * @param ray 射线
- * @param segment 线段
- * @return 是否相交
- */
-template<typename T>
-bool RayIntersectsSegment(const TRay<T>& ray, const TSegment<T>& segment)
-{
-    static_assert(std::is_floating_point_v<T>, "T must be floating point");
-    
-    T t, s;
-    return RayIntersectsSegment(ray, segment, t, s);
 }
 
 /**
@@ -1554,82 +1503,6 @@ bool RayIntersectsCone(const TRay<T>& ray, const TCone<T>& cone)
     
     T t;
     return RayIntersectsCone(ray, cone, t);
-}
-
-/**
- * @brief 计算线段与圆锥体的相交
- * @tparam T 浮点类型，如float、double
- * @param segment 线段
- * @param cone 圆锥体
- * @param t 相交参数
- * @return 是否相交
- */
-template<typename T>
-bool SegmentIntersectsCone(const TSegment<T>& segment, const TCone<T>& cone, T& t)
-{
-    static_assert(std::is_floating_point_v<T>, "T must be floating point");
-    
-    // 将线段转换为射线
-    TRay<T> ray(segment.mStart, segment.mEnd - segment.mStart);
-    T segmentLength = (segment.mEnd - segment.mStart).Length();
-    
-    if (!RayIntersectsCone(ray, cone, t)) {
-        return false;
-    }
-    
-    // 检查交点是否在线段范围内
-    return t >= 0 && t <= segmentLength;
-}
-
-/**
- * @brief 计算线段与圆锥体的相交
- * @tparam T 浮点类型，如float、double
- * @param segment 线段
- * @param cone 圆锥体
- * @return 是否相交
- */
-template<typename T>
-bool SegmentIntersectsCone(const TSegment<T>& segment, const TCone<T>& cone)
-{
-    static_assert(std::is_floating_point_v<T>, "T must be floating point");
-    
-    T t;
-    return SegmentIntersectsCone(segment, cone, t);
-}
-
-/**
- * @brief 计算线段与圆锥体的相交
- * @tparam T 浮点类型，如float、double
- * @param start 线段起点
- * @param end 线段终点
- * @param cone 圆锥体
- * @param t 相交参数
- * @return 是否相交
- */
-template<typename T>
-bool SegmentIntersectsCone(const TVector3<T>& start, const TVector3<T>& end, const TCone<T>& cone, T& t)
-{
-    static_assert(std::is_floating_point_v<T>, "T must be floating point");
-    
-    TSegment<T> segment(start, end);
-    return SegmentIntersectsCone(segment, cone, t);
-}
-
-/**
- * @brief 计算线段与圆锥体的相交
- * @tparam T 浮点类型，如float、double
- * @param start 线段起点
- * @param end 线段终点
- * @param cone 圆锥体
- * @return 是否相交
- */
-template<typename T>
-bool SegmentIntersectsCone(const TVector3<T>& start, const TVector3<T>& end, const TCone<T>& cone)
-{
-    static_assert(std::is_floating_point_v<T>, "T must be floating point");
-    
-    T t;
-    return SegmentIntersectsCone(start, end, cone, t);
 }
 
 } // namespace SympConv

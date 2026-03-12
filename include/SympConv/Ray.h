@@ -5,6 +5,7 @@
 #include "Vector.h"
 #include <type_traits>
 #include <cmath>
+#include <limits>
 
 namespace SympConv {
 
@@ -24,6 +25,8 @@ struct TRay
 public:
     TVector3<T> mOrigin;      ///< 射线原点
     TVector3<T> mDirection;   ///< 射线方向（应归一化）
+    T tMin;                   ///< 射线起点
+    T tMax;                   ///< 射线终点
 
 public:
     /**
@@ -32,16 +35,18 @@ public:
      */
     TRay() : 
         mOrigin(T(0), T(0), T(0)), 
-        mDirection(T(0), T(0), T(1)) {}
+        mDirection(T(0), T(0), T(1)),
+        tMin(T(0)), tMax(T(1)) {}
 
     /**
      * @brief 带参数的构造函数
      * @param origin 射线原点
      * @param direction 射线方向
      */
-    TRay(const TVector3<T>& origin, const TVector3<T>& direction) :
+    TRay(const TVector3<T>& origin, const TVector3<T>& direction, T inMin, T inMax) :
         mOrigin(origin), 
-        mDirection(direction) {}
+        mDirection(direction),
+        tMin(inMin), tMax(inMax){}
 
     /**
      * @brief 复制构造函数
@@ -109,80 +114,56 @@ public:
     {
         TVector3<T> v = point - mOrigin;
         T t = v.Dot(mDirection);
-        TVector3<T> closest;
-        if (t < 0) {
-            closest = mOrigin;
-        } else {
-            closest = GetPoint(t);
+        // 限制t在tMin和tMax之间
+        if (t < tMin) {
+            t = tMin;
+        } else if (t > tMax) {
+            t = tMax;
         }
+        TVector3<T> closest = GetPoint(t);
         return (point - closest).Length();
     }
 
     /**
-     * @brief 计算射线到线段的最短距离
-     * @param start 线段起点
-     * @param end 线段终点
+     * @brief 计算射线到射线的最短距离
+     * @param other 另外一条射线
      * @return 最短距离
      */
-    T DistanceToSegment(const TVector3<T>& start, const TVector3<T>& end) const
+    T DistanceTo(const TRay<T>& other) const
     {
-        const T EPS = T(1e-8);
+        TVector3<T> w = mOrigin - other.mOrigin;
+        T a = mDirection.Dot(mDirection);
+        T b = mDirection.Dot(other.mDirection);
+        T c = other.mDirection.Dot(other.mDirection);
+        T d = mDirection.Dot(w);
+        T e = other.mDirection.Dot(w);
 
-        const TVector3<T>& p = mOrigin;
-        const TVector3<T>& d = mDirection;
-
-        TVector3<T> ab = end - start;
-        T abLenSq = ab.Dot(ab);
-
-        if (abLenSq < EPS)
-            return DistanceTo(start);
-
-        TVector3<T> w0 = p - start;
-
-        T a = d.Dot(d);
-        T b = d.Dot(ab);
-        T c = ab.Dot(ab);
-        T d0 = d.Dot(w0);
-        T e = ab.Dot(w0);
-
-        T denom = a * c - b * b;
-
-        T t, u;
-
-        if (denom > EPS)
-        {
-            t = (b * e - c * d0) / denom;
-        }
-        else
-        {
-            t = 0;
+        T denominator = a * c - b * b;
+        if (denominator < std::numeric_limits<T>::epsilon()) {
+            // 射线平行，计算其中一条射线上的最近点到另一条射线的距离
+            T t1 = -d / a;
+            if (t1 < tMin) t1 = tMin;
+            if (t1 > tMax) t1 = tMax;
+            TVector3<T> p1 = GetPoint(t1);
+            return other.DistanceTo(p1);
         }
 
-        if (t < 0)
-            t = 0;
+        // 计算参数t和s
+        T t = (b * e - c * d) / denominator;
+        T s = (a * e - b * d) / denominator;
 
-        u = (b * t + e) / c;
+        // 限制t和s在各自的范围内
+        if (t < tMin) t = tMin;
+        if (t > tMax) t = tMax;
+        if (s < other.tMin) s = other.tMin;
+        if (s > other.tMax) s = other.tMax;
 
-        if (u < 0)
-        {
-            u = 0;
-            t = -d0 / a;
-            if (t < 0) t = 0;
-        }
-        else if (u > 1)
-        {
-            u = 1;
-            TVector3<T> w1 = p - end;
-            T d1 = d.Dot(w1);
+        // 计算两条射线上的点
+        TVector3<T> p1 = GetPoint(t);
+        TVector3<T> p2 = other.GetPoint(s);
 
-            t = -d1 / a;
-            if (t < 0) t = 0;
-        }
-
-        TVector3<T> rayPoint = p + d * t;
-        TVector3<T> segPoint = start + ab * u;
-
-        return (rayPoint - segPoint).Length();
+        // 计算两点之间的距离
+        return (p1 - p2).Length();
     }
 
     /**

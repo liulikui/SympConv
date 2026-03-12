@@ -116,7 +116,7 @@ TEST(CapsuleShapeTest, GetLocalInertiaTensor) {
     EXPECT_TRUE(inertia.z > 0);
     
     // 对于沿Y轴的胶囊体，Ix和Iz应该相等
-    EXPECT_TRUE(FloatEqual(inertia.x, inertia.z));
+    EXPECT_TRUE(SympConv::RealEqual(inertia.x, inertia.z));
     
     // 验证Ix应该大于Iy（因为胶囊体沿Y轴，绕Y轴的转动惯量更小）
     EXPECT_TRUE(inertia.x > inertia.y);
@@ -132,12 +132,12 @@ TEST(CapsuleShapeTest, GetLocalInertiaTensor_SphereCase) {
     Vec3 inertia = shape.GetLocalInertiaTensor(mass);
     
     // 对于球体，三个分量应该相等
-    EXPECT_TRUE(FloatEqual(inertia.x, inertia.y));
-    EXPECT_TRUE(FloatEqual(inertia.y, inertia.z));
+    EXPECT_TRUE(SympConv::RealEqual(inertia.x, inertia.y));
+    EXPECT_TRUE(SympConv::RealEqual(inertia.y, inertia.z));
     
     // 球体的惯性张量理论值为 (2/5) * m * r^2 = 0.4
     Real expected = Real(0.4);
-    EXPECT_TRUE(FloatEqual(inertia.x, expected));
+    EXPECT_TRUE(SympConv::RealEqual(inertia.x, expected));
 }
 
 TEST(CapsuleShapeTest, GetLocalInertiaTensor_DifferentSize) {
@@ -155,7 +155,7 @@ TEST(CapsuleShapeTest, GetLocalInertiaTensor_DifferentSize) {
     EXPECT_TRUE(inertia.z > 0);
     
     // 对于沿Y轴的胶囊体，Ix和Iz应该相等
-    EXPECT_TRUE(FloatEqual(inertia.x, inertia.z));
+    EXPECT_TRUE(SympConv::RealEqual(inertia.x, inertia.z));
 }
 
 TEST(CapsuleShapeTest, GetLocalBounds) {
@@ -167,25 +167,25 @@ TEST(CapsuleShapeTest, GetLocalBounds) {
     AABB bounds = shape.GetLocalBounds();
     
     // 验证AABB的最小和最大点
-    EXPECT_TRUE(FloatEqual(bounds.mMin.x, -Real(1.0)));
-    EXPECT_TRUE(FloatEqual(bounds.mMin.y, -Real(1.0) - Real(1.0))); // 半高加上半径
-    EXPECT_TRUE(FloatEqual(bounds.mMin.z, -Real(1.0)));
+    EXPECT_TRUE(SympConv::RealEqual(bounds.mMin.x, -Real(1.0)));
+    EXPECT_TRUE(SympConv::RealEqual(bounds.mMin.y, -Real(1.0) - Real(1.0))); // 半高加上半径
+    EXPECT_TRUE(SympConv::RealEqual(bounds.mMin.z, -Real(1.0)));
     
-    EXPECT_TRUE(FloatEqual(bounds.mMax.x, Real(1.0)));
-    EXPECT_TRUE(FloatEqual(bounds.mMax.y, Real(1.0) + Real(1.0))); // 半高加上半径
-    EXPECT_TRUE(FloatEqual(bounds.mMax.z, Real(1.0)));
+    EXPECT_TRUE(SympConv::RealEqual(bounds.mMax.x, Real(1.0)));
+    EXPECT_TRUE(SympConv::RealEqual(bounds.mMax.y, Real(1.0) + Real(1.0))); // 半高加上半径
+    EXPECT_TRUE(SympConv::RealEqual(bounds.mMax.z, Real(1.0)));
     
     // 验证AABB的中心
     Vec3 center = bounds.GetCenter();
-    EXPECT_TRUE(FloatEqual(center.x, Real(0.0)));
-    EXPECT_TRUE(FloatEqual(center.y, Real(0.0)));
-    EXPECT_TRUE(FloatEqual(center.z, Real(0.0)));
+    EXPECT_TRUE(SympConv::RealEqual(center.x, Real(0.0)));
+    EXPECT_TRUE(SympConv::RealEqual(center.y, Real(0.0)));
+    EXPECT_TRUE(SympConv::RealEqual(center.z, Real(0.0)));
     
     // 验证AABB的大小
     Vec3 size = bounds.GetSize();
-    EXPECT_TRUE(FloatEqual(size.x, Real(2.0))); // 直径
-    EXPECT_TRUE(FloatEqual(size.y, Real(2.0) + Real(2.0))); // 总高度加上直径
-    EXPECT_TRUE(FloatEqual(size.z, Real(2.0))); // 直径
+    EXPECT_TRUE(SympConv::RealEqual(size.x, Real(2.0))); // 直径
+    EXPECT_TRUE(SympConv::RealEqual(size.y, Real(2.0) + Real(2.0))); // 总高度加上直径
+    EXPECT_TRUE(SympConv::RealEqual(size.z, Real(2.0))); // 直径
 }
 
 TEST(CapsuleShapeTest, GetLocalBounds_DifferentSize) {
@@ -197,19 +197,19 @@ TEST(CapsuleShapeTest, GetLocalBounds_DifferentSize) {
     AABB bounds = shape.GetLocalBounds();
     
     // 验证AABB的最小和最大点
-    EXPECT_TRUE(FloatEqual(bounds.mMin.x, -Real(2.0)));
-    EXPECT_TRUE(FloatEqual(bounds.mMin.y, -Real(2.0) - Real(2.0))); // 半高加上半径
-    EXPECT_TRUE(FloatEqual(bounds.mMin.z, -Real(2.0)));
+    EXPECT_TRUE(SympConv::RealEqual(bounds.mMin.x, -Real(2.0)));
+    EXPECT_TRUE(SympConv::RealEqual(bounds.mMin.y, -Real(2.0) - Real(2.0))); // 半高加上半径
+    EXPECT_TRUE(SympConv::RealEqual(bounds.mMin.z, -Real(2.0)));
     
-    EXPECT_TRUE(FloatEqual(bounds.mMax.x, Real(2.0)));
-    EXPECT_TRUE(FloatEqual(bounds.mMax.y, Real(2.0) + Real(2.0))); // 半高加上半径
-    EXPECT_TRUE(FloatEqual(bounds.mMax.z, Real(2.0)));
+    EXPECT_TRUE(SympConv::RealEqual(bounds.mMax.x, Real(2.0)));
+    EXPECT_TRUE(SympConv::RealEqual(bounds.mMax.y, Real(2.0) + Real(2.0))); // 半高加上半径
+    EXPECT_TRUE(SympConv::RealEqual(bounds.mMax.z, Real(2.0)));
     
     // 验证AABB的大小
     Vec3 size = bounds.GetSize();
-    EXPECT_TRUE(FloatEqual(size.x, Real(4.0))); // 直径
-    EXPECT_TRUE(FloatEqual(size.y, Real(4.0) + Real(4.0))); // 总高度加上直径
-    EXPECT_TRUE(FloatEqual(size.z, Real(4.0))); // 直径
+    EXPECT_TRUE(SympConv::RealEqual(size.x, Real(4.0))); // 直径
+    EXPECT_TRUE(SympConv::RealEqual(size.y, Real(4.0) + Real(4.0))); // 总高度加上直径
+    EXPECT_TRUE(SympConv::RealEqual(size.z, Real(4.0))); // 直径
 }
 
 } // namespace SympConvTest

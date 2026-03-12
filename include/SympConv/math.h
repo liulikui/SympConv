@@ -1,29 +1,21 @@
 #ifndef SYMPCONV_MATH_H
 #define SYMPCONV_MATH_H
 
-#include "Export.h"
+#include "Config.h"
 
 namespace SympConv {
 
 // 数学常量
 #define M_PI 3.14159265358979323846
 
-class MathUtils
+inline bool RealEqual(SympConv::Real a, SympConv::Real b, SympConv::Real epsilon = 1e-6f)
 {
-public:
-	 template <typename T>
-	 static T Clamp(T value, T min, T max);
-
-	 template <typename T>
-	 static T Lerp(T a, T b, T t);
-
-	 template <typename T>
-	 static T Sign(T value);
-};
+	return std::abs(a - b) < epsilon;
+}
 
 // 模板实现
 template <typename T>
-T MathUtils::Clamp(T value, T min, T max)
+T Clamp(T value, T min, T max)
 {
 	if (value < min) {
 		return min;
@@ -35,13 +27,13 @@ T MathUtils::Clamp(T value, T min, T max)
 }
 
 template <typename T>
-T MathUtils::Lerp(T a, T b, T t)
+T Lerp(T a, T b, T t)
 {
 	return a + (b - a) * t;
 }
 
 template <typename T>
-T MathUtils::Sign(T value)
+T Sign(T value)
 {
 	if (value > 0) {
 		return 1;
