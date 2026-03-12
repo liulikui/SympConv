@@ -112,6 +112,29 @@ TEST(VectorTest, Vector2Lerp) {
     EXPECT_TRUE(FloatEqual(lerp.y, Real(3.0)));
 }
 
+TEST(VectorTest, Vector2Cross) {
+    Vec2 vec2_1(Real(1.0), Real(2.0));
+    Vec2 vec2_2(Real(3.0), Real(4.0));
+    
+    Real cross = vec2_1.Cross(vec2_2);
+    EXPECT_TRUE(FloatEqual(cross, Real(1.0) * Real(4.0) - Real(2.0) * Real(3.0)));
+    
+    Real crossProduct = Vec2::Cross(vec2_1, vec2_2);
+    EXPECT_TRUE(FloatEqual(crossProduct, Real(1.0) * Real(4.0) - Real(2.0) * Real(3.0)));
+    
+    // 测试垂直向量的叉积
+    Vec2 vec2_3(Real(1.0), Real(0.0));
+    Vec2 vec2_4(Real(0.0), Real(1.0));
+    Real crossPerpendicular = vec2_3.Cross(vec2_4);
+    EXPECT_TRUE(FloatEqual(crossPerpendicular, Real(1.0)));
+    
+    // 测试平行向量的叉积
+    Vec2 vec2_5(Real(1.0), Real(2.0));
+    Vec2 vec2_6(Real(2.0), Real(4.0));
+    Real crossParallel = vec2_5.Cross(vec2_6);
+    EXPECT_TRUE(FloatEqual(crossParallel, Real(0.0)));
+}
+
 TEST(VectorTest, Vector3Constructor) {
     Vec3 vec3_1(Real(1.0), Real(2.0), Real(3.0));
     EXPECT_TRUE(FloatEqual(vec3_1.x, Real(1.0)));

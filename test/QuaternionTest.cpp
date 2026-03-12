@@ -179,6 +179,7 @@ TEST(QuaternionTest, Slerp) {
     EXPECT_TRUE(FloatEqual(slerp0.y, q1.y));
     EXPECT_TRUE(FloatEqual(slerp0.z, q1.z));
     EXPECT_TRUE(FloatEqual(slerp0.w, q1.w));
+    EXPECT_TRUE(FloatEqual(slerp0.Length(), Real(1.0))); // 验证归一化
     
     // 测试t=1
     Quaternion slerp1 = q1.Slerp(q2, Real(1.0));
@@ -186,6 +187,16 @@ TEST(QuaternionTest, Slerp) {
     EXPECT_TRUE(FloatEqual(slerp1.y, q2.y));
     EXPECT_TRUE(FloatEqual(slerp1.z, q2.z));
     EXPECT_TRUE(FloatEqual(slerp1.w, q2.w));
+    EXPECT_TRUE(FloatEqual(slerp1.Length(), Real(1.0))); // 验证归一化
+    
+    // 测试t=0.5
+    Quaternion slerp05 = q1.Slerp(q2, Real(0.5));
+    EXPECT_TRUE(FloatEqual(slerp05.Length(), Real(1.0))); // 验证归一化
+    // 验证插值结果是否在两个四元数之间
+    Real dot0 = q1.Dot(slerp05);
+    Real dot1 = q2.Dot(slerp05);
+    EXPECT_TRUE(dot0 > Real(0.0));
+    EXPECT_TRUE(dot1 > Real(0.0));
 }
 
 TEST(QuaternionTest, RotateVector) {
@@ -249,6 +260,7 @@ TEST(QuaternionTest, RotateVector) {
 } 
 
 TEST(QuaternionTest, ToMatrix3x3) {
+    // 测试Identity四元数
     Quaternion q = Quaternion::Identity();
     auto mat = q.ToMatrix3x3();
     EXPECT_TRUE(FloatEqual(mat.mRows[0].x, Real(1.0)));
@@ -260,9 +272,49 @@ TEST(QuaternionTest, ToMatrix3x3) {
     EXPECT_TRUE(FloatEqual(mat.mRows[2].x, Real(0.0)));
     EXPECT_TRUE(FloatEqual(mat.mRows[2].y, Real(0.0)));
     EXPECT_TRUE(FloatEqual(mat.mRows[2].z, Real(1.0)));
+    
+    // 测试绕X轴旋转90度的四元数
+    q = Quaternion::RotateX((Real)M_PI / Real(2.0));
+    mat = q.ToMatrix3x3();
+    EXPECT_TRUE(FloatEqual(mat.mRows[0].x, Real(1.0)));
+    EXPECT_TRUE(FloatEqual(mat.mRows[0].y, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(mat.mRows[0].z, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(mat.mRows[1].x, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(mat.mRows[1].y, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(mat.mRows[1].z, Real(1.0)));
+    EXPECT_TRUE(FloatEqual(mat.mRows[2].x, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(mat.mRows[2].y, Real(-1.0)));
+    EXPECT_TRUE(FloatEqual(mat.mRows[2].z, Real(0.0)));
+    
+    // 测试绕Y轴旋转90度的四元数
+    q = Quaternion::RotateY((Real)M_PI / Real(2.0));
+    mat = q.ToMatrix3x3();
+    EXPECT_TRUE(FloatEqual(mat.mRows[0].x, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(mat.mRows[0].y, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(mat.mRows[0].z, Real(-1.0)));
+    EXPECT_TRUE(FloatEqual(mat.mRows[1].x, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(mat.mRows[1].y, Real(1.0)));
+    EXPECT_TRUE(FloatEqual(mat.mRows[1].z, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(mat.mRows[2].x, Real(1.0)));
+    EXPECT_TRUE(FloatEqual(mat.mRows[2].y, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(mat.mRows[2].z, Real(0.0)));
+    
+    // 测试绕Z轴旋转90度的四元数
+    q = Quaternion::RotateZ((Real)M_PI / Real(2.0));
+    mat = q.ToMatrix3x3();
+    EXPECT_TRUE(FloatEqual(mat.mRows[0].x, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(mat.mRows[0].y, Real(1.0)));
+    EXPECT_TRUE(FloatEqual(mat.mRows[0].z, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(mat.mRows[1].x, Real(-1.0)));
+    EXPECT_TRUE(FloatEqual(mat.mRows[1].y, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(mat.mRows[1].z, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(mat.mRows[2].x, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(mat.mRows[2].y, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(mat.mRows[2].z, Real(1.0)));
 }
 
 TEST(QuaternionTest, ToMatrix4x4) {
+    // 测试Identity四元数
     Quaternion q = Quaternion::Identity();
     auto mat = q.ToMatrix4x4();
     EXPECT_TRUE(FloatEqual(mat.mRows[0].x, Real(1.0)));
@@ -281,9 +333,92 @@ TEST(QuaternionTest, ToMatrix4x4) {
     EXPECT_TRUE(FloatEqual(mat.mRows[3].y, Real(0.0)));
     EXPECT_TRUE(FloatEqual(mat.mRows[3].z, Real(0.0)));
     EXPECT_TRUE(FloatEqual(mat.mRows[3].w, Real(1.0)));
+    
+    // 测试绕X轴旋转90度的四元数
+    q = Quaternion::RotateX((Real)M_PI / Real(2.0));
+    mat = q.ToMatrix4x4();
+    EXPECT_TRUE(FloatEqual(mat.mRows[0].x, Real(1.0)));
+    EXPECT_TRUE(FloatEqual(mat.mRows[0].y, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(mat.mRows[0].z, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(mat.mRows[0].w, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(mat.mRows[1].x, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(mat.mRows[1].y, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(mat.mRows[1].z, Real(1.0)));
+    EXPECT_TRUE(FloatEqual(mat.mRows[1].w, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(mat.mRows[2].x, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(mat.mRows[2].y, Real(-1.0)));
+    EXPECT_TRUE(FloatEqual(mat.mRows[2].z, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(mat.mRows[2].w, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(mat.mRows[3].x, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(mat.mRows[3].y, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(mat.mRows[3].z, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(mat.mRows[3].w, Real(1.0)));
+    
+    // 测试绕Y轴旋转90度的四元数
+    q = Quaternion::RotateY((Real)M_PI / Real(2.0));
+    mat = q.ToMatrix4x4();
+    EXPECT_TRUE(FloatEqual(mat.mRows[0].x, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(mat.mRows[0].y, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(mat.mRows[0].z, Real(-1.0)));
+    EXPECT_TRUE(FloatEqual(mat.mRows[0].w, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(mat.mRows[1].x, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(mat.mRows[1].y, Real(1.0)));
+    EXPECT_TRUE(FloatEqual(mat.mRows[1].z, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(mat.mRows[1].w, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(mat.mRows[2].x, Real(1.0)));
+    EXPECT_TRUE(FloatEqual(mat.mRows[2].y, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(mat.mRows[2].z, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(mat.mRows[2].w, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(mat.mRows[3].x, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(mat.mRows[3].y, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(mat.mRows[3].z, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(mat.mRows[3].w, Real(1.0)));
+    
+    // 测试绕Z轴旋转90度的四元数
+    q = Quaternion::RotateZ((Real)M_PI / Real(2.0));
+    mat = q.ToMatrix4x4();
+    EXPECT_TRUE(FloatEqual(mat.mRows[0].x, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(mat.mRows[0].y, Real(1.0)));
+    EXPECT_TRUE(FloatEqual(mat.mRows[0].z, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(mat.mRows[0].w, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(mat.mRows[1].x, Real(-1.0)));
+    EXPECT_TRUE(FloatEqual(mat.mRows[1].y, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(mat.mRows[1].z, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(mat.mRows[1].w, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(mat.mRows[2].x, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(mat.mRows[2].y, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(mat.mRows[2].z, Real(1.0)));
+    EXPECT_TRUE(FloatEqual(mat.mRows[2].w, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(mat.mRows[3].x, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(mat.mRows[3].y, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(mat.mRows[3].z, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(mat.mRows[3].w, Real(1.0)));
+    
+    // 测试绕Y轴旋转45度的四元数（非90度测试用例）
+    q = Quaternion::RotateY((Real)M_PI / Real(4.0));
+    mat = q.ToMatrix4x4();
+    Real cos45 = std::cos((Real)M_PI / Real(4.0));
+    Real sin45 = std::sin((Real)M_PI / Real(4.0));
+    EXPECT_TRUE(FloatEqual(mat.mRows[0].x, cos45));
+    EXPECT_TRUE(FloatEqual(mat.mRows[0].y, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(mat.mRows[0].z, -sin45));
+    EXPECT_TRUE(FloatEqual(mat.mRows[0].w, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(mat.mRows[1].x, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(mat.mRows[1].y, Real(1.0)));
+    EXPECT_TRUE(FloatEqual(mat.mRows[1].z, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(mat.mRows[1].w, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(mat.mRows[2].x, sin45));
+    EXPECT_TRUE(FloatEqual(mat.mRows[2].y, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(mat.mRows[2].z, cos45));
+    EXPECT_TRUE(FloatEqual(mat.mRows[2].w, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(mat.mRows[3].x, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(mat.mRows[3].y, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(mat.mRows[3].z, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(mat.mRows[3].w, Real(1.0)));
 }
 
 TEST(QuaternionTest, FromAxisAngle) {
+    // 测试绕X轴旋转90度
     Vec3 axis(Real(1.0), Real(0.0), Real(0.0));
     Real angle = (Real)M_PI / Real(2.0);
     Quaternion q = Quaternion::FromAxisAngle(axis, angle);
@@ -291,9 +426,44 @@ TEST(QuaternionTest, FromAxisAngle) {
     EXPECT_TRUE(FloatEqual(q.y, Real(0.0)));
     EXPECT_TRUE(FloatEqual(q.z, Real(0.0)));
     EXPECT_TRUE(FloatEqual(q.w, std::cos(angle / Real(2.0))));
+    
+    // 测试绕X轴旋转45度
+    angle = (Real)M_PI / Real(4.0);
+    q = Quaternion::FromAxisAngle(axis, angle);
+    EXPECT_TRUE(FloatEqual(q.x, std::sin(angle / Real(2.0))));
+    EXPECT_TRUE(FloatEqual(q.y, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(q.z, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(q.w, std::cos(angle / Real(2.0))));
+    
+    // 测试绕X轴旋转180度
+    angle = (Real)M_PI;
+    q = Quaternion::FromAxisAngle(axis, angle);
+    EXPECT_TRUE(FloatEqual(q.x, std::sin(angle / Real(2.0))));
+    EXPECT_TRUE(FloatEqual(q.y, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(q.z, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(q.w, std::cos(angle / Real(2.0))));
+    
+    // 测试绕Y轴旋转45度
+    axis = Vec3(Real(0.0), Real(1.0), Real(0.0));
+    angle = (Real)M_PI / Real(4.0);
+    q = Quaternion::FromAxisAngle(axis, angle);
+    EXPECT_TRUE(FloatEqual(q.x, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(q.y, std::sin(angle / Real(2.0))));
+    EXPECT_TRUE(FloatEqual(q.z, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(q.w, std::cos(angle / Real(2.0))));
+    
+    // 测试绕Z轴旋转45度
+    axis = Vec3(Real(0.0), Real(0.0), Real(1.0));
+    angle = (Real)M_PI / Real(4.0);
+    q = Quaternion::FromAxisAngle(axis, angle);
+    EXPECT_TRUE(FloatEqual(q.x, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(q.y, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(q.z, std::sin(angle / Real(2.0))));
+    EXPECT_TRUE(FloatEqual(q.w, std::cos(angle / Real(2.0))));
 }
 
 TEST(QuaternionTest, ToAxisAngle) {
+    // 测试绕X轴旋转90度
     Vec3 axis(Real(1.0), Real(0.0), Real(0.0));
     Real angle = (Real)M_PI / Real(2.0);
     Quaternion q = Quaternion::FromAxisAngle(axis, angle);
@@ -304,9 +474,48 @@ TEST(QuaternionTest, ToAxisAngle) {
     EXPECT_TRUE(FloatEqual(outAxis.x, Real(1.0)));
     EXPECT_TRUE(FloatEqual(outAxis.y, Real(0.0)));
     EXPECT_TRUE(FloatEqual(outAxis.z, Real(0.0)));
+    
+    // 测试绕X轴旋转45度
+    angle = (Real)M_PI / Real(4.0);
+    q = Quaternion::FromAxisAngle(axis, angle);
+    outAngle = q.ToAxisAngle(outAxis);
+    EXPECT_TRUE(FloatEqual(outAngle, angle));
+    EXPECT_TRUE(FloatEqual(outAxis.x, Real(1.0)));
+    EXPECT_TRUE(FloatEqual(outAxis.y, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(outAxis.z, Real(0.0)));
+    
+    // 测试绕X轴旋转180度
+    angle = (Real)M_PI;
+    q = Quaternion::FromAxisAngle(axis, angle);
+    outAngle = q.ToAxisAngle(outAxis);
+    EXPECT_TRUE(FloatEqual(outAngle, angle));
+    EXPECT_TRUE(FloatEqual(outAxis.x, Real(1.0)));
+    EXPECT_TRUE(FloatEqual(outAxis.y, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(outAxis.z, Real(0.0)));
+    
+    // 测试绕Y轴旋转45度
+    axis = Vec3(Real(0.0), Real(1.0), Real(0.0));
+    angle = (Real)M_PI / Real(4.0);
+    q = Quaternion::FromAxisAngle(axis, angle);
+    outAngle = q.ToAxisAngle(outAxis);
+    EXPECT_TRUE(FloatEqual(outAngle, angle));
+    EXPECT_TRUE(FloatEqual(outAxis.x, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(outAxis.y, Real(1.0)));
+    EXPECT_TRUE(FloatEqual(outAxis.z, Real(0.0)));
+    
+    // 测试绕Z轴旋转45度
+    axis = Vec3(Real(0.0), Real(0.0), Real(1.0));
+    angle = (Real)M_PI / Real(4.0);
+    q = Quaternion::FromAxisAngle(axis, angle);
+    outAngle = q.ToAxisAngle(outAxis);
+    EXPECT_TRUE(FloatEqual(outAngle, angle));
+    EXPECT_TRUE(FloatEqual(outAxis.x, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(outAxis.y, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(outAxis.z, Real(1.0)));
 }
 
 TEST(QuaternionTest, FromEulerAngles) {
+    // 测试绕Y轴旋转90度
     Real x = Real(0.0);
     Real y = (Real)M_PI / Real(2.0);
     Real z = Real(0.0);
@@ -318,6 +527,50 @@ TEST(QuaternionTest, FromEulerAngles) {
     EXPECT_TRUE(FloatEqual(rotated.x, Real(0.0)));
     EXPECT_TRUE(FloatEqual(rotated.y, Real(0.0)));
     EXPECT_TRUE(FloatEqual(rotated.z, Real(-1.0)));
+    
+    // 测试绕X轴旋转45度
+    x = (Real)M_PI / Real(4.0);
+    y = Real(0.0);
+    z = Real(0.0);
+    q = Quaternion::FromEulerAngles(x, y, z);
+    v = Vec3(Real(0.0), Real(1.0), Real(0.0));
+    rotated = q.RotateVector(v);
+    Real expected = Real(1.0) / std::sqrt(Real(2.0));
+    EXPECT_TRUE(FloatEqual(rotated.x, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(rotated.y, expected));
+    EXPECT_TRUE(FloatEqual(rotated.z, expected));
+    
+    // 测试绕Y轴旋转45度
+    x = Real(0.0);
+    y = (Real)M_PI / Real(4.0);
+    z = Real(0.0);
+    q = Quaternion::FromEulerAngles(x, y, z);
+    v = Vec3(Real(1.0), Real(0.0), Real(0.0));
+    rotated = q.RotateVector(v);
+    EXPECT_TRUE(FloatEqual(rotated.x, expected));
+    EXPECT_TRUE(FloatEqual(rotated.y, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(rotated.z, Real(-expected)));
+    
+    // 测试绕Z轴旋转45度
+    x = Real(0.0);
+    y = Real(0.0);
+    z = (Real)M_PI / Real(4.0);
+    q = Quaternion::FromEulerAngles(x, y, z);
+    v = Vec3(Real(1.0), Real(0.0), Real(0.0));
+    rotated = q.RotateVector(v);
+    EXPECT_TRUE(FloatEqual(rotated.x, expected));
+    EXPECT_TRUE(FloatEqual(rotated.y, expected));
+    EXPECT_TRUE(FloatEqual(rotated.z, Real(0.0)));
+    
+    // 测试复合旋转（X、Y、Z各45度）
+    x = (Real)M_PI / Real(4.0);
+    y = (Real)M_PI / Real(4.0);
+    z = (Real)M_PI / Real(4.0);
+    q = Quaternion::FromEulerAngles(x, y, z);
+    v = Vec3(Real(1.0), Real(0.0), Real(0.0));
+    rotated = q.RotateVector(v);
+    // 验证旋转后的向量长度保持不变
+    EXPECT_TRUE(FloatEqual(rotated.Length(), Real(1.0)));
 }
 
 TEST(QuaternionTest, ToEulerAngles) {
@@ -351,33 +604,112 @@ TEST(QuaternionTest, ToEulerAngles) {
 }
 
 TEST(QuaternionTest, RotateX) {
+    // 测试绕X轴旋转90度
     Quaternion q = Quaternion::RotateX((Real)M_PI / Real(2.0));
     Vec3 v(Real(0.0), Real(1.0), Real(0.0));
     Vec3 rotated = q.RotateVector(v);
     EXPECT_TRUE(FloatEqual(rotated.x, Real(0.0)));
     EXPECT_TRUE(FloatEqual(rotated.y, Real(0.0)));
     EXPECT_TRUE(FloatEqual(rotated.z, Real(1.0)));
+    
+    // 测试绕X轴旋转45度
+    q = Quaternion::RotateX((Real)M_PI / Real(4.0));
+    v = Vec3(Real(0.0), Real(1.0), Real(0.0));
+    rotated = q.RotateVector(v);
+    Real expected = Real(1.0) / std::sqrt(Real(2.0));
+    EXPECT_TRUE(FloatEqual(rotated.x, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(rotated.y, expected));
+    EXPECT_TRUE(FloatEqual(rotated.z, expected));
+    
+    // 测试绕X轴旋转180度
+    q = Quaternion::RotateX((Real)M_PI);
+    v = Vec3(Real(0.0), Real(1.0), Real(0.0));
+    rotated = q.RotateVector(v);
+    EXPECT_TRUE(FloatEqual(rotated.x, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(rotated.y, Real(-1.0)));
+    EXPECT_TRUE(FloatEqual(rotated.z, Real(0.0)));
+    
+    // 测试绕X轴旋转30度
+    q = Quaternion::RotateX((Real)M_PI / Real(6.0));
+    v = Vec3(Real(0.0), Real(1.0), Real(0.0));
+    rotated = q.RotateVector(v);
+    EXPECT_TRUE(FloatEqual(rotated.x, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(rotated.y, std::cos((Real)M_PI / Real(6.0))));
+    EXPECT_TRUE(FloatEqual(rotated.z, std::sin((Real)M_PI / Real(6.0))));
 }
 
 TEST(QuaternionTest, RotateY) {
+    // 测试绕Y轴旋转90度
     Quaternion q = Quaternion::RotateY((Real)M_PI / Real(2.0));
     Vec3 v(Real(1.0), Real(0.0), Real(0.0));
     Vec3 rotated = q.RotateVector(v);
     EXPECT_TRUE(FloatEqual(rotated.x, Real(0.0)));
     EXPECT_TRUE(FloatEqual(rotated.y, Real(0.0)));
     EXPECT_TRUE(FloatEqual(rotated.z, Real(-1.0)));
+    
+    // 测试绕Y轴旋转45度
+    q = Quaternion::RotateY((Real)M_PI / Real(4.0));
+    v = Vec3(Real(1.0), Real(0.0), Real(0.0));
+    rotated = q.RotateVector(v);
+    Real expected = Real(1.0) / std::sqrt(Real(2.0));
+    EXPECT_TRUE(FloatEqual(rotated.x, expected));
+    EXPECT_TRUE(FloatEqual(rotated.y, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(rotated.z, Real(-expected)));
+    
+    // 测试绕Y轴旋转180度
+    q = Quaternion::RotateY((Real)M_PI);
+    v = Vec3(Real(1.0), Real(0.0), Real(0.0));
+    rotated = q.RotateVector(v);
+    EXPECT_TRUE(FloatEqual(rotated.x, Real(-1.0)));
+    EXPECT_TRUE(FloatEqual(rotated.y, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(rotated.z, Real(0.0)));
+    
+    // 测试绕Y轴旋转30度
+    q = Quaternion::RotateY((Real)M_PI / Real(6.0));
+    v = Vec3(Real(1.0), Real(0.0), Real(0.0));
+    rotated = q.RotateVector(v);
+    EXPECT_TRUE(FloatEqual(rotated.x, std::cos((Real)M_PI / Real(6.0))));
+    EXPECT_TRUE(FloatEqual(rotated.y, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(rotated.z, Real(-std::sin((Real)M_PI / Real(6.0)))));
 }
 
 TEST(QuaternionTest, RotateZ) {
+    // 测试绕Z轴旋转90度
     Quaternion q = Quaternion::RotateZ((Real)M_PI / Real(2.0));
     Vec3 v(Real(1.0), Real(0.0), Real(0.0));
     Vec3 rotated = q.RotateVector(v);
     EXPECT_TRUE(FloatEqual(rotated.x, Real(0.0)));
     EXPECT_TRUE(FloatEqual(rotated.y, Real(1.0)));
     EXPECT_TRUE(FloatEqual(rotated.z, Real(0.0)));
+    
+    // 测试绕Z轴旋转45度
+    q = Quaternion::RotateZ((Real)M_PI / Real(4.0));
+    v = Vec3(Real(1.0), Real(0.0), Real(0.0));
+    rotated = q.RotateVector(v);
+    Real expected = Real(1.0) / std::sqrt(Real(2.0));
+    EXPECT_TRUE(FloatEqual(rotated.x, expected));
+    EXPECT_TRUE(FloatEqual(rotated.y, expected));
+    EXPECT_TRUE(FloatEqual(rotated.z, Real(0.0)));
+    
+    // 测试绕Z轴旋转180度
+    q = Quaternion::RotateZ((Real)M_PI);
+    v = Vec3(Real(1.0), Real(0.0), Real(0.0));
+    rotated = q.RotateVector(v);
+    EXPECT_TRUE(FloatEqual(rotated.x, Real(-1.0)));
+    EXPECT_TRUE(FloatEqual(rotated.y, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(rotated.z, Real(0.0)));
+    
+    // 测试绕Z轴旋转30度
+    q = Quaternion::RotateZ((Real)M_PI / Real(6.0));
+    v = Vec3(Real(1.0), Real(0.0), Real(0.0));
+    rotated = q.RotateVector(v);
+    EXPECT_TRUE(FloatEqual(rotated.x, std::cos((Real)M_PI / Real(6.0))));
+    EXPECT_TRUE(FloatEqual(rotated.y, std::sin((Real)M_PI / Real(6.0))));
+    EXPECT_TRUE(FloatEqual(rotated.z, Real(0.0)));
 }
 
 TEST(QuaternionTest, RotateAxis) {
+    // 测试绕Y轴旋转90度
     Vec3 axis(Real(0.0), Real(1.0), Real(0.0));
     Real angle = (Real)M_PI / Real(2.0);
     Quaternion q = Quaternion::RotateAxis(axis, angle);
@@ -386,6 +718,37 @@ TEST(QuaternionTest, RotateAxis) {
     EXPECT_TRUE(FloatEqual(rotated.x, Real(0.0)));
     EXPECT_TRUE(FloatEqual(rotated.y, Real(0.0)));
     EXPECT_TRUE(FloatEqual(rotated.z, Real(-1.0)));
+    
+    // 测试绕X轴旋转45度
+    axis = Vec3(Real(1.0), Real(0.0), Real(0.0));
+    angle = (Real)M_PI / Real(4.0);
+    q = Quaternion::RotateAxis(axis, angle);
+    v = Vec3(Real(0.0), Real(1.0), Real(0.0));
+    rotated = q.RotateVector(v);
+    Real expected = Real(1.0) / std::sqrt(Real(2.0));
+    EXPECT_TRUE(FloatEqual(rotated.x, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(rotated.y, expected));
+    EXPECT_TRUE(FloatEqual(rotated.z, expected));
+    
+    // 测试绕Z轴旋转45度
+    axis = Vec3(Real(0.0), Real(0.0), Real(1.0));
+    angle = (Real)M_PI / Real(4.0);
+    q = Quaternion::RotateAxis(axis, angle);
+    v = Vec3(Real(1.0), Real(0.0), Real(0.0));
+    rotated = q.RotateVector(v);
+    EXPECT_TRUE(FloatEqual(rotated.x, expected));
+    EXPECT_TRUE(FloatEqual(rotated.y, expected));
+    EXPECT_TRUE(FloatEqual(rotated.z, Real(0.0)));
+    
+    // 测试绕任意轴旋转30度
+    axis = Vec3(Real(1.0), Real(1.0), Real(1.0));
+    axis = axis.Normalize();
+    angle = (Real)M_PI / Real(6.0);
+    q = Quaternion::RotateAxis(axis, angle);
+    v = Vec3(Real(1.0), Real(0.0), Real(0.0));
+    rotated = q.RotateVector(v);
+    // 验证旋转后的向量长度保持不变
+    EXPECT_TRUE(FloatEqual(rotated.Length(), Real(1.0)));
 }
 
 TEST(QuaternionTest, Zero) {
@@ -398,12 +761,35 @@ TEST(QuaternionTest, Zero) {
 
 TEST(QuaternionTest, MinimizeAngle) {
     Quaternion q1 = Quaternion::Identity();
-    Quaternion q2 = Quaternion::RotateX((Real)M_PI);
-    const Quaternion& result = q1.MinimizeAngle(q2);
-    // 这里应该返回q2，因为它与q1的夹角最小
+    
+    // 测试1：q2与q1的夹角较小
+    Quaternion q2 = Quaternion::RotateX((Real)M_PI / Real(4.0)); // 45度旋转
+    Quaternion result1 = q1.MinimizeAngle(q2);
+    // 验证返回的是q2
+    EXPECT_TRUE(FloatEqual(result1.x, q2.x));
+    EXPECT_TRUE(FloatEqual(result1.y, q2.y));
+    EXPECT_TRUE(FloatEqual(result1.z, q2.z));
+    EXPECT_TRUE(FloatEqual(result1.w, q2.w));
+    
+    // 测试2：q2与q1的夹角较大，应该返回-q2
+    Quaternion q3 = Quaternion::RotateX((Real)M_PI * Real(5.0) / Real(4.0)); // 225度旋转
+    Quaternion result2 = q1.MinimizeAngle(q3);
+    // 验证返回的是-q3
+    Quaternion expected = -q3;
+    EXPECT_TRUE(FloatEqual(result2.x, expected.x));
+    EXPECT_TRUE(FloatEqual(result2.y, expected.y));
+    EXPECT_TRUE(FloatEqual(result2.z, expected.z));
+    EXPECT_TRUE(FloatEqual(result2.w, expected.w));
+    
+    // 测试3：q2是q1的相反数
+    Quaternion q4 = -q1;
+    Quaternion result3 = q1.MinimizeAngle(q4);
+    // 验证返回的是q4（或q1，因为它们的夹角相同）
+    EXPECT_TRUE(FloatEqual(result3.Length(), Real(1.0)));
 }
 
 TEST(QuaternionTest, QuaternionMultiplication) {
+    // 测试1：基本的四元数乘法
     Quaternion q1(Real(1.0), Real(0.0), Real(0.0), Real(0.0));
     Quaternion q2(Real(0.0), Real(1.0), Real(0.0), Real(0.0));
     Quaternion product = q1 * q2;
@@ -411,6 +797,37 @@ TEST(QuaternionTest, QuaternionMultiplication) {
     EXPECT_TRUE(FloatEqual(product.y, Real(0.0)));
     EXPECT_TRUE(FloatEqual(product.z, Real(1.0)));
     EXPECT_TRUE(FloatEqual(product.w, Real(0.0)));
+    
+    // 测试2：非90度旋转的四元数乘法
+    // 绕X轴旋转45度的四元数
+    Quaternion qX45 = Quaternion::RotateX((Real)M_PI / Real(4.0));
+    // 绕Y轴旋转45度的四元数
+    Quaternion qY45 = Quaternion::RotateY((Real)M_PI / Real(4.0));
+    // 乘法结果应该是先绕X轴旋转45度，再绕Y轴旋转45度
+    Quaternion product2 = qY45 * qX45;
+    EXPECT_TRUE(FloatEqual(product2.Length(), Real(1.0))); // 验证结果是单位四元数
+    
+    // 测试3：验证四元数乘法的结合律
+    Quaternion qZ45 = Quaternion::RotateZ((Real)M_PI / Real(4.0));
+    Quaternion product3a = (qX45 * qY45) * qZ45;
+    Quaternion product3b = qX45 * (qY45 * qZ45);
+    EXPECT_TRUE(FloatEqual(product3a.x, product3b.x));
+    EXPECT_TRUE(FloatEqual(product3a.y, product3b.y));
+    EXPECT_TRUE(FloatEqual(product3a.z, product3b.z));
+    EXPECT_TRUE(FloatEqual(product3a.w, product3b.w));
+    
+    // 测试4：与单位四元数相乘
+    Quaternion identity = Quaternion::Identity();
+    Quaternion product4a = identity * qX45;
+    Quaternion product4b = qX45 * identity;
+    EXPECT_TRUE(FloatEqual(product4a.x, qX45.x));
+    EXPECT_TRUE(FloatEqual(product4a.y, qX45.y));
+    EXPECT_TRUE(FloatEqual(product4a.z, qX45.z));
+    EXPECT_TRUE(FloatEqual(product4a.w, qX45.w));
+    EXPECT_TRUE(FloatEqual(product4b.x, qX45.x));
+    EXPECT_TRUE(FloatEqual(product4b.y, qX45.y));
+    EXPECT_TRUE(FloatEqual(product4b.z, qX45.z));
+    EXPECT_TRUE(FloatEqual(product4b.w, qX45.w));
 }
 
 TEST(QuaternionTest, ScalarMultiplication) {

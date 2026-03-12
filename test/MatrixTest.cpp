@@ -1,4 +1,12 @@
 #include <gtest/gtest.h>
+#define _USE_MATH_DEFINES
+#include <cmath>
+
+// 定义M_PI的值，以确保在所有编译器环境中都能使用
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
+
 #include "SympConv/Matrix.h"
 #include "SympConv/Vector.h"
 #include "TestUtils.h"
@@ -212,11 +220,33 @@ TEST(MatrixTest, Matrix3x3Determinant) {
 TEST(MatrixTest, Matrix3x3Inverse) {
     // 测试单位矩阵的逆矩阵
     Mat3 identity = Mat3::Identity();
-    Mat3 identity_inv = identity.Transpose(); // 对称矩阵的逆矩阵等于其转置
+    Mat3 identity_inv = identity.Inverse();
     Mat3 identity_product = identity * identity_inv;
     EXPECT_TRUE(FloatEqual(identity_product.mRows[0].x, Real(1.0)));
     EXPECT_TRUE(FloatEqual(identity_product.mRows[1].y, Real(1.0)));
     EXPECT_TRUE(FloatEqual(identity_product.mRows[2].z, Real(1.0)));
+    EXPECT_TRUE(FloatEqual(identity_product.mRows[0].y, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(identity_product.mRows[0].z, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(identity_product.mRows[1].x, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(identity_product.mRows[1].z, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(identity_product.mRows[2].x, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(identity_product.mRows[2].y, Real(0.0)));
+    
+    // 测试非单位矩阵的逆矩阵
+    Mat3 mat3(Real(1.0), Real(2.0), Real(3.0),
+              Real(0.0), Real(1.0), Real(4.0),
+              Real(5.0), Real(6.0), Real(0.0));
+    Mat3 mat3_inv = mat3.Inverse();
+    Mat3 mat3_product = mat3 * mat3_inv;
+    EXPECT_TRUE(FloatEqual(mat3_product.mRows[0].x, Real(1.0)));
+    EXPECT_TRUE(FloatEqual(mat3_product.mRows[1].y, Real(1.0)));
+    EXPECT_TRUE(FloatEqual(mat3_product.mRows[2].z, Real(1.0)));
+    EXPECT_TRUE(FloatEqual(mat3_product.mRows[0].y, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(mat3_product.mRows[0].z, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(mat3_product.mRows[1].x, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(mat3_product.mRows[1].z, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(mat3_product.mRows[2].x, Real(0.0)));
+    EXPECT_TRUE(FloatEqual(mat3_product.mRows[2].y, Real(0.0)));
 }
 
 TEST(MatrixTest, Matrix4x4Constructor) {
@@ -435,6 +465,88 @@ TEST(MatrixTest, Matrix4x4Inverse) {
     EXPECT_TRUE(FloatEqual(mat4_singular_inv.mRows[1].y, Real(0.0)));
     EXPECT_TRUE(FloatEqual(mat4_singular_inv.mRows[2].z, Real(0.0)));
     EXPECT_TRUE(FloatEqual(mat4_singular_inv.mRows[3].w, Real(0.0)));
+}
+
+TEST(MatrixTest, MatrixVectorMultiplication) {
+    // 测试2x2矩阵与向量乘法
+    Mat2 mat2_identity = Mat2::Identity();
+    Vec2 vec2(Real(1.0), Real(2.0));
+    Vec2 vec2_result = mat2_identity * vec2;
+    EXPECT_TRUE(FloatEqual(vec2_result.x, Real(1.0)));
+    EXPECT_TRUE(FloatEqual(vec2_result.y, Real(2.0)));
+    
+    // 测试2x2旋转45度矩阵与向量乘法
+    Real cos45 = std::cos((Real)M_PI / Real(4.0));
+    Real sin45 = std::sin((Real)M_PI / Real(4.0));
+    Mat2 mat2_rotate45(cos45, -sin45, sin45, cos45);
+    Vec2 vec2_rotated = mat2_rotate45 * vec2;
+    Real expected_x = Real(1.0) * cos45 - Real(2.0) * sin45;
+    Real expected_y = Real(1.0) * sin45 + Real(2.0) * cos45;
+    EXPECT_TRUE(FloatEqual(vec2_rotated.x, expected_x));
+    EXPECT_TRUE(FloatEqual(vec2_rotated.y, expected_y));
+    
+    // 测试2x2缩放矩阵与向量乘法
+    Mat2 mat2_scale(Real(2.0), Real(0.0), Real(0.0), Real(3.0));
+    Vec2 vec2_scaled = mat2_scale * vec2;
+    EXPECT_TRUE(FloatEqual(vec2_scaled.x, Real(2.0)));
+    EXPECT_TRUE(FloatEqual(vec2_scaled.y, Real(6.0)));
+    
+    // 测试3x3矩阵与向量乘法
+    Mat3 mat3_identity = Mat3::Identity();
+    Vec3 vec3(Real(1.0), Real(2.0), Real(3.0));
+    Vec3 vec3_result = mat3_identity * vec3;
+    EXPECT_TRUE(FloatEqual(vec3_result.x, Real(1.0)));
+    EXPECT_TRUE(FloatEqual(vec3_result.y, Real(2.0)));
+    EXPECT_TRUE(FloatEqual(vec3_result.z, Real(3.0)));
+    
+    // 测试3x3旋转90度矩阵与向量乘法
+    Mat3 mat3_rotate90(Real(0.0), Real(-1.0), Real(0.0),
+                      Real(1.0), Real(0.0), Real(0.0),
+                      Real(0.0), Real(0.0), Real(1.0));
+    Vec3 vec3_rotated = mat3_rotate90 * vec3;
+    EXPECT_TRUE(FloatEqual(vec3_rotated.x, Real(-2.0)));
+    EXPECT_TRUE(FloatEqual(vec3_rotated.y, Real(1.0)));
+    EXPECT_TRUE(FloatEqual(vec3_rotated.z, Real(3.0)));
+    
+    // 测试3x3缩放矩阵与向量乘法
+    Mat3 mat3_scale(Real(2.0), Real(0.0), Real(0.0),
+                    Real(0.0), Real(3.0), Real(0.0),
+                    Real(0.0), Real(0.0), Real(4.0));
+    Vec3 vec3_scaled = mat3_scale * vec3;
+    EXPECT_TRUE(FloatEqual(vec3_scaled.x, Real(2.0)));
+    EXPECT_TRUE(FloatEqual(vec3_scaled.y, Real(6.0)));
+    EXPECT_TRUE(FloatEqual(vec3_scaled.z, Real(12.0)));
+    
+    // 测试4x4矩阵与向量乘法
+    Mat4 mat4_identity = Mat4::Identity();
+    Vec4 vec4(Real(1.0), Real(2.0), Real(3.0), Real(1.0));
+    Vec4 vec4_result = mat4_identity * vec4;
+    EXPECT_TRUE(FloatEqual(vec4_result.x, Real(1.0)));
+    EXPECT_TRUE(FloatEqual(vec4_result.y, Real(2.0)));
+    EXPECT_TRUE(FloatEqual(vec4_result.z, Real(3.0)));
+    EXPECT_TRUE(FloatEqual(vec4_result.w, Real(1.0)));
+    
+    // 测试4x4旋转180度矩阵与向量乘法
+    Mat4 mat4_rotate180(Real(-1.0), Real(0.0), Real(0.0), Real(0.0),
+                        Real(0.0), Real(-1.0), Real(0.0), Real(0.0),
+                        Real(0.0), Real(0.0), Real(1.0), Real(0.0),
+                        Real(0.0), Real(0.0), Real(0.0), Real(1.0));
+    Vec4 vec4_rotated = mat4_rotate180 * vec4;
+    EXPECT_TRUE(FloatEqual(vec4_rotated.x, Real(-1.0)));
+    EXPECT_TRUE(FloatEqual(vec4_rotated.y, Real(-2.0)));
+    EXPECT_TRUE(FloatEqual(vec4_rotated.z, Real(3.0)));
+    EXPECT_TRUE(FloatEqual(vec4_rotated.w, Real(1.0)));
+    
+    // 测试4x4缩放矩阵与向量乘法
+    Mat4 mat4_scale(Real(2.0), Real(0.0), Real(0.0), Real(0.0),
+                    Real(0.0), Real(3.0), Real(0.0), Real(0.0),
+                    Real(0.0), Real(0.0), Real(4.0), Real(0.0),
+                    Real(0.0), Real(0.0), Real(0.0), Real(1.0));
+    Vec4 vec4_scaled = mat4_scale * vec4;
+    EXPECT_TRUE(FloatEqual(vec4_scaled.x, Real(2.0)));
+    EXPECT_TRUE(FloatEqual(vec4_scaled.y, Real(6.0)));
+    EXPECT_TRUE(FloatEqual(vec4_scaled.z, Real(12.0)));
+    EXPECT_TRUE(FloatEqual(vec4_scaled.w, Real(1.0)));
 }
 
 } // namespace SympConvTest

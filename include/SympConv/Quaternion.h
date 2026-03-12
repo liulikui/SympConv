@@ -185,6 +185,15 @@ public:
     }
 
     /**
+     * @brief 一元负号运算符
+     * @return 取反后的四元数
+     */
+    TQuaternion<T> operator-() const
+    {
+        return TQuaternion<T>(-x, -y, -z, -w);
+    }
+
+    /**
      * @brief 四元数点积
      * @param q 另一个四元数
      * @return 点积结果
@@ -677,11 +686,12 @@ public:
      * @param q 另一个四元数
      * @return 与原四元数夹角较小的那个四元数
      */
-    const TQuaternion<T>& MinimizeAngle(const TQuaternion<T>& q) const
+    TQuaternion<T> MinimizeAngle(const TQuaternion<T>& q) const
     {
-        if (Dot(q) < T(0))
+        T dot = Dot(q);
+        if (dot < T(0))
         {
-            return q;
+            return TQuaternion<T>(-q.x, -q.y, -q.z, -q.w);
         }
         return q;
     }

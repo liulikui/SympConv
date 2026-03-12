@@ -117,6 +117,4 @@ TEST(PlaneTest, IntersectsRay) {
     EXPECT_FALSE(SympConv::RayIntersectsPlane(ray3, plane, t3));
 }
 
-
-
 } // namespace SympConvTest

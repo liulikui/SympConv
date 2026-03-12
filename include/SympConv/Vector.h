@@ -202,6 +202,27 @@ public:
             A.y + (B.y - A.y) * t
         );
     }
+
+    /**
+     * @brief 向量叉积（2D向量的叉积返回标量）
+     * @param other 另一个向量
+     * @return 叉积结果（标量）
+     */
+    T Cross(const TVector2<T>& other) const
+    {
+        return x * other.y - y * other.x;
+    }
+
+    /**
+     * @brief 静态方法：计算两个向量的叉积
+     * @param a 第一个向量
+     * @param b 第二个向量
+     * @return 叉积结果（标量）
+     */
+    static T Cross(const TVector2<T>& a, const TVector2<T>& b)
+    {
+        return a.x * b.y - a.y * b.x;
+    }
 };
 
 /**

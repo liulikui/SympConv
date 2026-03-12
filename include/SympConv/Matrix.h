@@ -232,6 +232,7 @@ public:
             T(0), T(0)
         );
     }
+
 };
 
 /**
@@ -457,6 +458,31 @@ public:
     }
 
     /**
+     * @brief 求逆矩阵
+     * @return 逆矩阵
+     */
+    TMatrix3x3<T> Inverse() const
+    {
+        T det = Determinant();
+        if (det == T(0))
+        {
+            return TMatrix3x3<T>();
+        }
+        T invDet = T(1) / det;
+        TMatrix3x3<T> result;
+        result.mRows[0].x = (mRows[1].y * mRows[2].z - mRows[1].z * mRows[2].y) * invDet;
+        result.mRows[0].y = (mRows[0].z * mRows[2].y - mRows[0].y * mRows[2].z) * invDet;
+        result.mRows[0].z = (mRows[0].y * mRows[1].z - mRows[0].z * mRows[1].y) * invDet;
+        result.mRows[1].x = (mRows[1].z * mRows[2].x - mRows[1].x * mRows[2].z) * invDet;
+        result.mRows[1].y = (mRows[0].x * mRows[2].z - mRows[0].z * mRows[2].x) * invDet;
+        result.mRows[1].z = (mRows[0].z * mRows[1].x - mRows[0].x * mRows[1].z) * invDet;
+        result.mRows[2].x = (mRows[1].x * mRows[2].y - mRows[1].y * mRows[2].x) * invDet;
+        result.mRows[2].y = (mRows[0].y * mRows[2].x - mRows[0].x * mRows[2].y) * invDet;
+        result.mRows[2].z = (mRows[0].x * mRows[1].y - mRows[0].y * mRows[1].x) * invDet;
+        return result;
+    }
+
+    /**
      * @brief 创建零矩阵
      * @return 零矩阵
      */
@@ -468,6 +494,7 @@ public:
             T(0), T(0), T(0)
         );
     }
+
 };
 
 /**
@@ -878,6 +905,7 @@ public:
     {
         return mRows[index];
     }
+
 };
 
 // 类型别名
