@@ -4,6 +4,7 @@
 #include "SympConv/Ray.h"
 #include "SympConv/Transform.h"
 #include "SympConv/CollisionDetection.h"
+#include "SympConv/Quaternion.h"
 #include "TestUtils.h"
 
 namespace SympConvTest {
@@ -186,6 +187,91 @@ TEST(AABBTest, FromSphere) {
     AABB fromSphereAABB = AABB::FromSphere(Vec3(Real(1.0), Real(1.0), Real(1.0)), Real(1.0));
     EXPECT_TRUE(FloatEqual(fromSphereAABB.mMin.x, Real(0.0)));
     EXPECT_TRUE(FloatEqual(fromSphereAABB.mMax.x, Real(2.0)));
+}
+
+TEST(AABBTest, Union_ObliqueAABB) {
+    // 测试斜向几何生成的AABB合并
+    // 创建一个旋转后的AABB
+    AABB originalAABB(Vec3(Real(0.0), Real(0.0), Real(0.0)), Vec3(Real(1.0), Real(1.0), Real(1.0)));
+    Transform rotationTransform;
+    rotationTransform.mOrientation = SympConv::Quaternion::FromEulerAngles(Real(0.0), Real(M_PI / 4.0), Real(0.0));
+    AABB rotatedAABB = originalAABB.Transform(rotationTransform);
+    
+    // 创建另一个旋转后的AABB
+    AABB originalAABB2(Vec3(Real(2.0), Real(2.0), Real(2.0)), Vec3(Real(3.0), Real(3.0), Real(3.0)));
+    Transform rotationTransform2;
+    rotationTransform2.mOrientation = SympConv::Quaternion::FromEulerAngles(Real(0.0), Real(M_PI / 3.0), Real(0.0));
+    AABB rotatedAABB2 = originalAABB2.Transform(rotationTransform2);
+    
+    // 合并两个旋转后的AABB
+    AABB unionAABB = rotatedAABB.Union(rotatedAABB2);
+    
+    // 验证合并结果
+    EXPECT_TRUE(unionAABB.Contains(rotatedAABB));
+    EXPECT_TRUE(unionAABB.Contains(rotatedAABB2));
+}
+
+TEST(AABBTest, EmptyAABB) {
+    // 测试空AABB（min坐标 > max坐标）
+    AABB emptyAABB(Vec3(Real(1.0), Real(1.0), Real(1.0)), Vec3(Real(0.0), Real(0.0), Real(0.0)));
+    EXPECT_TRUE(emptyAABB.IsEmpty());
+    
+    // 测试空AABB与其他AABB的合并
+    AABB normalAABB(Vec3(Real(0.0), Real(0.0), Real(0.0)), Vec3(Real(1.0), Real(1.0), Real(1.0)));
+    AABB unionWithEmpty = emptyAABB.Union(normalAABB);
+    EXPECT_TRUE(unionWithEmpty.Contains(normalAABB));
+    
+    // 测试空AABB的相交
+    EXPECT_FALSE(emptyAABB.Intersects(normalAABB));
+}
+
+TEST(AABBTest, ZeroVolumeAABB) {
+    // 测试零体积AABB（min=max，单点AABB）
+    AABB zeroVolumeAABB(Vec3(Real(1.0), Real(1.0), Real(1.0)), Vec3(Real(1.0), Real(1.0), Real(1.0)));
+    
+    // 测试是否包含自身点
+    EXPECT_TRUE(zeroVolumeAABB.Contains(Vec3(Real(1.0), Real(1.0), Real(1.0))));
+    
+    // 测试与其他AABB的相交
+    AABB normalAABB(Vec3(Real(0.0), Real(0.0), Real(0.0)), Vec3(Real(2.0), Real(2.0), Real(2.0)));
+    EXPECT_TRUE(zeroVolumeAABB.Intersects(normalAABB));
+    
+    // 测试与点的距离
+    EXPECT_TRUE(FloatEqual(zeroVolumeAABB.DistanceTo(Vec3(Real(1.0), Real(1.0), Real(1.0))), Real(0.0)));
+}
+
+TEST(AABBTest, Transform_RotationAndScaling) {
+    // 测试旋转 + 非均匀缩放后的AABB计算
+    AABB originalAABB(Vec3(Real(0.0), Real(0.0), Real(0.0)), Vec3(Real(1.0), Real(1.0), Real(1.0)));
+    
+    // 创建一个包含旋转和非均匀缩放的变换
+    Transform transform;
+    transform.mOrientation = SympConv::Quaternion::FromEulerAngles(Real(M_PI / 4.0), Real(M_PI / 4.0), Real(0.0));
+    transform.mScale = Vec3(Real(2.0), Real(1.0), Real(0.5));
+    
+    AABB transformedAABB = originalAABB.Transform(transform);
+    
+    // 验证变换后的AABB是轴对齐的
+    EXPECT_TRUE(transformedAABB.mMin.x <= transformedAABB.mMax.x);
+    EXPECT_TRUE(transformedAABB.mMin.y <= transformedAABB.mMax.y);
+    EXPECT_TRUE(transformedAABB.mMin.z <= transformedAABB.mMax.z);
+    
+    // 验证变换后的AABB包含原始AABB的所有顶点变换后的位置
+    Vec3 vertices[] = {
+        Vec3(Real(0.0), Real(0.0), Real(0.0)),
+        Vec3(Real(1.0), Real(0.0), Real(0.0)),
+        Vec3(Real(0.0), Real(1.0), Real(0.0)),
+        Vec3(Real(1.0), Real(1.0), Real(0.0)),
+        Vec3(Real(0.0), Real(0.0), Real(1.0)),
+        Vec3(Real(1.0), Real(0.0), Real(1.0)),
+        Vec3(Real(0.0), Real(1.0), Real(1.0)),
+        Vec3(Real(1.0), Real(1.0), Real(1.0))
+    };
+    
+    for (int i = 0; i < 8; i++) {
+        Vec3 transformedVertex = transform.TransformPoint(vertices[i]);
+        EXPECT_TRUE(transformedAABB.Contains(transformedVertex));
+    }
 }
 
 } // namespace SympConvTest

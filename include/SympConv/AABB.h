@@ -210,6 +210,11 @@ public:
      */
     bool Intersects(const TAABB<T>& other) const
     {
+        // 空AABB不与任何AABB相交
+        if (IsEmpty() || other.IsEmpty()) {
+            return false;
+        }
+        
         return !(mMin.x > other.mMax.x || mMax.x < other.mMin.x ||
                  mMin.y > other.mMax.y || mMax.y < other.mMin.y ||
                  mMin.z > other.mMax.z || mMax.z < other.mMin.z);
